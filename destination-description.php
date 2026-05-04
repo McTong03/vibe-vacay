@@ -592,7 +592,7 @@
         </div>
     </header>
 
-        <img class="batucaves1" src="image/batucaves1.avif">
+        <img class="batucaves1" src="Image/batucaves1.avif">
 
     <p class="batucaves-name">Batu Caves</p>
     <p class="malaysia">Selangor, Malaysia</p>
@@ -659,7 +659,7 @@
             </div>
 
             <div>
-                <img class="profile-picture" src="image/profile-picture.png">
+                <img class="profile-picture" src="Image/profile-picture.png">
             </div>
 
             <div>
@@ -675,7 +675,7 @@
             </div>
 
             <div>
-                <img class="batucaves8" src="image/batucaves6.avif">
+                <img class="batucaves8" src="Image/batucaves6.avif">
             </div>
   
         </div>
@@ -694,7 +694,7 @@
             </div>
 
             <div>
-                <img class="profile-picture" src="image/profile-picture.png">
+                <img class="profile-picture" src="Image/profile-picture.png">
             </div>
 
             <div>
@@ -710,7 +710,7 @@
             </div>
 
             <div>
-                <img class="batucaves8" src="image/batucaves6.avif">
+                <img class="batucaves8" src="Image/batucaves6.avif">
             </div>
     
         </div>
@@ -729,7 +729,7 @@
             </div>
 
             <div>
-                <img class="profile-picture" src="image/profile-picture.png">
+                <img class="profile-picture" src="Image/profile-picture.png">
             </div>
 
             <div>
@@ -745,7 +745,7 @@
             </div>
 
             <div>
-                <img class="batucaves8" src="image/batucaves6.avif">
+                <img class="batucaves8" src="Image/batucaves6.avif">
             </div>
     
         </div>
@@ -764,7 +764,7 @@
             </div>
 
             <div>
-                <img class="profile-picture" src="image/profile-picture.png">
+                <img class="profile-picture" src="Image/profile-picture.png">
             </div>
 
             <div>
@@ -780,7 +780,7 @@
             </div>
 
             <div>
-                <img class="batucaves8" src="image/batucaves6.avif">
+                <img class="batucaves8" src="Image/batucaves6.avif">
             </div>
     
         </div>
@@ -799,7 +799,7 @@
             </div>
 
             <div>
-                <img class="profile-picture" src="image/profile-picture.png">
+                <img class="profile-picture" src="Image/profile-picture.png">
             </div>
 
             <div>
@@ -815,7 +815,7 @@
             </div>
 
             <div>
-                <img class="batucaves8" src="image/batucaves6.avif">
+                <img class="batucaves8" src="Image/batucaves6.avif">
             </div>
     
         </div>
@@ -834,7 +834,7 @@
             </div>
 
             <div>
-                <img class="profile-picture" src="image/profile-picture.png">
+                <img class="profile-picture" src="Image/profile-picture.png">
             </div>
 
             <div>
@@ -850,7 +850,7 @@
             </div>
 
             <div>
-                <img class="batucaves8" src="image/batucaves6.avif">
+                <img class="batucaves8" src="Image/batucaves6.avif">
             </div>
     
         </div>
@@ -916,7 +916,7 @@
     <div class="similar-card-container">
         <div class="similar-container">
             <div>
-                <img class="thean-hou" src="image/thean-hou.avif">
+                <img class="thean-hou" src="Image/thean-hou.avif">
             </div>
 
             <div>
@@ -946,7 +946,7 @@
 
         <div class="similar-container">
             <div>
-                <img class="national-mosque" src="image/national-mosque.avif">
+                <img class="national-mosque" src="Image/national-mosque.avif">
             </div>
 
             <div>
@@ -976,7 +976,7 @@
 
         <div class="similar-container">
             <div>
-                <img class="genting-highlands" src="image/genting-highlands.jpg">
+                <img class="genting-highlands" src="Image/genting-highlands.jpg">
             </div>
 
             <div>

@@ -262,7 +262,7 @@
     <div class="similar-card-container">
         <div class="similar-container">
             <div>
-                <img class="KLCC" src="image/KLCC.jpg">
+                <img class="KLCC" src="Image/KLCC.jpg">
             </div>
 
             <div>
@@ -298,7 +298,7 @@
 
         <div class="similar-container">
             <div>
-                <img class="batu-caves" src="image/batucaves.jpg">
+                <img class="batu-caves" src="Image/batucaves.jpg">
             </div>
 
             <div>
@@ -334,7 +334,7 @@
 
         <div class="similar-container">
             <div>
-                <img class="butterfly-image" src="image/butterfly.jpg">
+                <img class="butterfly-image" src="Image/butterfly.jpg">
             </div>
 
             <div>
@@ -370,7 +370,7 @@
 
         <div class="similar-container">
             <div>
-                <img class="bird-park-image" src="image/bird-park.jpg">
+                <img class="bird-park-image" src="Image/bird-park.jpg">
             </div>
 
             <div>
@@ -406,7 +406,7 @@
 
         <div class="similar-container">
             <div>
-                <img class="sunway-lagoon-image" src="image/sunway-lagoon.jpg">
+                <img class="sunway-lagoon-image" src="Image/sunway-lagoon.jpg">
             </div>
 
             <div>
