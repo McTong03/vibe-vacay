@@ -416,7 +416,7 @@
         margin-left: 50px;
         font-family: 'Open Sans';
         font-weight: bold;
-        margin-top: -20px;
+        margin-top: -130px;
     }
 
     .rating-experience-container {
@@ -592,6 +592,12 @@
         display: grid;
         grid-template-columns: repeat(3, 470px);
     }
+
+    .next-button1 {
+        margin-top: 150px;
+        margin-left: 40px;
+    }
+
 
 
 </style>
@@ -1034,6 +1040,10 @@
             </div>
         </div>
     </div>
+
+    <button class="next-button1">
+        <img src="icon/next.png">
+    </button>
 
 </body>
 
