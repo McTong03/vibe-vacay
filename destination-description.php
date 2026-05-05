@@ -202,10 +202,10 @@
         margin-left: 140px;
         font-size: 25px;
     }
+
     
     .overview {
         font-size: 36px;
-        margin-top: 140px;
         margin-left: 50px;
         font-family: 'Open Sans';
         font-weight: bold;
@@ -261,6 +261,31 @@
         font-size: 48px;
         margin-top: -70px;
         margin-left: 260px;
+    }
+
+    .add-container1{
+        margin-top: -360px;
+        margin-left: 680px;
+        position: absolute;
+        
+    }
+
+    .heart-shape {
+        width: 34px;
+        position: absolute;
+        margin-top: 15px;
+        margin-left: 22px;
+    }
+
+    .add{
+        font-size: 20px;
+        border: none;
+        background-color: #0064CE;
+        color: white;
+        width: 250px;
+        height: 65px;
+        border-radius: 20px;
+        padding-left: 30px;
     }
 
     .gallery {
@@ -620,6 +645,11 @@
         <p class="overview1"><strong><span class="highlight">Batu Caves</span></strong> is one of Malaysia's most iconic cultural and religious landmarks.</p>
         <p class="overview2">Located about 12km north of Kuala Lumpur, it features a stunning limestone cave complex and a Hindu temple dedicated to Lord Murugan.</p>
         <p class="overview3">Famous for its towering 42.7 meter golden statue and 272 colorful steps. It's a must -visit destination that blends spiritual heritage with natural beauty.</p>
+    </div>
+
+    <div class="add-container1">
+        <img class="heart-shape" src="icon/heart.png">
+        <button  class="add">Add to Wishlist</button>
     </div>
     
     <div class="price-container">
