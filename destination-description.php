@@ -202,10 +202,10 @@
         margin-left: 140px;
         font-size: 25px;
     }
-
     
     .overview {
         font-size: 36px;
+        margin-top: 170px;
         margin-left: 50px;
         font-family: 'Open Sans';
         font-weight: bold;
@@ -241,28 +241,6 @@
         line-height: 35px;
     }
 
-    .price-container {
-            background-color: #D3D3D4;
-            width: 530px;
-            margin-top: -350px;
-            height: 114px;
-            margin-left: 980px;
-            size: 30px;
-            border-radius: 20px;
-    }
-
-    .price-tag {
-        width: 90px;
-        margin-top: 10px;
-        margin-left: 60px;
-    }
-
-    .price {
-        font-size: 48px;
-        margin-top: -70px;
-        margin-left: 260px;
-    }
-
     .add-container1{
         margin-top: -360px;
         margin-left: 680px;
@@ -286,6 +264,28 @@
         height: 65px;
         border-radius: 20px;
         padding-left: 30px;
+    }
+
+    .price-container {
+            background-color: #D3D3D4;
+            width: 530px;
+            margin-top: -380px;
+            height: 114px;
+            margin-left: 980px;
+            size: 30px;
+            border-radius: 20px;
+    }
+
+    .price-tag {
+        width: 90px;
+        margin-top: 10px;
+        margin-left: 60px;
+    }
+
+    .price {
+        font-size: 48px;
+        margin-top: -70px;
+        margin-left: 260px;
     }
 
     .gallery {
@@ -617,7 +617,7 @@
         </div>
     </header>
 
-        <img class="batucaves1" src="Image/batucaves1.avif">
+        <img class="batucaves1" src="image/batucaves1.avif">
 
     <p class="batucaves-name">Batu Caves</p>
     <p class="malaysia">Selangor, Malaysia</p>
@@ -689,7 +689,7 @@
             </div>
 
             <div>
-                <img class="profile-picture" src="Image/profile-picture.png">
+                <img class="profile-picture" src="image/profile-picture.png">
             </div>
 
             <div>
@@ -705,7 +705,7 @@
             </div>
 
             <div>
-                <img class="batucaves8" src="Image/batucaves6.avif">
+                <img class="batucaves8" src="image/batucaves6.avif">
             </div>
   
         </div>
@@ -724,7 +724,7 @@
             </div>
 
             <div>
-                <img class="profile-picture" src="Image/profile-picture.png">
+                <img class="profile-picture" src="image/profile-picture.png">
             </div>
 
             <div>
@@ -740,7 +740,7 @@
             </div>
 
             <div>
-                <img class="batucaves8" src="Image/batucaves6.avif">
+                <img class="batucaves8" src="image/batucaves6.avif">
             </div>
     
         </div>
@@ -759,7 +759,7 @@
             </div>
 
             <div>
-                <img class="profile-picture" src="Image/profile-picture.png">
+                <img class="profile-picture" src="image/profile-picture.png">
             </div>
 
             <div>
@@ -775,7 +775,7 @@
             </div>
 
             <div>
-                <img class="batucaves8" src="Image/batucaves6.avif">
+                <img class="batucaves8" src="image/batucaves6.avif">
             </div>
     
         </div>
@@ -794,7 +794,7 @@
             </div>
 
             <div>
-                <img class="profile-picture" src="Image/profile-picture.png">
+                <img class="profile-picture" src="image/profile-picture.png">
             </div>
 
             <div>
@@ -810,7 +810,7 @@
             </div>
 
             <div>
-                <img class="batucaves8" src="Image/batucaves6.avif">
+                <img class="batucaves8" src="image/batucaves6.avif">
             </div>
     
         </div>
@@ -829,7 +829,7 @@
             </div>
 
             <div>
-                <img class="profile-picture" src="Image/profile-picture.png">
+                <img class="profile-picture" src="image/profile-picture.png">
             </div>
 
             <div>
@@ -845,7 +845,7 @@
             </div>
 
             <div>
-                <img class="batucaves8" src="Image/batucaves6.avif">
+                <img class="batucaves8" src="image/batucaves6.avif">
             </div>
     
         </div>
@@ -864,7 +864,7 @@
             </div>
 
             <div>
-                <img class="profile-picture" src="Image/profile-picture.png">
+                <img class="profile-picture" src="image/profile-picture.png">
             </div>
 
             <div>
@@ -880,7 +880,7 @@
             </div>
 
             <div>
-                <img class="batucaves8" src="Image/batucaves6.avif">
+                <img class="batucaves8" src="image/batucaves6.avif">
             </div>
     
         </div>
@@ -946,7 +946,7 @@
     <div class="similar-card-container">
         <div class="similar-container">
             <div>
-                <img class="thean-hou" src="Image/thean-hou.avif">
+                <img class="thean-hou" src="image/thean-hou.avif">
             </div>
 
             <div>
@@ -976,7 +976,7 @@
 
         <div class="similar-container">
             <div>
-                <img class="national-mosque" src="Image/national-mosque.avif">
+                <img class="national-mosque" src="image/national-mosque.avif">
             </div>
 
             <div>
@@ -1006,7 +1006,7 @@
 
         <div class="similar-container">
             <div>
-                <img class="genting-highlands" src="Image/genting-highlands.jpg">
+                <img class="genting-highlands" src="image/genting-highlands.jpg">
             </div>
 
             <div>
@@ -1034,7 +1034,6 @@
             </div>
         </div>
     </div>
-
 
 </body>
 
