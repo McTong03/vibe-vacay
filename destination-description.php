@@ -22,7 +22,7 @@
         background-color: #1A2B49;
         height: 55px;
         border-radius: 50px;
-        margin-left: 8px;
+        margin-left: px;
         margin-right: 20px;
         margin-top: 25px;
         width: 1480px;
@@ -111,11 +111,11 @@
     }
 
     .batucaves1 {
-        width: 100%;
+        width: 1515px;
         margin-top: -80px;
         height: 600px;
         filter: brightness(70%);
-        
+        margin-left: -10px;
     }
 
     .batucaves-name,
@@ -623,7 +623,7 @@
         </div>
     </header>
 
-        <img class="batucaves1" src="image/batucaves1.avif">
+    <img class="batucaves1" src="image/batucaves1.avif">
 
     <p class="batucaves-name">Batu Caves</p>
     <p class="malaysia">Selangor, Malaysia</p>

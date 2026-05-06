@@ -111,10 +111,11 @@
     }
 
     .batucaves1 {
-        width: 100%;
+        width: 1515px;
         margin-top: -80px;
         height: 600px;
         filter: brightness(70%);
+        margin-left: -10px;
         
     }
 
