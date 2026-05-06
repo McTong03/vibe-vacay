@@ -29,7 +29,7 @@
         background-color: #1A2B49;
         height: 55px;
         border-radius: 50px;
-        margin-left: 20px;
+        margin-left: 8px;
         margin-right: 20px;
         margin-top: 25px;
         width: 1480px;
@@ -42,7 +42,7 @@
         margin-left: 30px;
     }
 
-    .admin-name,
+    .logo-name,
     .home,
     .destination-management,
     .statistic,
@@ -54,7 +54,7 @@
         font-weight: bold
     }
 
-    .admin-name {
+    .logo-name {
         margin-top: -47px;
         margin-left: 100px;
         color: white;
@@ -62,31 +62,31 @@
 
     .home {
         margin-top: -37px;
-        margin-left: 400px;
+        margin-left: 380px;
         color: white;
     }
 
     .destination-management {
         margin-top: -37px;
-        margin-left: 530px;
+        margin-left: 510px;
         color: white;
     }
 
     .statistic {
         margin-top: -37px;
-        margin-left: 790px;
+        margin-left: 770px;
         color: white;
     }
 
     .user-management {
         margin-top: -37px;
-        margin-left: 950px;
+        margin-left: 930px;
         color: white;
     }
 
     .logout {
         margin-top: -37px;
-        margin-left: 1200px;
+        margin-left: 1180px;
         color: white;
     }
 
@@ -95,7 +95,7 @@
         width: 160px;
         height: 35px;
         margin-top: -46px;
-        margin-left: 1300px;
+        margin-left: 1280px;
         border-radius: 30px;
     }
 
@@ -305,7 +305,7 @@
             <img src="icon/LogoName.png" class="logo" />
         </div>
 
-        <p class="admin-name">Admin</p>
+        <p class="logo-name">Vibe Vacay</p>
         <p class="home">Home</p>
         <p class="destination-management">Destination Management</p>
         <p class="statistic">Statistic</p>

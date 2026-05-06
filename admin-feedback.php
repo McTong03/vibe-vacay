@@ -22,7 +22,7 @@
         background-color: #1A2B49;
         height: 55px;
         border-radius: 50px;
-        margin-left: 20px;
+        margin-left: 8px;
         margin-right: 20px;
         margin-top: 25px;
         width: 1480px;
@@ -39,9 +39,9 @@
 
     .logo-name,
     .home,
-    .recommendation,
-    .wishlist,
-    .about-us,
+    .destination-management,
+    .statistic,
+    .user-management,
     .logout,
     .profile {
         /* font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; */
@@ -57,31 +57,31 @@
 
     .home {
         margin-top: -37px;
-        margin-left: 400px;
+        margin-left: 380px;
         color: white;
     }
 
-    .recommendation {
+    .destination-management {
         margin-top: -37px;
-        margin-left: 550px;
+        margin-left: 510px;
         color: white;
     }
 
-    .wishlist {
+    .statistic {
         margin-top: -37px;
-        margin-left: 780px;
+        margin-left: 770px;
         color: white;
     }
 
-    .about-us {
+    .user-management {
         margin-top: -37px;
-        margin-left: 950px;
+        margin-left: 930px;
         color: white;
     }
 
     .logout {
         margin-top: -37px;
-        margin-left: 1200px;
+        margin-left: 1180px;
         color: white;
     }
 
@@ -90,7 +90,7 @@
         width: 160px;
         height: 35px;
         margin-top: -46px;
-        margin-left: 1300px;
+        margin-left: 1280px;
         border-radius: 30px;
     }
 
@@ -498,9 +498,9 @@
 
         <p class="logo-name">Vibe Vacay</p>
         <p class="home">Home</p>
-        <p class="recommendation">Recommendation</p>
-        <p class="wishlist">Wishlist</p>
-        <p class="about-us">About Us</p>
+        <p class="destination-management">Destination Management</p>
+        <p class="statistic">Statistic</p>
+        <p class="user-management">User Managememt</p>
         <p class="logout">Log Out</p>
 
 

@@ -22,7 +22,7 @@
         background-color: #1A2B49;
         height: 55px;
         border-radius: 50px;
-        margin-left: 20px;
+        margin-left: 8px;
         margin-right: 20px;
         margin-top: 25px;
         width: 1480px;
@@ -57,31 +57,31 @@
 
     .home {
         margin-top: -37px;
-        margin-left: 400px;
+        margin-left: 380px;
         color: white;
     }
 
     .recommendation {
         margin-top: -37px;
-        margin-left: 550px;
+        margin-left: 530px;
         color: white;
     }
 
     .wishlist {
         margin-top: -37px;
-        margin-left: 780px;
+        margin-left: 760px;
         color: white;
     }
 
     .about-us {
         margin-top: -37px;
-        margin-left: 950px;
+        margin-left: 930px;
         color: white;
     }
 
     .logout {
         margin-top: -37px;
-        margin-left: 1200px;
+        margin-left: 1180px;
         color: white;
     }
 
@@ -90,7 +90,7 @@
         width: 160px;
         height: 35px;
         margin-top: -46px;
-        margin-left: 1300px;
+        margin-left: 1280px;
         border-radius: 30px;
     }
 
