@@ -1,3 +1,20 @@
+<?php
+require 'conn.php';
+session_start();
+
+$roleFilter = isset($_GET['user_role']) ? $_GET['user_role'] : 'ALL';
+
+if($roleFilter == 'ALL') {
+    $sql = "SELECT * FROM users";
+} else {
+    $sql = "SELECT * FROM users WHERE user_role = '$roleFilter'";
+}
+
+$result = mysqli_query($conn, $sql);
+
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -132,86 +149,80 @@
 
     .filter-box {
         background-color: #C7D0EC;
-        width: 1030px;
-        height: 80px;
+        width: 900px;
+        height: 65px;
         margin-left: 90px;
         border-radius: 15px;
-        margin-top: 50px;
+        margin-top: 40px;
     }
 
-    .all-role-container {
-        top: 12px;
-        left: 60px;
-        width: 250px;
+    .all-role-container select {
+        top: 10px;
+        left: 70px;
+        width: 230px;
+        height: 45px;
+        font-size: 16px;
+        padding-left: 20px;
     }
 
-    .all-role-container,
+    .all-role-container select,
     .search-container {
-        height: 55px;
         background-color: #828A98;
         position: relative;
-        
         border-radius: 8px;
+        color: white;
+        cursor: pointer;
     }
     
-    .user {
-        filter: brightness(0) invert(1);
-        width: 38px;
-        margin-top: 7px;
-        margin-left: 28px;
-    }
-
-    .role {
-        color: white;
-        margin-top: -32px;
-        margin-left: 90px;
-        font-size: 18px;
-    }
-
-    .drop {
-        filter: brightness(0) invert(1);
-        width: 25px;
-        position: relative;
-        top: -40px;
-        left: 190px;
-    }
 
     .search-container {
-        top: -61px;
-        left: 700px;
-        width: 280px;
+        display: flex;
+        align-items: center;
+        border: 1px solid #828A98;
+        padding: 6px 6px 6px 18px;
+        gap: 8px;
+        max-width: 300px;
+        height: 30px;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        margin-left: 500px;
+        margin-top: -35px;
     }
 
-    .search-users {
-        color: white;
-        position: relative;
-        top: 17px;
-        left: 22px;
-        font-size: 18px;
-    }
 
-    .search-button{
-        width: 100px;
-        height: 40px;
-        font-size: 18px;
-        border-radius: 80px;
-        border-width: none;
-        position: relative;
-        top: -32px;
-        left: 160px;
+    #search-input {
+        flex: 1;
         border: none;
+        outline: none;
+        background: transparent;
+        font-size: 16px;
+        color: white;
+    }
+
+    #search-input::placeholder {
+        font-size: 16px;
+        color: white;
+        padding-left: 15px;
+    }
+
+    .search-button {
+        width: 110px;
+        height: 35px;
+        font-size: 16px;
+        margin-left: 180px;
+        position: absolute;
+        cursor: pointer;
     }
 
     .user-container{
         display: grid;
-        grid-template-columns: repeat(4, 1fr); 
-        gap: 30px;
-        padding: 50px 100px;
+        grid-template-columns: repeat(5, 290px); 
+        padding: 30px 50px;
+        row-gap: 10px;
     }
 
     .user-box-container {
-        width: 304px;
-        height: 470px;
+        width: 270px;
+        height: 370px;
         background-color: #EAE7E7;
         margin-top: 30px;
         border-radius: 20px;
@@ -219,17 +230,17 @@
     }
 
     .profile-picture1 {
-        width: 304px;
-        height: 155px;
+        width: 270px;
+        height: 100px;
         background-color: #CFD4E0;
         border-radius: 20px;
     }
 
     .profile-picture{
         border-radius: 80px;
-        width: 125px;
+        width: 70px;
         margin-top: 15px;
-        margin-left: 90px;
+        margin-left: 100px;
     }
 
     .user-id,
@@ -237,19 +248,19 @@
     .user-email,
     .user-password,
     .user-role {
-        font-size: 18px;
+        font-size: 14px;
         padding-left: 35px;
        
     }
 
     .user-id {
-        margin-top: 25px;
+        margin-top: 20px;
     }
 
     .user-roles {
         background-color: #B3B6C3;
-        width: 78px;
-        height: 35px;
+        width: 75px;
+        height: 33px;
         border-radius: 20px;
         margin-left: 28px;
     }
@@ -260,35 +271,42 @@
     }
 
     .edit-button{
-        margin-left: -15px;
+        margin-left: -3px;
         margin-top: 25px;
-        padding-left: 34px;
+        padding-left: 28px;
     }
 
     .edit-button,
     .delete-button {
-        width: 110px;
-        height: 50px;
-        font-size: 16px;
+        width: 95px;
+        height: 40px;
+        font-size: 14px;
         background-color: #B3B6C3;
         border: none;
         border-radius: 10px;
-        
+        cursor: pointer;
     }
     
     .edit-but,
     .delete-but {
-        width: 30px;
+        width: 20px;
         position: relative;
-        left: 34px;
-        top: 8px;
+        top: 5px;
     }
 
 
     .delete-button {
-        margin-left: -12px;
-        margin-top: 25px;
+        margin-left: -26px;
+        margin-top: 35px;
         padding-left: 38px;
+    }
+
+    .delete-but {
+        left: 11px;
+    }
+
+    .edit-but {
+        left: 35px;
     }
 
     .delete-container {
@@ -332,25 +350,85 @@
 
     
     <div class="filter-box">
-        <div class="all-role-container">
-            <img class="user" src="icon/user.png">
+        <form method="GET">
+            <div class="all-role-container">
+                <select class="role-drop" name="user_role" onchange="this.form.submit()">
+                    <option value="ALL" <?php echo ($roleFilter == '' || $roleFilter == 'ALL') ? 'selected' : ''; ?>>All Roles</option>
+                    <option value="Admin" <?php echo ($roleFilter == 'Admin') ? 'selected' : ''; ?>>Admin</option>
+                    <option value="User/Travaller" <?php echo ($roleFilter == 'User/Travaller') ? 'selected' : ''; ?>>User/Travaller</option>
+                    
+                </select>
+            <!-- <img class="user" src="icon/user.png">
             <p class="role">All roles</p>
-            <img class="drop" src="icon/drop.png ">
-        </div>
+            <button class="drop-button">
+                <img class="drop" src="icon/drop.png ">
+            </button> -->  
+            </div>
+        </form>
 
         <div class="search-container">
-            <div class="search-box-container">
-                <p class="search-users">Search Users...</p>
-            </div>
-            
-            <div class="search-button-container">
-                <button class="search-button">Search</button>
-            </div>
+            <input id="search-input" type="text" name="search" placeholder="Search by name">
+            <button class="search-button">Search</button>
             
         </div>
     </div>
 
     <div class="user-container">
+        <?php
+        if(mysqli_num_rows($result) > 0) {
+            while($user = mysqli_fetch_assoc($result)) {
+        ?>
+
+            <div class="user-box-container">
+                <div class="profile-picture1">
+                    <img class="profile-picture" src="<?php echo !empty($user['profile_picture']) ? htmlspecialchars($user['profile_picture']) : 'Image/default-profile.jpg'; ?>">
+                </div>
+
+                <div class="id">
+                    <p class="user-id">ID: <?php echo $user['user_id']; ?></p>
+                </div>
+
+                <div class="name">
+                    <p class="user-name"><?php echo htmlspecialchars($user['user_name']); ?></p>
+                </div>
+
+                <div class="password">
+                    <p class="user-password">••••••</p>
+                </div>
+
+                <div class="email">
+                    <p class="user-email"><?php echo htmlspecialchars($user['user_email']); ?></p>
+                </div>
+
+                <div class="user-roles">
+                    <p class="user-role"><?php echo htmlspecialchars($user['user_role']); ?></p>
+                </div>
+
+                <div class="edit-container">
+                    <img class="edit-but" src="icon/edit.png">
+                    <button class="edit-button">Edit</button>
+                </div>
+
+                <div class="delete-container">
+                    <img class="delete-but" src="icon/delete.png">
+                    <button class="delete-button">Delete</button>
+                </div>
+            </div>
+        <?php
+            }
+        } else {
+            echo '<p style="color:white; margin-left:20px;">No users found.</p>';
+        }
+        ?>
+    </div>
+
+
+
+
+
+
+
+    <!-- <div class="user-container">
         <div class="user-box-container">
             <div class="profile-picture1">
                 <img class="profile-picture" src="icon/profile1.jpg">
@@ -675,7 +753,7 @@
             </div>   
         </div>
 
-    </div>
+    </div> -->
 
     
 
