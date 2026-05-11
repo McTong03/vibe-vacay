@@ -16,16 +16,20 @@
 <style>
     body{
         height: 4000px;
+        width: 100%;
+        margin: 0;  
+        padding: 0;
+        overflow-x: hidden; 
     }
 
     #header {
         background-color: #1A2B49;
         height: 55px;
         border-radius: 50px;
-        margin-left: 8px;
+        margin-left: 90px;
         margin-right: 20px;
         margin-top: 25px;
-        width: 1480px;
+        width: calc(100% - 180px);
         position: relative;
         z-index: 2;
     }
@@ -111,12 +115,13 @@
     }
 
     .batucaves1 {
-        width: 1515px;
+        width: 100%; 
         margin-top: -80px;
         height: 600px;
         filter: brightness(70%);
-        margin-left: -10px;
-        
+        margin-left: 0;
+        display: block;
+        object-fit: cover;
     }
 
     .batucaves-name,
@@ -247,7 +252,7 @@
             width: 530px;
             margin-top: -380px;
             height: 114px;
-            margin-left: 980px;
+            margin-left: 1140px;
             size: 30px;
             border-radius: 20px;
     }
@@ -301,7 +306,7 @@
         background: none;
         position: relative;
         top: -405px;
-        left: 1430px;
+        left: 1570px;
     }
 
     .saying {
@@ -383,13 +388,13 @@
         border:none;
         background: none;
         position: relative;
-        top: -450px;
+        top: -600px;
         left: 1350px;
     }
 
     .similar-place {
         font-size: 36px;
-        margin-top: -140px;
+        margin-top:-320px;
         margin-left: 50px;
         font-family: 'Open Sans';
         font-weight: bold;
@@ -473,7 +478,7 @@
     }
 
     .next-button1 {
-        margin-top: 150px;
+        margin-top: 320px;
         margin-left: 40px;
     }
 

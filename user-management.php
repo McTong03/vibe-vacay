@@ -46,10 +46,10 @@ $result = mysqli_query($conn, $sql);
         background-color: #1A2B49;
         height: 55px;
         border-radius: 50px;
-        margin-left: 8px;
+        margin-left: 90px;
         margin-right: 20px;
         margin-top: 25px;
-        width: 1480px;
+        width: calc(100% - 180px);
     }
 
     .logo {
