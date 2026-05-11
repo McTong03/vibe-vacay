@@ -14,7 +14,7 @@ body {
     background-attachment: fixed; */
     background-image: none;
     background-color: #ffffff;
-    min-height: 100vh;
+    height: 100%;
 }
 
 #header {
@@ -107,11 +107,12 @@ body {
 
 .banner {
     position: relative;
-    min-height: 260px;
+    height: 100vh;
     display: flex;
     align-items: center;
+    justify-content: center;
     padding: 40px 0;
-    /* background: url("placeholder") center/cover no-repeat; */
+    background: url("../image/klccbg.png") center/cover no-repeat;
 }
 
 .banner-content {
@@ -131,7 +132,8 @@ body {
 
 .stats {
     display: flex;
-    gap: 20px;
+    gap: 30px;
+    margin-top: 20px;
 }
 
 .stat-card {
@@ -143,15 +145,10 @@ body {
     min-width: 190px;
 }
 
-.stat-label {
-    color: #c8d3e8;
-    font-size: 15px;
-    font-weight: 600;
-    margin-bottom: 10px;
-}
-
-.stat-value {
+.stat-label, .stat-value {
     color: #ffffff;
     font-size: 30px;
     font-weight: 700;
+    margin-bottom: 10px;
 }
+
