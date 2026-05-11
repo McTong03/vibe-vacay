@@ -147,6 +147,18 @@ $result = mysqli_query($conn, $sql);
         margin-top: -25px;
     }
 
+    .add-button {
+        margin-top: -80px;
+        margin-left: 750px;
+        width: 250px;
+        height: 50px;
+        position: absolute;
+        font-size: 20px;
+        background-color: #0064CE;
+        border: none;
+        color: white;
+    }
+
     .filter-box {
         background-color: #C7D0EC;
         width: 900px;
@@ -346,6 +358,11 @@ $result = mysqli_query($conn, $sql);
         <div class="admin-container">
             <p class="admin">Admin / Manage Users</p>
         </div>
+
+        <div>
+            <button class="add-button">+ Add New User</button>
+        </div>
+        
     </div>  
 
     
