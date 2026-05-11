@@ -279,13 +279,13 @@
             <div class="tag-type">
                 <h3>Mood</h3>
                 <div class="edit_delete_box">
-                    <button type="button" class="view_Btn">
+                    <button type="button" class="view_Btn" onclick="window.location.href='tagging-management.php'">
                         <img src="icon/view.png" class="feature-icon" alt="view">
                         View Tagging</button>
-                    <button type="button" class="edit_Btn">
+                    <button type="button" class="edit_Btn" onclick="window.location.href='edit-tagging-type.php'">
                         <img src="icon/edit.png" class="feature-icon" alt="edit">
                         Edit</button>
-                    <button type="button" class="delete_Btn">
+                    <button type="button" class="delete_Btn" onclick="window.location.href='delete-tagging-type.php'">
                         <img src="icon/delete.png" class="feature-icon" alt="delete">
                         Delete</button>
                 </div>
@@ -295,13 +295,13 @@
                 <h3>Climate</h3>
 
                 <div class="edit_delete_box">
-                    <button type="button" class="view_Btn">
+                    <button type="button" class="view_Btn" onclick="window.location.href='tagging-management.php'">
                         <img src="icon/view.png" class="feature-icon" alt="view">
                         View Tagging</button>
-                    <button type="button" class="edit_Btn">
+                    <button type="button" class="edit_Btn" onclick="window.location.href='edit-tagging-type.php'">
                         <img src="icon/edit.png" class="feature-icon" alt="edit">
                         Edit</button>
-                    <button type="button" class="delete_Btn">
+                    <button type="button" class="delete_Btn" onclick="window.location.href='delete-tagging-type.php'">
                         <img src="icon/delete.png" class="feature-icon" alt="delete">
                         Delete</button>
                 </div>
@@ -311,13 +311,13 @@
                 <h3>Travel Companion</h3>
 
                 <div class="edit_delete_box">
-                    <button type="button" class="view_Btn">
+                    <button type="button" class="view_Btn" onclick="window.location.href='tagging-management.php'">
                         <img src="icon/view.png" class="feature-icon" alt="view">
                         View Tagging</button>
-                    <button type="button" class="edit_Btn">
+                    <button type="button" class="edit_Btn" onclick="window.location.href='edit-tagging-type.php'">
                         <img src="icon/edit.png" class="feature-icon" alt="edit">
                         Edit</button>
-                    <button type="button" class="delete_Btn">
+                    <button type="button" class="delete_Btn" onclick="window.location.href='delete-tagging-type.php'">
                         <img src="icon/delete.png" class="feature-icon" alt="delete">
                         Delete</button>
                 </div>
@@ -327,13 +327,13 @@
                 <h3>Destination Type</h3>
 
                 <div class="edit_delete_box">
-                    <button type="button" class="view_Btn">
+                    <button type="button" class="view_Btn" onclick="window.location.href='tagging-management.php'">
                         <img src="icon/view.png" class="feature-icon" alt="view">
                         View Tagging</button>
-                    <button type="button" class="edit_Btn">
+                    <button type="button" class="edit_Btn" onclick="window.location.href='edit-tagging-type.php'">
                         <img src="icon/edit.png" class="feature-icon" alt="edit">
                         Edit</button>
-                    <button type="button" class="delete_Btn">
+                    <button type="button" class="delete_Btn" onclick="window.location.href='delete-tagging-type.php'">
                         <img src="icon/delete.png" class="feature-icon" alt="delete">
                         Delete</button>
                 </div>
@@ -343,10 +343,10 @@
                 <h3>Hidden Destination</h3>
 
                 <div class="edit_delete_box">
-                    <button type="button" class="view_Btn">
+                    <button type="button" class="view_Btn" onclick="window.location.href='tagging-management.php'">
                         <img src="icon/view.png" class="feature-icon" alt="view">
                         View Tagging</button>
-                    <button type="button" class="edit_Btn">
+                    <button type="button" class="edit_Btn" onclick="window.location.href='edit-tagging-type.php'">
                         <img src="icon/edit.png" class="feature-icon" alt="edit">
                         Edit</button>
                     <button type="button" class="delete_Btn">

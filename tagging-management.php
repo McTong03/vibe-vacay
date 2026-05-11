@@ -283,7 +283,7 @@
     </header>
 
     <div class="title">
-        <button type="button" class="back_Btn">
+        <button type="button" class="back_Btn" onclick="window.location.href='tagging-type-management.php'">
             <img src="icon/error.png" class="back-icon" />
         </button>
 
@@ -303,10 +303,10 @@
             <div class="tag-type">
                 <h3>Peaceful</h3>
                 <div class="edit_delete_box">
-                    <button type="button" class="edit_Btn">
+                    <button type="button" class="edit_Btn" onclick="window.location.href='edit-tagging.php'">
                         <img src="icon/edit.png" class="feature-icon" alt="edit">
                         Edit</button>
-                    <button type="button" class="delete_Btn">
+                    <button type="button" class="delete_Btn" onclick="window.location.href='delete-tagging.php'">
                         <img src="icon/delete.png" class="feature-icon" alt="delete">
                         Delete</button>
                 </div>
@@ -316,10 +316,10 @@
                 <h3>Relaxing</h3>
 
                 <div class="edit_delete_box">
-                    <button type="button" class="edit_Btn">
+                    <button type="button" class="edit_Btn" onclick="window.location.href='edit-tagging.php'">
                         <img src="icon/edit.png" class="feature-icon" alt="edit">
                         Edit</button>
-                    <button type="button" class="delete_Btn">
+                    <button type="button" class="delete_Btn" onclick="window.location.href='delete-tagging.php'">
                         <img src="icon/delete.png" class="feature-icon" alt="delete">
                         Delete</button>
                 </div>
@@ -329,7 +329,7 @@
                 <h3>Romantic</h3>
 
                 <div class="edit_delete_box">
-                    <button type="button" class="edit_Btn">
+                    <button type="button" class="edit_Btn" onclick="window.location.href='edit-tagging.php'">
                         <img src="icon/edit.png" class="feature-icon" alt="edit">
                         Edit</button>
                     <button type="button" class="delete_Btn">
@@ -338,7 +338,7 @@
                 </div>
             </div>
         </div>
-        <button type="button" class="add_Btn">Add Tagging</button>
+        <button type="button" class="add_Btn" onclick="window.location.href='add-tagging.php'">Add Tagging</button>
     </div>
 </body>
 

@@ -252,7 +252,6 @@
     .destination_fee,
     .destination_rating,
     .destination_review_count,
-    .destination_open_hour,
     .destination_description,
     .destination_phone_number {
         margin: 10px 0;        /* tight spacing between all p tags */
@@ -280,28 +279,8 @@
             display: flex;
             align-items: center;
             justify-content: left;
+            gap: 5px;
         }
-
-
-        /*Status */
-        .status_box {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            justify-content: right;
-        }
-        .status {
-            background-color: #B7FFCF;
-            color: #4EF249;
-            border: none;
-            padding: 0.3rem 1rem;
-            border-radius: 30px;
-        }
-
-        .destination_tag,.status {
-            margin: 8px;
-        }
-
 
         /* Edit button Styles */
         .edit_delete_box{
@@ -422,7 +401,7 @@
             <input type="text" placeholder="Find places and things to do">
             <button>Search</button>
         </div>
-            <button type="button" class="add_Btn">+ Add Destination</button>
+            <button type="button" class="add_Btn" onclick="window.location.href='add-destination.php'">+ Add Destination</button>
     </div>
     
 
@@ -442,18 +421,6 @@
 
             <p class="destination_review_count">Reviews Count: 1748</p>
 
-            <p class="destination_open_hour">Open Hour:
-            <select name="destination_hours" required>
-                <option value="monday">Monday 9:00 AM - 10:00 PM</option>
-                <option value="tuesday">Teusday 9:00 AM - 10:00 PM</option>
-                <option value="wednesday">Wednesday 9:00 AM - 10:00 PM</option>
-                <option value="thurday">Thurday 9:00 AM - 10:00 PM</option>
-                <option value="Friday">Friday 9:00 AM - 10:00 PM</option>
-                <option value="Saturday">Saturday 9:00 AM - 10:00 PM</option>
-                <option value="Sunday">Closed</option>
-            </select>
-            </p>
-
             <span class="destination_phone_number">Phone Number: 03-2630 3033</span>
 
             <p class="destination_description">Description: One of the world's tallest, 
@@ -464,13 +431,9 @@
                 <p class="destination_tag">Urban</p>
             </div>
 
-            <div class="status_box">
-                <p class="status">Open</p>
-            </div>
-
             <div class="edit_delete_box">
-                <button type="button" class="edit_Btn">Edit</button>
-                <button type="button" class="delete_Btn">Delete</button>
+                <button type="button" class="edit_Btn" onclick="window.location.href='edit-destination.php'">Edit</button>
+                <button type="button" class="delete_Btn" onclick="window.location.href='delete-destination.php'">Delete</button>
             </div>
         </div>
 
@@ -488,18 +451,6 @@
 
             <p class="destination_review_count">Reviews Count: 1748</p>
 
-            <p class="destination_open_hour">Open Hour:
-            <select name="destination_hours" required>
-                <option value="monday">Monday 9:00 AM - 10:00 PM</option>
-                <option value="tuesday">Teusday 9:00 AM - 10:00 PM</option>
-                <option value="wednesday">Wednesday 9:00 AM - 10:00 PM</option>
-                <option value="thurday">Thurday 9:00 AM - 10:00 PM</option>
-                <option value="Friday">Friday 9:00 AM - 10:00 PM</option>
-                <option value="Saturday">Saturday 9:00 AM - 10:00 PM</option>
-                <option value="Sunday">Closed</option>
-            </select>
-            </p>
-
             <span class="destination_phone_number">Phone Number: 03-2630 3033</span>
 
             <p class="destination_description">Description: One of the world's tallest, 
@@ -510,13 +461,9 @@
                 <p class="destination_tag">Urban</p>
             </div>
 
-            <div class="status_box">
-                <p class="status">Open</p>
-            </div>
-
             <div class="edit_delete_box">
-                <button type="button" class="edit_Btn">Edit</button>
-                <button type="button" class="delete_Btn">Delete</button>
+                <button type="button" class="edit_Btn" onclick="window.location.href='edit-destination.php'">Edit</button>
+                <button type="button" class="delete_Btn" onclick="window.location.href='delete-destination.php'">Delete</button>
             </div>
     </div>
 
@@ -534,18 +481,6 @@
 
             <p class="destination_review_count">Reviews Count: 1748</p>
 
-            <p class="destination_open_hour">Open Hour:
-            <select name="destination_hours" required>
-                <option value="monday">Monday 9:00 AM - 10:00 PM</option>
-                <option value="tuesday">Teusday 9:00 AM - 10:00 PM</option>
-                <option value="wednesday">Wednesday 9:00 AM - 10:00 PM</option>
-                <option value="thurday">Thurday 9:00 AM - 10:00 PM</option>
-                <option value="Friday">Friday 9:00 AM - 10:00 PM</option>
-                <option value="Saturday">Saturday 9:00 AM - 10:00 PM</option>
-                <option value="Sunday">Closed</option>
-            </select>
-            </p>
-
             <span class="destination_phone_number">Phone Number: 03-2630 3033</span>
 
             <p class="destination_description">Description: One of the world's tallest, 
@@ -556,13 +491,9 @@
                 <p class="destination_tag">Urban</p>
             </div>
 
-            <div class="status_box">
-                <p class="status">Open</p>
-            </div>
-
             <div class="edit_delete_box">
-                <button type="button" class="edit_Btn">Edit</button>
-                <button type="button" class="delete_Btn">Delete</button>
+                <button type="button" class="edit_Btn" onclick="window.location.href='edit-destination.php'">Edit</button>
+                <button type="button" class="delete_Btn" onclick="window.location.href='delete-destination.php'">Delete</button>
             </div>
     </div>
 
@@ -580,18 +511,6 @@
 
             <p class="destination_review_count">Reviews Count: 1748</p>
 
-            <p class="destination_open_hour">Open Hour:
-            <select name="destination_hours" required>
-                <option value="monday">Monday 9:00 AM - 10:00 PM</option>
-                <option value="tuesday">Teusday 9:00 AM - 10:00 PM</option>
-                <option value="wednesday">Wednesday 9:00 AM - 10:00 PM</option>
-                <option value="thurday">Thurday 9:00 AM - 10:00 PM</option>
-                <option value="Friday">Friday 9:00 AM - 10:00 PM</option>
-                <option value="Saturday">Saturday 9:00 AM - 10:00 PM</option>
-                <option value="Sunday">Closed</option>
-            </select>
-            </p>
-
             <span class="destination_phone_number">Phone Number: 03-2630 3033</span>
 
             <p class="destination_description">Description: One of the world's tallest, 
@@ -602,13 +521,9 @@
                 <p class="destination_tag">Urban</p>
             </div>
 
-            <div class="status_box">
-                <p class="status">Open</p>
-            </div>
-
             <div class="edit_delete_box">
-                <button type="button" class="edit_Btn">Edit</button>
-                <button type="button" class="delete_Btn">Delete</button>
+                <button type="button" class="edit_Btn" onclick="window.location.href='edit-destination.php'">Edit</button>
+                <button type="button" class="delete_Btn" onclick="window.location.href='delete-destination.php'">Delete</button>
             </div>
     </div>
 </div>

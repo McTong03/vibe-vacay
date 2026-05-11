@@ -228,7 +228,7 @@
     </header>
 
     <div class="title">
-        <button type="button" class="back_Btn">
+        <button type="button" class="back_Btn" onclick="window.location.href='tagging-type-management.php'">
             <img src="icon/error.png" class="back-icon" />
         </button>
 
@@ -244,7 +244,7 @@
 
             <div class="filter-actions">
                 <button type="reset" class="btn btn-reset">Reset</button>
-                <button class="btn btn-add">Add Tagging Type</button>
+                <button class="btn btn-add" onclick="window.location.href='tagging-type-management.php'">Add Tagging Type</button>
             </div>
         </div>
     </div>

@@ -266,7 +266,7 @@
     </header>
 
     <div class="title">
-        <button type="button" class="back_Btn">
+        <button type="button" class="back_Btn" onclick="window.location.href='destination-management.php'">
             <img src="icon/error.png" class="back-icon" />
         </button>
 
@@ -317,7 +317,7 @@
             <textarea class="tag-type description-box" placeholder="Enter destination description"></textarea>
             <div class="filter-actions">
                 <button type="reset" class="btn btn-reset">Reset</button>
-                <button class="btn btn-add">Edit Destination</button>
+                <button class="btn btn-add" onclick="window.location.href='destination-management.php'">Edit Destination</button>
             </div>
         </div>
     </div>
