@@ -4,11 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tagging Management Page</title>
+    <title>Tagging Type Management Page</title>
 </head>
 <style>
     body {
-        height: 4000px;
+        height: 800px;
     }
 
     /* Header Styles */
@@ -171,35 +171,14 @@
         padding-right: 20px;
     }
 
-    /* Back Button Styles */
-    .back_Btn {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        border: none;
-        background-color: #1A2B49;
-
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        cursor: pointer;
-    }
-
-    .back-icon {
-        width: 22px;
-        height: 22px;
-        color: white;
-    }
-
     /* Title Styles */
     .title {
         display: flex;
         align-items: center;
         gap: 15px;
 
-        margin-left: 15px;
-        margin-top: 20px;
+        margin-left: 35px;
+        margin-top: 28px;
     }
 
     .title-icon {
@@ -209,6 +188,7 @@
 
     .title h1 {
         margin: 0;
+        font-size: 30px;
     }
 
     /* Edit button Styles */
@@ -221,7 +201,8 @@
     }
 
     .edit_Btn,
-    .delete_Btn {
+    .delete_Btn,
+    .view_Btn {
         background-color: #B3B6C3;
         color: black;
         border: none;
@@ -283,13 +264,8 @@
     </header>
 
     <div class="title">
-        <button type="button" class="back_Btn">
-            <img src="icon/back1.png" class="back-icon" />
-        </button>
-
-        <img src="icon/images.png" class="title-icon" alt="Tagging">
-
-        <h1>Tagging Management</h1>
+        <img src="icon/images.png" class="title-icon" alt="Tagging Type">
+        <h1>Tagging Type Management</h1>
     </div>
 
     <div class="content-container">
@@ -301,8 +277,11 @@
 
 
             <div class="tag-type">
-                <h3>Peaceful</h3>
+                <h3>Mood</h3>
                 <div class="edit_delete_box">
+                    <button type="button" class="view_Btn">
+                        <img src="icon/view.png" class="feature-icon" alt="view">
+                        View Tagging</button>
                     <button type="button" class="edit_Btn">
                         <img src="icon/edit1.png" class="feature-icon" alt="edit">
                         Edit</button>
@@ -313,9 +292,12 @@
             </div>
 
             <div class="tag-type">
-                <h3>Relaxing</h3>
+                <h3>Climate</h3>
 
                 <div class="edit_delete_box">
+                    <button type="button" class="view_Btn">
+                        <img src="icon/view.png" class="feature-icon" alt="view">
+                        View Tagging</button>
                     <button type="button" class="edit_Btn">
                         <img src="icon/edit1.png" class="feature-icon" alt="edit">
                         Edit</button>
@@ -326,9 +308,44 @@
             </div>
 
             <div class="tag-type">
-                <h3>Romantic</h3>
+                <h3>Travel Companion</h3>
 
                 <div class="edit_delete_box">
+                    <button type="button" class="view_Btn">
+                        <img src="icon/view.png" class="feature-icon" alt="view">
+                        View Tagging</button>
+                    <button type="button" class="edit_Btn">
+                        <img src="icon/edit1.png" class="feature-icon" alt="edit">
+                        Edit</button>
+                    <button type="button" class="delete_Btn">
+                        <img src="icon/delete.png" class="feature-icon" alt="delete">
+                        Delete</button>
+                </div>
+            </div>
+
+            <div class="tag-type">
+                <h3>Destination Type</h3>
+
+                <div class="edit_delete_box">
+                    <button type="button" class="view_Btn">
+                        <img src="icon/view.png" class="feature-icon" alt="view">
+                        View Tagging</button>
+                    <button type="button" class="edit_Btn">
+                        <img src="icon/edit1.png" class="feature-icon" alt="edit">
+                        Edit</button>
+                    <button type="button" class="delete_Btn">
+                        <img src="icon/delete.png" class="feature-icon" alt="delete">
+                        Delete</button>
+                </div>
+            </div>
+
+            <div class="tag-type">
+                <h3>Hidden Destination</h3>
+
+                <div class="edit_delete_box">
+                    <button type="button" class="view_Btn">
+                        <img src="icon/view.png" class="feature-icon" alt="view">
+                        View Tagging</button>
                     <button type="button" class="edit_Btn">
                         <img src="icon/edit1.png" class="feature-icon" alt="edit">
                         Edit</button>
@@ -338,7 +355,7 @@
                 </div>
             </div>
         </div>
-        <button type="button" class="add_Btn">Add Tagging</button>
+        <button type="button" class="add_Btn">Add Tagging Type</button>
     </div>
 </body>
 
