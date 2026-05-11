@@ -2,13 +2,14 @@
 require 'conn.php';
 session_start();
 
-$user_id = $_SESSION['user_id']; 
+$user_id = 1;
 
 $sql = "SELECT f.favourite_id, 
                d.destination_id,
                d.destination_name, 
                d.image_url, 
                d.average_rating,
+               d.price,
                s.state_name,
                GROUP_CONCAT(dt.tag_name SEPARATOR ', ') as climate
         FROM favorites f
@@ -19,16 +20,16 @@ $sql = "SELECT f.favourite_id,
         GROUP BY f.favourite_id";
 $result = mysqli_query($conn, $sql);
 
-if(isset($_GET['favourite_id'])) {
-    $favourite_id = $_GET['favourite_id'];
-    $user_id = $_SESSION['user_id'];
+// if(isset($_GET['favourite_id'])) {
+//     $favourite_id = $_GET['favourite_id'];
+//     $user_id = $_SESSION['user_id'];
     
-    $sql = "DELETE FROM favorites WHERE favourite_id = '$favourite_id' AND user_id = '$user_id'";
-    mysqli_query($conn, $sql);
-}
+//     $sql = "DELETE FROM favorites WHERE favourite_id = '$favourite_id' AND user_id = '$user_id'";
+//     mysqli_query($conn, $sql);
+// }
 
-header('Location: wishlist.php');
-exit();
+// header('Location: wishlist.php');
+// exit();
 ?>
 
 
@@ -51,16 +52,20 @@ exit();
 <style>
     body{
         height: 2000px;
+        width: 100%;
+        margin: 0;  
+        padding: 0;
+        overflow-x: hidden; 
     }
 
     #header {
         background-color: #1A2B49;
         height: 55px;
         border-radius: 50px;
-        margin-left: 8px;
+        margin-left: 90px;
         margin-right: 20px;
         margin-top: 25px;
-        width: 1480px;
+        width: calc(100% - 180px);
         position: relative;
         z-index: 2;
     }
@@ -355,7 +360,7 @@ exit();
 
             <div>
                 <p class="from">From</p>
-                <p class="RM">RM<?php echo $row['destination_price']; ?></p>
+                <p class="RM">RM<?php echo $row['price']; ?></p>
             </div>
 
             <!-- ✅ Heart button removes from wishlist -->

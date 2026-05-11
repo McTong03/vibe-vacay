@@ -250,7 +250,7 @@
 
     .add-container1{
         margin-top: -360px;
-        margin-left: 680px;
+        margin-left: 800px;
         position: absolute;
         
     }
