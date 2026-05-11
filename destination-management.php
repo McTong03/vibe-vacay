@@ -227,6 +227,7 @@
         align-items: center;
         justify-content: center;
         flex-shrink: 0; 
+        cursor: pointer; 
     }
 
     /* Destination Styles */
@@ -355,6 +356,13 @@
         </div>
     </header>
 
+    <div class="title">
+        <h1 style="margin-left: 15px; margin-top: 15px;">
+            <img src="icon/destination.png" style="width: 40px; height: 40px; margin-left: 25px; margin-top: 25px; margin-right: 15px;" alt="Tagging Type">
+            Destination Management
+        </h1>
+    </div>
+
     <div class="filter-bar">
         <select name="mood-box" required>
             <option value="mood">Mood</option>
@@ -406,6 +414,8 @@
             <button class="btn btn-search">Search</button>
         </div>
     </div>
+
+
 
     <div class="search-container">
         <div class="search-bar">
