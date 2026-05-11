@@ -137,12 +137,12 @@ $result = mysqli_query($conn, $sql);
         font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         margin-top: 60px;
         font-size: 45px;
-        margin-left: 90px;
+        margin-left: 150px;
     }
 
     .admin {
         color: white;
-        margin-left: 90px;
+        margin-left: 150px;
         font-size: 18px;
         margin-top: -25px;
     }
@@ -151,7 +151,7 @@ $result = mysqli_query($conn, $sql);
         background-color: #C7D0EC;
         width: 900px;
         height: 65px;
-        margin-left: 90px;
+        margin-left: 150px;
         border-radius: 15px;
         margin-top: 40px;
     }
@@ -417,7 +417,7 @@ $result = mysqli_query($conn, $sql);
         <?php
             }
         } else {
-            echo '<p style="color:white; margin-left:20px;">No users found.</p>';
+            echo '<p style="color:white; margin-left:100px;">No users found.</p>';
         }
         ?>
     </div>

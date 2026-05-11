@@ -153,13 +153,13 @@ $result = mysqli_query($conn, $sql);
     .favourite {
         width: 70px;
         margin-top: 60px;
-        margin-left: 90px;
+        margin-left: 150px;
     }
 
     .wishlist-name {
         margin-top: -83px;
         font-size: 50px;
-        margin-left: 200px;
+        margin-left: 250px;
         font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         font-weight: bold;
     }
@@ -374,7 +374,7 @@ $result = mysqli_query($conn, $sql);
     <?php 
         }
     } else {
-        echo '<p style="color:#666; margin-left:70px; font-size:18px;">Your wishlist is empty.</p>';
+        echo '<p style="color:#666; margin-left:150px; font-size:18px;">Your wishlist is empty.</p>';
     }
     ?>
     </div>
