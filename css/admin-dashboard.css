@@ -6,23 +6,28 @@
 
 body {
     font-family: 'Poppins', system-ui, -apple-system, sans-serif;
-    /* background-image: 
-        linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6)),
-        url("image/background.png");
+    margin: 0;
+    padding: 0;
+    /* background-image: linear-gradient(rgba(26, 43, 73, 0.85), rgba(26, 43, 73, 0.85)), url("../image/klccbg.png");
     background-size: cover;
-    background-repeat: no-repeat;
-    background-attachment: fixed; */
-    background-image: none;
-    background-color: #ffffff;
-    height: 100%;
+    background-repeat: no-repeat; */
+    background-color: #f0f2f5;
+}
+
+.banner-wrapper {
+    background:
+        linear-gradient(rgba(26, 43, 73, 0.75), rgba(26, 43, 73, 0.75)),
+        url("../image/klccbg.png") center / cover no-repeat;
+    background-color: #0f1a30;
+    padding-top: 15px;
+    padding-bottom: 40px;
 }
 
 #header {
     background-color: #1A2B49;
     height: 55px;
     border-radius: 50px;
-    margin: 20px auto;
-    max-width: 1480px;
+    margin: 0 20px 15px 20px;   
     padding: 0 20px 0 10px;
     display: flex;
     align-items: center;
@@ -60,12 +65,13 @@ body {
  
 .nav-button {
     color: #c8d3e8;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
     padding: 6px 14px;
     border-radius: 20px;
     cursor: pointer;
     white-space: nowrap;
+    margin: auto 10px auto 10px;
     transition: background-color 0.2s, color 0.2s;
 }
  
@@ -107,12 +113,10 @@ body {
 
 .banner {
     position: relative;
-    height: 100vh;
+    height: 300px;
     display: flex;
     align-items: center;
-    justify-content: center;
     padding: 40px 0;
-    background: url("../image/klccbg.png") center/cover no-repeat;
 }
 
 .banner-content {
@@ -124,7 +128,7 @@ body {
 
 .welcome {
     color: #ffffff;
-    font-size: 32px;
+    font-size: 36px;
     font-weight: 700;
     margin-bottom: 28px;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
@@ -134,6 +138,7 @@ body {
     display: flex;
     gap: 30px;
     margin-top: 20px;
+    justify-content: center;
 }
 
 .stat-card {
@@ -143,12 +148,77 @@ body {
     padding: 20px 48px;
     text-align: center;
     min-width: 190px;
+    margin: 0 auto 0 auto;
 }
 
 .stat-label, .stat-value {
     color: #ffffff;
-    font-size: 30px;
+    font-size: 36px;
     font-weight: 700;
     margin-bottom: 10px;
 }
 
+.main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 36px 40px 60px;
+}
+
+.features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-bottom: 44px;
+}
+
+.feature-card {
+    background-color: #dde1ec;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+ 
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15);
+}
+
+.feature-card-img {
+    width: 100%;
+    aspect-ratio: 1.5 / 1;
+    background-color: #c8ccd8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+ 
+.feature-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    inset: 0;
+}
+ 
+.placeholder-icon {
+    width: 56px;
+    height: 56px;
+    color: #1A2B49;
+    opacity: 0.35;
+    position: relative;
+    z-index: 1;
+}
+ 
+.feature-card-label {
+    background-color: #1A2B49;
+    color: #ffffff;
+    text-align: center;
+    padding: 16px 12px;
+    font-size: 15px;
+    font-weight: 600;
+}
