@@ -1,9 +1,44 @@
+<?php
+require 'conn.php';
+// session_start();
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+ 
+    $user_name     = trim($_POST["user_name"]     ?? "");
+    $user_email    = trim($_POST["user_email"]    ?? "");
+    $user_password = trim($_POST["user_password"] ?? "");
+    $user_role     = trim($_POST["user_role"]     ?? "");
+
+    if (empty($user_name) || empty($user_email) || empty($user_password) || empty($user_role)) {
+        $error_message = "All fields are required.";
+    } elseif (!filter_var($user_email, FILTER_VALIDATE_EMAIL)) {
+        $error_message = "Invalid email format.";
+    } else {
+
+        $hashed_password = password_hash($user_password, PASSWORD_BCRYPT);
+ 
+
+        $stmt = mysqli_prepare($conn,
+            "INSERT INTO USERS (user_name, user_email, user_password, user_role)
+             VALUES (?, ?, ?, ?)"
+        );
+ 
+        mysqli_stmt_bind_param($stmt, "ssss",
+            $user_name,
+            $user_email,
+            $hashed_password,
+            $user_role
+        );
+        mysqli_stmt_execute($stmt);
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit User</title>
+    <title>Add User</title>
 </head>
 
 <style>
@@ -137,7 +172,8 @@
         margin-left: 50px;
     }
 
-    input[type=text] {
+    input[type=text],
+    select{
         width: 1200px;
         height: 50px;
         border-width: 3px;
@@ -150,7 +186,7 @@
         background-color: #1A2B49;
         margin-top: 60px;
         margin-left: 80px;
-        height: 800px;
+        height: 700px;
         width: 1300px;
         border-radius: 20px;
     }
@@ -209,47 +245,47 @@
         <img class="error-button" src="icon/error.png">
     </button>
 
-    <h2>Edit User</h2>
+    <h2>Add User</h2>
 
-    <div id="container">
-        <div class="id-container">
-            <br><br><label>User ID</label><br>
-            <input type="text" name="user_id">
-        </div>
+    <form action="" method="POST" id="addUserForm">
+        <div id="container">
+            <div class="name-container">
+                <br><br><label for="user_name">User Name</label><br>
+                <input type="text" id="user_name" name="user_name"
+                        value="<?= htmlspecialchars($_POST['user_name'] ?? '') ?>"
+                       placeholder="Enter full name" required>
+            </div>
 
-        <div class="name-container">
-            <br><br><label>User Name</label><br>
-            <input type="text" name="user_name">
-        </div>
+            <div class="email-container">
+                <br><br><label for="user_email">User Email</label><br>
+                <input type="text" id="user_email" name="user_email" 
+                    value="<?= htmlspecialchars($_POST['user_email'] ?? '') ?>"
+                       placeholder="Enter email address" required>
+            </div>
 
-        <div class="email-container">
-            <br><br><label>User Email</label><br>
-            <input type="text" name="user_email">
-        </div>
+            <div class="password-container">
+                <br><br><label for="user_password">User Password</label><br>
+                <input type="text" id="user_password" name="user_password" placeholder="Enter password" required>
+            </div>
 
-        <div class="password-container">
-            <br><br><label>User Password</label><br>
-            <input type="text" name="user_password">
-        </div>
+            <div class="role-container">
+                <br><br><label for="user_role">User Role</label><br>
+                <!-- <input type="text" id="user_role" name="user_role" 
+                    value="<?= htmlspecialchars($_POST['user_role'] ?? '') ?>"
+                       placeholder="e.g. admin or user" required> -->
 
-        <div class="role-container">
-            <br><br><label>User Role</label><br>
-            <input type="text" name="user_role">
-        </div>
+                <select id="user_role" name="user_role" required>
+                    <option value="" disabled selected>Select a role</option>
+                    <option value="admin">Admin</option>
+                    <option value="user">User</option>
+                </select>
+            </div>
 
-        <button class="reset-button">Reset</button>
-        <button class="submit-button">Submit</button>
-
-
-
-
+            <button type="reset" class="reset-button">Reset</button>
+            <button type="submit" class="submit-button">Submit</button>
         
-            
-    </div>
-    
-
-
-
-
+                
+        </div>
+    </form>
 </body>
 </html>
