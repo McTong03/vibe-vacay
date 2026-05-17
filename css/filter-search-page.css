@@ -32,60 +32,17 @@ a {
     padding: 0 2rem;
 }
 
-/* Navigation */
-.navbar {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    padding: 1.5rem 4rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: white;
-    z-index: 10;
-}
-
-.logo {
-    font-size: 1.25rem;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.nav-links {
-    display: flex;
-    gap: 2rem;
-    font-size: 0.95rem;
-    font-weight: 600;
-}
-
-.auth-buttons {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    font-weight: 600;
-}
-
-.signup-btn {
-    background-color: white;
-    color: var(--primary-dark);
-    padding: 0.5rem 1.2rem;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
 /* Hero & Filter Section */
 .hero {
-    padding-top: 8rem;
+    padding-top: 2rem;
     padding-bottom: 4rem;
+    min-height: 70vh;
     background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
         url('https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&q=80&w=1920') center/cover;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     color: white;
     position: relative;
 }
@@ -296,8 +253,8 @@ input:checked+.slider:before {
 }
 
 .random-icon {
-    width: 250px;
-    height: 250px;
+    width: 100px;
+    height: 100px;
     margin: 1rem 0;
     object-fit: contain;
 }

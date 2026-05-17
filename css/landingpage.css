@@ -22,56 +22,10 @@ a {
     color: inherit;
 }
 
-/* Navigation */
-.navbar {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    padding: 1.5rem 4rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: white;
-    z-index: 10;
-    background-color: #1A2B49;
-    height: 55px;
-    border-radius: 50px;
-    margin-left: 8px;
-    margin-right: 20px;
-    margin-top: 25px;
-    /* width: 1480px; */
-}
-
-.logo {
-    font-size: 1.25rem;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.nav-links {
-    display: flex;
-    gap: 2rem;
-    font-size: 0.95rem;
-    font-weight: 600;
-}
-
-.auth-buttons {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    font-weight: 600;
-}
-
-.signup-btn {
-    background-color: white;
-    color: var(--primary-dark);
-    padding: 0.5rem 1.2rem;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
 }
 
 /* Hero Section */
@@ -83,6 +37,9 @@ a {
     padding: 0 4rem;
     color: white;
     position: relative;
+    padding-top: 8rem;
+    padding-bottom: 4rem;
+    align-items: center;
 }
 
 .hero h1 {

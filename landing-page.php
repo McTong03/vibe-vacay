@@ -1,53 +1,25 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vibe Vacay</title>
+    <link rel="stylesheet" href="css/menubar.css">
     <link rel="stylesheet" href="css/landingpage.css">
 </head>
 <body>
 
-    <header class="navbar">
-        <div class="logo">
-            <span style="font-size: 1.5rem;"><img src="Image/Vibe-Vacay-Logo.png" alt="Vibe Vacay Logo" style="height: 5.0rem; margin-right: 0.5rem;"> </span> Vibe Vacay
-        </div>
-        <nav class="nav-links">
-            <a href="./landing-page.php">Home</a>
-            <a href="./recommendation-page.php">Recommendation</a>
-            <a href="./filter-search-page.php">Filter & Search</a>
-            <a href="./wishlist-page.php">Wishlist</a>
-            <a href="./about-us-page.php">About Us</a>
-        </nav>
-        <div class="auth-buttons">
-            <a href="./login-page.php" class="login">Log In</a>
-            <a href="./signup-page.php" class="signup-btn">Sign Up <span>➔</span></a>
-        </div>
-    </header>
-    <!-- <header id="header">
-        <div class="logo-container">
-            <img src="icon/LogoName.png" class="logo" />
-        </div>
-
-        <p class="logo-name">Vibe Vacay</p>
-        <p class="home">Home</p>
-        <p class="destination-management">Destination Management</p>
-        <p class="statistic">Statistic</p>
-        <p class="user-management">User Managememt</p>
-        <p class="logout">Log Out</p>
-
-
-        <div class="profile-box">
-            <p class="profile">Profile</p>
-            <img src="icon/profile1.jpg" class="profile-icon" />
-
-        </div>
-    </header> -->
+    <?php include('./includes/navbar.php'); ?>
 
     <section class="hero" style="background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2)),
         url('Image/travel_luggage.jpg') center/cover;">
         <h1>Discover your perfect destination based on how you feel</h1>
-        <a href="./recommendation-page.php" class="explore-btn">Explore <span>➔</span></a>
+        <a href="./recommendation-page.php" class="explore-btn">Login <span>➔</span></a>
         <p>Not sure where to go? Let your mood decide. Discover destinations perfectly matched to how you feel right now.</p>
     </section>
 

@@ -1,7 +1,7 @@
 <?php
-  $conn = mysqli_connect("localhost", "root", "", "vibe-vacay");
-
-  if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+  $con = mysqli_connect("localhost", "root", "", "vibe-vacay");
+  
+  if (!$con) {
+      die("Connection failed: " . mysqli_connect_error());
+  }
 ?>
