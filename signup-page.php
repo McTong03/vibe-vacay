@@ -32,15 +32,16 @@ if (isset($_POST['registerBtn'])) {
             if (!mysqli_query($con, $sql)) {
                 $error_message = 'Error: ' . mysqli_error($con);
             } else {
-                // insert default profile picture (standardize profile pic: image/defaultProfile.jpg)
+                // insert default profile picture (standardize profile pic: Image/defaultProfile.png)
                 $newUserId  = mysqli_insert_id($con);
-                $defaultPic = 'image/defaultProfile.jpg';
+                $defaultPic = 'Image/defaultProfile.png';
                 $sql2 = "INSERT INTO user_profile (user_id, profile_picture)
                      VALUES ($newUserId, '$defaultPic')";
                 if (!mysqli_query($con, $sql2)) {
                     $error_message = 'Insert user_profile failed: ' . mysqli_error($con);
                 } else {
-                    $success_message = "New User created successfully!";
+                    header('Location: login-page.php?success=signup');
+                    exit;
                 }
             }
         }
@@ -48,11 +49,7 @@ if (isset($_POST['registerBtn'])) {
 
     mysqli_close($con);
     
-    if (isset($success_message)) {
-        echo '<script>alert("' . $success_message . '");
-              window.location.href = "login-page.php";
-              </script>';
-    } elseif (isset($error_message)) {
+    if (isset($error_message)) {
         echo '<script>alert("' . $error_message . '");</script>';
     }
 }

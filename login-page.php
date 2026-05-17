@@ -2,65 +2,82 @@
 require 'conn.php';
 session_start();
 
+$email = '';
+$error_message = '';
+$success_message = '';
+if (isset($_GET['success'])) {
+    switch ($_GET['success']) {
+        case 'signup':
+            $success_message = 'Account created successfully! Please log in.';
+            break;
+        case 'login':
+            $success_message = 'Login successful!';
+            break;
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['user_email'] ?? '');
     $pass  = trim($_POST['user_password'] ?? '');
 
     if ($email === '' || $pass === '') {
-        die("Please enter email and password");
-    }
-
-    $stmt = $con->prepare('SELECT user_id, user_name, user_password, user_role FROM users WHERE user_email = ? LIMIT 1');
-    if (!$stmt) {
-        die('Database error: ' . $con->error);
-    }
-
-    $stmt->bind_param('s', $email);
-    $stmt->execute();
-    $stmt->store_result();
-
-    if ($stmt->num_rows === 0) {
-        $stmt->close();
-        die("Wrong email or password");
-    }
-
-    $stmt->bind_result($uid, $uname, $upass, $urole);
-    $stmt->fetch();
-    $stmt->close();
-
-    // verify password
-    if (!password_verify($pass, $upass)) {
-        die("Wrong email or password");
-    }
-
-    // Get profile picture for the logged in user
-    $profile_picture = 'image/defaultProfile.jpg';
-    $stmt2 = $con->prepare('SELECT profile_picture FROM user_profile WHERE user_id = ? LIMIT 1');
-    if ($stmt2) {
-        $stmt2->bind_param('i', $uid);
-        $stmt2->execute();
-        $stmt2->bind_result($profile_picture_result);
-        if ($stmt2->fetch() && !empty($profile_picture_result)) {
-            $profile_picture = $profile_picture_result;
+        $error_message = "Please enter email and password";
+    } else {
+        $stmt = $con->prepare('SELECT user_id, user_name, user_password, user_role FROM users WHERE user_email = ? LIMIT 1');
+        if (!$stmt) {
+            die('Database error: ' . $con->error);
         }
-        $stmt2->close();
-    }
 
-    $_SESSION['user_id']        = (int)$uid;
-    $_SESSION['user_name']      = $uname;
-    $_SESSION['user_role']      = $urole;
-    $_SESSION['profile_picture'] = $profile_picture;
+        $stmt->bind_param('s', $email);
+        $stmt->execute();
+        $stmt->store_result();
 
-    switch (strtolower($urole)) {
-        case 'user/traveller':
-        case 'user':
-            header('Location: landing-page.php'); break;
-        case 'admin':
-            header('Location: admin-dashboard.php'); break;
-        default:
-            header('Location: landing-page.php');
+        if ($stmt->num_rows === 0) {
+            $stmt->close();
+            $error_message = "Wrong email or password";
+        } else {
+            $uid = 0;
+            $uname = '';
+            $upass = '';
+            $urole = '';
+            $stmt->bind_result($uid, $uname, $upass, $urole);
+            $stmt->fetch();
+            $stmt->close();
+
+            if (!password_verify($pass, $upass)) {
+                $error_message = "Wrong email or password";
+            } else {
+                $profile_picture = 'Image/defaultProfile.png';
+                $stmt2 = $con->prepare('SELECT profile_picture FROM user_profile WHERE user_id = ? LIMIT 1');
+                if ($stmt2) {
+                    $profile_picture_result = '';
+                    $stmt2->bind_param('i', $uid);
+                    $stmt2->execute();
+                    $stmt2->bind_result($profile_picture_result);
+                    if ($stmt2->fetch() && !empty($profile_picture_result)) {
+                        $profile_picture = $profile_picture_result;
+                    }
+                    $stmt2->close();
+                }
+
+                $_SESSION['user_id']        = (int)$uid;
+                $_SESSION['user_name']      = $uname;
+                $_SESSION['user_role']      = $urole;
+                $_SESSION['profile_picture'] = $profile_picture;
+
+                switch (strtolower($urole)) {
+                    case 'user/traveller':
+                    case 'user':
+                        header('Location: landing-page.php?success=login'); break;
+                    case 'admin':
+                        header('Location: admin-dashboard.php?success=login'); break;
+                    default:
+                        header('Location: landing-page.php?success=login');
+                }
+                exit;
+            }
+        }
     }
-    exit;
 }
 ?>
 
@@ -82,6 +99,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         <p class="instruction">Please enter your account and password</p>
 
+        <?php if (!empty($success_message)): ?>
+            <div class="success-message"><?php echo htmlspecialchars($success_message, ENT_QUOTES, 'UTF-8'); ?></div>
+            <script>
+                alert(<?php echo json_encode($success_message, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>);
+                if (window.history.replaceState) {
+                    window.history.replaceState(null, '', window.location.pathname);
+                }
+            </script>
+        <?php endif; ?>
+        <?php if (!empty($error_message)): ?>
+            <div class="error-message"><?php echo htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8'); ?></div>
+        <?php endif; ?>
+
         <form action="./login-page.php" method="POST">
             <div class="input-group">
                 <div class="input-icon">
@@ -90,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <polyline points="22,6 12,13 2,6"></polyline>
                     </svg>
                 </div>
-                <input type="email" name="user_email" placeholder="Email" required>
+                <input type="email" name="user_email" placeholder="Email" value="<?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>" required>
             </div>
 
             <div class="input-group">

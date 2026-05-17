@@ -1,3 +1,12 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+$page_success_message = '';
+if (isset($_GET['success']) && $_GET['success'] === 'login') {
+    $page_success_message = 'Login successful!';
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +16,14 @@
     <link rel="stylesheet" href="css/admin-dashboard.css">
 </head>
 <body>
+    <?php if (!empty($page_success_message)): ?>
+        <script>
+            alert(<?php echo json_encode($page_success_message, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>);
+            if (window.history.replaceState) {
+                window.history.replaceState(null, '', window.location.pathname);
+            }
+        </script>
+    <?php endif; ?>
     <div class="banner-wrapper">
         <header id="header">
 

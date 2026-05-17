@@ -2,6 +2,17 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+$page_success_message = '';
+if (isset($_GET['success'])) {
+    switch ($_GET['success']) {
+        case 'login':
+            $page_success_message = 'Login successful!';
+            break;
+        case 'logout':
+            $page_success_message = 'Logged out successfully!';
+            break;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -15,6 +26,15 @@ if (session_status() === PHP_SESSION_NONE) {
 <body>
 
     <?php include('./includes/navbar.php'); ?>
+
+    <?php if (!empty($page_success_message)): ?>
+        <script>
+            alert(<?php echo json_encode($page_success_message, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>);
+            if (window.history.replaceState) {
+                window.history.replaceState(null, '', window.location.pathname);
+            }
+        </script>
+    <?php endif; ?>
 
     <section class="hero" style="background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2)),
         url('Image/travel_luggage.jpg') center/cover;">
