@@ -1,14 +1,23 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Us</title>
+    <link rel="stylesheet" href="css/menubar.css">
     <link rel="stylesheet" href="css/about-us.css">
 </head>
 <body>
+    <?php include('./includes/navbar.php'); ?>
     <div class="banner-wrapper">
-        <header id="header">
+        
+        <!-- <header id="header">
 
             <div class="logo-container">
                 <img src="icon/LogoName.png" class="logo" />
@@ -28,7 +37,7 @@
                 <img src="icon/profile1.jpg" class="profile-icon" alt="Profile"
                 />
             </div>
-        </header>
+        </header> -->
 
         <section class="banner">
             <div class="banner-content">

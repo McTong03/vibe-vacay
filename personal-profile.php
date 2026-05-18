@@ -1,32 +1,21 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Personal Profile</title>
+    <link rel="stylesheet" href="css/menubar.css">
     <link rel="stylesheet" href="css/personal-profile.css">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
-    <header id="header">
-        <div class="logo-container">
-            <img src="icon/LogoName.png" class="logo" />
-            <p class="logo-name">Vibe Vacay</p>
-        </div>
-
-        <nav class= "nav-bar">
-            <p class="nav-button">Home</p>
-            <p class="nav-button">Recommendation</p>
-            <p class="nav-button">Wishlist</p>
-            <p class="nav-button active">About Us</p>
-            <p class="nav-button">Log Out</p>
-        </nav>
-
-        <div class="profile-box">
-            <p class="profile">Profile</p>
-            <img src="icon/profile1.jpg" class="profile-icon" alt="Profile"/>
-            </div>
-        </header>
+    <?php include('./includes/navbar.php'); ?>
 
         <div class="main-content">
  
@@ -38,7 +27,7 @@
         <div class="profile-card">
             <div class="form-group">
                 <label class="form-label">Username</label>
-                <input type="text" class="form-input" value="McTong" />
+                <input type="text" class="form-input" value=""/>
             </div>
  
             <div class="form-group">
@@ -55,7 +44,7 @@
 
             <div class="form-group">
                 <label class="form-label">Email</label>
-                <input type="email" class="form-input" value="mctong@gmail.com" />
+                <input type="email" class="form-input" value="" />
             </div>
  
             <div class="form-group">
@@ -63,7 +52,7 @@
                     Password <em>(Leave empty if you do not wish to change)</em>
                 </label>
                 <div class="password-wrap">
-                    <input type="password" class="form-input" id="passwordInput" value="password" />
+                    <input type="password" class="form-input" id="passwordInput" value="" />
                     <i class="ph-bold ph-eye toggle-pw" onclick="togglePassword('passwordInput', this)"></i>
                 </div>
             </div>
