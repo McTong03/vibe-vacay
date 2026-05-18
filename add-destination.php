@@ -1,3 +1,25 @@
+<?php
+if (isset($_POST['btn-add'])) {
+    include("conn.php");
+
+    $destination_name = mysqli_real_escape_string($con, $_POST['destination_name']);
+    $default_points = intval($_POST['default_points']);
+
+    $sql = "INSERT INTO destinations ( destination_name, default_points)
+                VALUES ('$action_name', '$default_points')";
+
+    if (!mysqli_query($con, $sql)) {
+        die('Error: ' . mysqli_error($con));
+    }
+
+    mysqli_close($con);
+
+    echo '<script>alert("New destination created successfully!");
+            window.location.href = "A-PointManagement.php";
+            </script>';
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -124,7 +146,7 @@
     .tag-type {
         background-color: #F9F2F2;
         width: 95%;
-        height: 35px;
+        height: 45px;
         margin-top: 10px;
         margin-bottom: 10px;
         border-radius: 10px;
@@ -140,7 +162,7 @@
     .description-box {
         height: 150px;
         resize: vertical;
-        padding-top: 10px;
+        padding-top: 15px;
         padding-bottom: 10px;
         align-items: flex-start;
         font-family: inherit;
@@ -281,7 +303,7 @@
             <input type="text" class="tag-type" placeholder="Enter destination name">
 
              <h3>Destination Picture</h3>
-            <input type="text" class="tag-type" placeholder="Enter destination picture URL">
+            <input type="file" class="tag-type" placeholder="Enter destination picture URL">
 
             <h3>Destination State</h3>
             <div class="filter-bar">
@@ -304,6 +326,32 @@
                 </select>
             </div>
 
+             <h3>Tagging Type</h3>
+            <div class="filter-bar">
+                <select name="filter-box" required>
+                    <option value="">Please Select</option>
+                    <option value="mood">Mood</option>
+                    <option value="Family">Climate</option>
+                    <option value="Friend">Travel Companion</option>
+                    <option value="Colleague">Destination Type</option>
+                    <option value="Other">Hidden Destination</option>
+                    <option value="Other">Budget</option>
+                </select>
+            </div>
+
+            <h3>Tagging</h3>
+            <div class="filter-bar">
+                <select name="filter-box" required>
+                    <option value="">Please Select</option>
+                    <option value="mood">Mood</option>
+                    <option value="Family">Climate</option>
+                    <option value="Friend">Travel Companion</option>
+                    <option value="Colleague">Destination Type</option>
+                    <option value="Other">Hidden Destination</option>
+                    <option value="Other">Budget</option>
+                </select>
+            </div>
+
             <h3>Destination Price (RM)</h3>
             <input type="text" class="tag-type" placeholder="Enter destination price">
 
@@ -315,6 +363,7 @@
 
             <h3>Destination Description</h3>
             <textarea class="tag-type description-box" placeholder="Enter destination description"></textarea>
+
             <div class="filter-actions">
                 <button type="reset" class="btn btn-reset">Reset</button>
                 <button class="btn btn-add" onclick="window.location.href='destination-management.php'">Add Destination</button>

@@ -304,6 +304,32 @@
                 </select>
             </div>
 
+            <h3>Tagging Type</h3>
+            <div class="filter-bar">
+                <select name="filter-box" required>
+                    <option value="">Please Select</option>
+                    <option value="mood">Mood</option>
+                    <option value="Family">Climate</option>
+                    <option value="Friend">Travel Companion</option>
+                    <option value="Colleague">Destination Type</option>
+                    <option value="Other">Hidden Destination</option>
+                    <option value="Other">Budget</option>
+                </select>
+            </div>
+
+            <h3>Tagging</h3>
+            <div class="filter-bar">
+                <select name="filter-box" required>
+                    <option value="">Please Select</option>
+                    <option value="mood">Mood</option>
+                    <option value="Family">Climate</option>
+                    <option value="Friend">Travel Companion</option>
+                    <option value="Colleague">Destination Type</option>
+                    <option value="Other">Hidden Destination</option>
+                    <option value="Other">Budget</option>
+                </select>
+            </div>
+
             <h3>Destination Price (RM)</h3>
             <input type="text" class="tag-type" placeholder="Enter destination price">
 
