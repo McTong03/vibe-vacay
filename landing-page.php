@@ -39,7 +39,7 @@ if (isset($_GET['success'])) {
     <section class="hero" style="background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2)),
         url('Image/travel_luggage.jpg') center/cover;">
         <h1>Discover your perfect destination based on how you feel</h1>
-        <a href="./recommendation-page.php" class="explore-btn">Login <span>➔</span></a>
+        <a href="./recommendation-page.php" class="explore-btn">Explore <span>➔</span></a>
         <p>Not sure where to go? Let your mood decide. Discover destinations perfectly matched to how you feel right now.</p>
     </section>
 
