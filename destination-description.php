@@ -84,6 +84,7 @@ $stmt = $conn->prepare("
         r.rating,
         r.comment,
         r.image_url,
+        r.created_at,
         u.user_name,
         COALESCE(p.profile_picture, 'image/default-profile.jpg') AS profile_picture
     FROM reviews r
@@ -1139,6 +1140,18 @@ $similarJson = json_encode($similar);
 
         document.getElementById('reviewsNextBtn').style.display =
             reviewPage >= totalPages - 1 ? 'none' : 'inline-block';
+    }
+
+    var reviewsExpanded = false;
+
+    function toggleReviews() {
+        var cards = document.querySelectorAll('.card-container .batu-container');
+        reviewsExpanded = !reviewsExpanded;
+        cards.forEach(function(card, i) {
+            if (i >= 6) {
+                card.style.display = reviewsExpanded ? 'block' : 'none';
+            }
+        });
     }
 
  

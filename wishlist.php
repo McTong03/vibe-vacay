@@ -2,7 +2,12 @@
 require 'conn.php';
 session_start();
 
-$user_id = 1;
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$user_id = $_SESSION['user_id'];
 
 $sql = "SELECT f.favourite_id, 
                d.destination_id,
@@ -338,7 +343,8 @@ $result = mysqli_query($conn, $sql);
     ?>
         <div class="similar-container">
             <div>
-                <img class="KLCC" src="<?php echo htmlspecialchars($row['image_url']); ?>">
+                <?php $firstImg = !empty($row['image_url']) ? explode(',', $row['image_url'])[0] : 'image/default.jpg'; ?>
+                <img class="KLCC" src="<?php echo htmlspecialchars(trim($firstImg)); ?>">
             </div>
 
             <div>
@@ -350,7 +356,7 @@ $result = mysqli_query($conn, $sql);
             </div>
 
             <div>
-                <p class="summer">Climate: <?php echo htmlspecialchars($row['climate']); ?></p>
+                <p class="summer">Climate: <?php echo !empty($row['climate']) ? htmlspecialchars($row['climate']) : 'N/A'; ?></p>
             </div>
 
             <div>
@@ -358,18 +364,19 @@ $result = mysqli_query($conn, $sql);
                 <img class="star-icon" src="icon/star.png">
             </div>
 
-            <div>
-                <p class="from">From</p>
-                <p class="RM">RM<?php echo $row['price']; ?></p>
+            <div style="display:flex; align-items:center; gap:6px; padding-left:170px; margin-top:-60px;">
+                    <span style="color:#63687A; font-size:14px; margin-top:-17px; ">From</span>
+                    <span style="color:#1A2B49; font-size:17px; font-weight:bold;"><?php
+                        $p = trim($row['price']);
+                        $p = preg_replace('/^RM\s*/i', '', $p);
+                        echo ($p == '0' || strtolower($p) == 'free' || empty($p)) ? 'Free' : 'RM ' . htmlspecialchars($p);
+                ?></p>
             </div>
 
             <!-- ✅ Heart button removes from wishlist -->
-            <a href="remove-wishlist.php?favourite_id=<?php echo $row['favourite_id']; ?>"
-                onclick="return confirm('Remove from wishlist?')">>
-                <button class="heart-container">
-                    <img class="heart-button" src="icon/heart.png">
-                </button>
-            </a>
+            <button class="heart-container" onclick="removeWishlist(<?php echo $row['favourite_id']; ?>)">
+                <img class="heart-button" src="icon/heart.png">
+            </button>
         </div>
     <?php 
         }
@@ -379,195 +386,27 @@ $result = mysqli_query($conn, $sql);
     ?>
     </div>
 
+<script>
+function removeWishlist(favourite_id) {
+    if (!confirm('Remove from wishlist?')) return;
 
+    var formData = new FormData();
+    formData.append('favourite_id', favourite_id);
 
-
-    <!-- <div class="similar-card-container">
-        <div class="similar-container">
-            <div>
-                <img class="KLCC" src="Image/KLCC.jpg">
-            </div>
-
-            <div>
-                <p class="kuala-lumpur">Kuala Lumpur</p>
-            </div>
-
-            <div>
-                <p class="Petronas-Twin-Towers">Petronas Twin Towers</p>
-            </div>
-
-            <div>
-                <p class="summer">Climate: Summer</p>
-            </div>
-
-            <div>
-                <p class="ratings1">4.6</p>
-                <img class="star-icon" src="icon/star.png">
-                <p class="number-rating">(1,748)</p>
-
-            </div>
-
-            <div>
-                <p class="from">Fom</p>
-                <p class="RM">RM42</p>
-            </div>
-
-            <div>
-                <button class="heart-container">
-                    <img class="heart-button" src="icon/heart.png">
-                </button>
-            </div>
-        </div>
-
-        <div class="similar-container">
-            <div>
-                <img class="batu-caves" src="Image/batucaves.jpg">
-            </div>
-
-            <div>
-                <p class="kuala-lumpur">Kuala Lumpur</p>
-            </div>
-
-            <div>
-                <p class="batu-cave">Batu Caves</p>
-            </div>
-
-            <div>
-                <p class="summer">Climate: Summer</p>
-            </div>
-
-            <div>
-                <p class="ratings1">4.7</p>
-                <img class="star-icon" src="icon/star.png">
-                <p class="number-rating">(1,748)</p>
-
-            </div>
-
-            <div>
-                <p class="from">From</p>
-                <p class="RM">FREE</p>
-            </div>
-
-            <div>
-                <button class="heart-container">
-                    <img class="heart-button" src="icon/heart.png">
-                </button>
-            </div>
-        </div>
-
-        <div class="similar-container">
-            <div>
-                <img class="butterfly-image" src="Image/butterfly.jpg">
-            </div>
-
-            <div>
-                <p class="kuala-lumpur">Kuala Lumpur</p>
-            </div>
-
-            <div>
-                <p class="butterfly">Kuala Lumpur Butterfly Park</p>
-            </div>
-
-            <div>
-                <p class="summer">Climate: Summer</p>
-            </div>
-
-            <div>
-                <p class="ratings1">4.2</p>
-                <img class="star-icon" src="icon/star.png">
-                <p class="number-rating">(1,748)</p>
-
-            </div>
-
-            <div>
-                <p class="from">From</p>
-                <p class="RM">RM30</p>
-            </div>
-
-            <div>
-                <button class="heart-container">
-                    <img class="heart-button" src="icon/heart.png">
-                </button>
-            </div>
-        </div>
-
-        <div class="similar-container">
-            <div>
-                <img class="bird-park-image" src="Image/bird-park.jpg">
-            </div>
-
-            <div>
-                <p class="kuala-lumpur">Kuala Lumpur</p>
-            </div>
-
-            <div>
-                <p class="bird-park">KL Bird Park</p>
-            </div>
-
-            <div>
-                <p class="summer">Climate: Summer</p>
-            </div>
-
-            <div>
-                <p class="ratings1">4.5</p>
-                <img class="star-icon" src="icon/star.png">
-                <p class="number-rating">(1,748)</p>
-
-            </div>
-
-            <div>
-                <p class="from">From</p>
-                <p class="RM">RM90</p>
-            </div>
-
-            <div>
-                <button class="heart-container">
-                    <img class="heart-button" src="icon/heart.png">
-                </button>
-            </div>
-        </div>
-
-        <div class="similar-container">
-            <div>
-                <img class="sunway-lagoon-image" src="Image/sunway-lagoon.jpg">
-            </div>
-
-            <div>
-                <p class="kuala-lumpur">Kuala Lumpur</p>
-            </div>
-
-            <div>
-                <p class="theme-park">Sunway Lagoon Theme Park</p>
-            </div>
-
-            <div>
-                <p class="summer">Climate: Summer</p>
-            </div>
-
-            <div>
-                <p class="ratings1">4.8</p>
-                <img class="star-icon" src="icon/star.png">
-                <p class="number-rating">(7,417)</p>
-
-            </div>
-
-            <div>
-                <p class="from">From</p>
-                <p class="RM">RM193</p>
-            </div>
-
-            <div>
-                <button class="heart-container">
-                    <img class="heart-button" src="icon/heart.png">
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div class="view-more-container">
-        <button class="view-more" >View More</button>
-    </div> -->
-    
+    fetch('remove-wishlist.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.message);
+        }
+    });
+}
+</script>
     
 
 </body>

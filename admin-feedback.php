@@ -62,6 +62,8 @@ $stmt = $conn->prepare("
         r.review_id,
         r.rating,
         r.comment,
+        r.image_url,
+        r.created_at,
         u.user_name,
         COALESCE(p.profile_picture, 'image/default-profile.jpg') AS profile_picture
     FROM reviews r
@@ -532,6 +534,7 @@ $similarJson = json_encode($similar);
         margin-left: 50px;
         font-family: 'Open Sans';
         font-weight: bold;
+        padding-top: 400px;
     }
 
     .similar-container {
@@ -665,7 +668,7 @@ $similarJson = json_encode($similar);
         </div>
     </header>
 
-    <img class="batucaves1" src="<?php echo $heroImg; ?>">
+    <img class="batucaves1" src="<?php echo $heroImg; ?>" alt="<?php echo htmlspecialchars($destination['destination_name']); ?>">
 
     <p class="batucaves-name"><?php echo htmlspecialchars($destination['destination_name']); ?></p>
     <p class="malaysia"><?php echo htmlspecialchars($destination['state_name']); ?>, Malaysia</p>
@@ -726,11 +729,6 @@ $similarJson = json_encode($similar);
             <?php foreach ($reviews as $review): ?>
                 <div class="batu-container">
 
-                    <button class="trash-container" onclick="if(confirm('Are you sure you want to delete this user?')) 
-                            window.location.href='delete-review.php?id=<?php echo $review['review_id']; ?>'">
-                        <img class="trash-button" src="icon/delete.png">
-                    </button>
-
                     <div>
                         <p class="batu-caves-name"><?php echo htmlspecialchars($destination['destination_name']); ?></p>
                     </div>
@@ -751,29 +749,36 @@ $similarJson = json_encode($similar);
                     </div>
 
                     <div>
-                        <p class="rating-date"><?php echo date('F j, Y', strtotime($review['created_at'])); ?></p>
+                        <p class="rating-date"><?php echo !empty($review['created_at']) ? date('F j, Y', strtotime($review['created_at'])) : ''; ?></p>
                     </div>
 
                     <div>
                         <p class="rating-description"><?php echo htmlspecialchars($review['comment']); ?></p>
                     </div>
 
-                    <div>
-                        <img class="batucaves8" src="<?php echo imgSrc($destination['image_url']); ?>"
-                            alt="destination thumb">
-                    </div>
+                    <?php if (!empty($review['image_url'])): ?>
+                        <?php foreach (explode(',', $review['image_url']) as $imgPath): ?>
+                            <img class="batucaves8" src="<?php echo htmlspecialchars(trim($imgPath)); ?>"
+                                alt="destination thumb">
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
             <?php endforeach; ?>
         </div> 
         
     <?php else: ?>
-        <p class="no-reviews">No reviews yet for this destination.</p>
+        <p class="no-reviews" id="no-reviews-msg">No reviews yet for this destination.</p>
     <?php endif; ?>
+  
+    <div style="display:flex; gap:10px; justify-content:flex-end; padding-right:60px; margin-top:-450px;">
+        <button style="border:none; background:none; cursor:pointer; display:none;" id="reviewsPrevBtn" onclick="changeReviewPage(-1)">
+            <img src="icon/previous-button.png" alt="prev" style="width:70px;">
+        </button>
 
-
-    <button class="next-button1" id="reviewsNextBtn" onclick="toggleReviews()">
-        <img src="icon/next.png" alt="next">
-    </button>
+        <button style="border:none; background:none; cursor:pointer; <?php echo count($reviews) <= 6 ? 'display:none;' : ''; ?>" id="reviewsNextBtn" onclick="changeReviewPage(1)">
+            <img src="icon/next.png" alt="next" style="width:70px;">
+        </button>
+    </div>
 
     
 
@@ -858,6 +863,13 @@ $similarJson = json_encode($similar);
             galleryPage >= totalPages - 1 ? 'hidden' : 'visible';
     }
 
+    (function() {
+        var cards = document.querySelectorAll('.card-container .batu-container');
+        cards.forEach(function(card, i) {
+            if (i >= 6) card.style.display = 'none';
+        });
+    })();
+
     function changeGalleryPage(dir) {
         var totalPages = Math.ceil(galleryImages.length / galleryPerPage);
         galleryPage += dir;
@@ -867,6 +879,30 @@ $similarJson = json_encode($similar);
     }
 
     renderGallery();
+
+    var reviewPage = 0;
+    var reviewsPerPage = 6;
+
+    function changeReviewPage(dir) {
+        var cards = document.querySelectorAll('.card-container .batu-container');
+        var totalPages = Math.ceil(cards.length / reviewsPerPage);
+
+        reviewPage += dir;
+        if (reviewPage < 0) reviewPage = 0;
+        if (reviewPage >= totalPages) reviewPage = totalPages - 1;
+
+        cards.forEach(function(card, i) {
+            var start = reviewPage * reviewsPerPage;
+            var end = start + reviewsPerPage;
+            card.style.display = (i >= start && i < end) ? 'block' : 'none';
+        });
+
+        document.getElementById('reviewsPrevBtn').style.display =
+            reviewPage === 0 ? 'none' : 'inline-block';
+
+        document.getElementById('reviewsNextBtn').style.display =
+            reviewPage >= totalPages - 1 ? 'none' : 'inline-block';
+    }
 
     var reviewsExpanded = false;
 
