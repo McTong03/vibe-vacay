@@ -604,7 +604,7 @@ $similarJson = json_encode($similar);
 
     .experience {
         margin-left: 70px;
-        margin-top: 200px;
+        margin-top: 250px;
     }
 
     .rating-experience-container {
