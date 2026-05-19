@@ -11,34 +11,34 @@ if (isset($_POST['registerBtn'])) {
         $error_message = "All fields are required!";
     } else {
         // Escape for database
-        $user_name     = mysqli_real_escape_string($con, $user_name);
-        $user_email    = mysqli_real_escape_string($con, $user_email);
+        $user_name     = mysqli_real_escape_string($conn, $user_name);
+        $user_email    = mysqli_real_escape_string($conn, $user_email);
 
         // Check if email already exists
         $check_email_sql = "SELECT user_id FROM users WHERE user_email = '$user_email'";
-        $check_result = mysqli_query($con, $check_email_sql);
+        $check_result = mysqli_query($conn, $check_email_sql);
         
         if (mysqli_num_rows($check_result) > 0) {
             $error_message = "Email already registered! Please use a different email.";
         } else {
             // Hash the password for security
             $hashed_password = password_hash($user_password, PASSWORD_DEFAULT);
-            $hashed_password = mysqli_real_escape_string($con, $hashed_password);
+            $hashed_password = mysqli_real_escape_string($conn, $hashed_password);
             $role_std = 'user/traveller';
 
             // insert users
             $sql = "INSERT INTO users (user_name, user_email, user_password, user_role)
                     VALUES ('$user_name', '$user_email', '$hashed_password', '$role_std')";
-            if (!mysqli_query($con, $sql)) {
-                $error_message = 'Error: ' . mysqli_error($con);
+            if (!mysqli_query($conn, $sql)) {
+                $error_message = 'Error: ' . mysqli_error($conn);
             } else {
                 // insert default profile picture (standardize profile pic: Image/defaultProfile.png)
-                $newUserId  = mysqli_insert_id($con);
+                $newUserId  = mysqli_insert_id($conn);
                 $defaultPic = 'Image/defaultProfile.png';
                 $sql2 = "INSERT INTO user_profile (user_id, profile_picture)
                      VALUES ($newUserId, '$defaultPic')";
-                if (!mysqli_query($con, $sql2)) {
-                    $error_message = 'Insert user_profile failed: ' . mysqli_error($con);
+                if (!mysqli_query($conn, $sql2)) {
+                    $error_message = 'Insert user_profile failed: ' . mysqli_error($conn);
                 } else {
                     header('Location: login-page.php?success=signup');
                     exit;
@@ -47,7 +47,7 @@ if (isset($_POST['registerBtn'])) {
         }
     }
 
-    mysqli_close($con);
+    mysqli_close($conn);
     
     if (isset($error_message)) {
         echo '<script>alert("' . $error_message . '");</script>';
