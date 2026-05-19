@@ -63,13 +63,11 @@ if ($action === 'hero_nav') {
     // Rating
     $ratingStmt = $pdo->prepare("SELECT ROUND(AVG(average_rating),1) FROM destinations WHERE state_id = ?");
     $ratingStmt->execute([$heroState['state_id']]);
-    $heroRating = $ratingStmt->fetchColumn() ?: '5.0';
  
     echo json_encode([
         'state_name' => $heroState['state_name'],
         'state_url' => trim($heroState['state_url']),
         'tags'       => $heroTags,
-        'rating'     => $heroRating,
     ]);
     exit;
 }

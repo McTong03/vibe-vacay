@@ -210,6 +210,7 @@ $rpParam = isset($_GET['reviews_page']) ? '&reviews_page=' . (int)$_GET['reviews
      HERO — state carousel
     ══════════════════════════════════════════ -->
     <section class="hero" id="hero-section" style="
+    
     background-image: linear-gradient(rgba(0,0,0,.3), rgba(0,0,0,.55)),
                       url('<?= htmlspecialchars(trim($heroState['state_url'])) ?>');
     background-size: cover; background-position: center;
@@ -220,17 +221,17 @@ $rpParam = isset($_GET['reviews_page']) ? '&reviews_page=' . (int)$_GET['reviews
             <h1><?= htmlspecialchars($heroState['state_name']) ?></h1>
             <p>Discover the beauty and culture of <?= htmlspecialchars($heroState['state_name']) ?>.
                 Explore top-rated destinations, local experiences, and hidden gems waiting to be found.</p>
-            <div class="tags">
-                <span class="tag-label">Tag:</span>
-                <?php foreach ($heroTags as $tag): ?>
-                    <span class="tag"><?= htmlspecialchars($tag) ?></span>
-                <?php endforeach; ?>
-            </div>
         </div>
 
-        <div class="rating-box">
-            <span class="score"><?= htmlspecialchars((string)$heroRating) ?></span>
-            <span class="text">Rating</span>
+        <div class="tags">
+            <span class="tag-label">Tag:</span>
+            <?php foreach ($heroTags as $tag): ?>
+                <?php
+                $emojis = ['🏙️', '✨', '🌿', '🏖️', '🏔️'];
+                $emoji  = $emojis[$i % count($emojis)];
+                ?>
+                <span class="tag"><?= $emoji ?> <?= htmlspecialchars($tag) ?></span>
+            <?php endforeach; ?>
         </div>
 
         <button class="nav-arrow right" onclick="navigateHero('next')"></button>
@@ -400,7 +401,7 @@ $rpParam = isset($_GET['reviews_page']) ? '&reviews_page=' . (int)$_GET['reviews
                         `Discover the beauty and culture of ${data.state_name}. Explore top-rated destinations, local experiences, and hidden gems waiting to be found.`;
 
                     // Tags
-                    const tagsEl = hero.querySelector('.tags');
+                    const tagsEl = document.querySelector('#hero-section .tags');
                     tagsEl.innerHTML = '<span class="tag-label">Tag:</span>';
                     data.tags.forEach(tag => {
                         const span = document.createElement('span');
@@ -408,9 +409,6 @@ $rpParam = isset($_GET['reviews_page']) ? '&reviews_page=' . (int)$_GET['reviews
                         span.textContent = tag;
                         tagsEl.appendChild(span);
                     });
-
-                    // Rating
-                    hero.querySelector('.rating-box .score').textContent = data.rating;
 
                     // Page title
                     document.title = `Vibe Vacay - ${data.state_name}`;
