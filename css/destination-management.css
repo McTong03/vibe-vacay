@@ -1,0 +1,231 @@
+body {
+            min-height: 100vh;
+            margin: 0;
+            padding-bottom: 40px;
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            background-color: #1A2B49;
+            height: 55px;
+            border-radius: 50px;
+            margin: 25px 20px 0 8px;
+            width: calc(100% - 30px);
+            max-width: 1460px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding-left: 20px;
+            position: relative;
+            z-index: 3;
+            box-sizing: border-box;
+        }
+
+        .filter-bar select {
+            width: 170px;
+            height: 30px;
+            border-radius: 30px;
+            border: none;
+            padding-left: 10px;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: center;
+            margin-left: auto;
+            padding-right: 20px;
+        }
+
+        .btn {
+            padding: 0.6rem 2rem;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .btn-clear {
+            background-color: white;
+            color: #1A2B49;
+            border: none;
+        }
+
+        .btn-search {
+            background-color: #0064CE;
+            color: white;
+            border: 1px solid grey;
+        }
+
+        /* Search Container */
+        .search-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 25px;
+            padding-bottom: 1rem;
+            margin-right: 20px;
+            margin-left: 8px;
+        }
+
+        .search-bar {
+            background-color: #1A2B49;
+            padding: 0.5rem;
+            padding-left: 1.5rem;
+            border-radius: 40px;
+            display: flex;
+            width: 600px;
+            justify-content: space-between;
+            align-items: center;
+            margin: 0 auto;
+        }
+
+        .search-bar input {
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+            width: 100%;
+        }
+
+        .search-bar input::placeholder {
+            color: #cbd5e1;
+        }
+
+        .search-bar button {
+            background-color: white;
+            color: #1A2B49;
+            border: none;
+            padding: 0.6rem 2rem;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Add Button */
+        .add_Btn {
+            background-color: #0064CE;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            width: 200px;
+            height: 40px;
+            font-size: 17px;
+            font-weight: bold;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        /* Destination Grid */
+        .destination-list {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 0 10px;
+            margin-left: 5px;
+        }
+
+        .destination {
+            width: 350px;
+            background-color: white;
+            float: left;
+            margin: 10px;
+            padding: 15px;
+            box-sizing: border-box;
+            border-radius: 10px;
+            border: 2px solid #b6b5b5;
+        }
+
+        .destination_image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            background-color: #e0e0e0;
+        }
+
+        .destination_name {
+            margin: 10px 0 0 0;
+        }
+
+        .destination_state {
+            margin: 2px 0 15px 0;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        .destination_fee,
+        .destination_rating,
+        .destination_review_count,
+        .destination_description,
+        .destination_phone_number {
+            margin: 8px 0;
+            display: block;
+            font-size: 0.9rem;
+        }
+
+        /* Tags */
+        .tagging_box {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 5px;
+            margin: 10px 0;
+        }
+
+        .destination_tag {
+            background-color: #D9D9D9;
+            color: black;
+            border: none;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+        }
+
+        .no-tags {
+            color: #999;
+            font-size: 0.8rem;
+            font-style: italic;
+        }
+
+        /* Edit / Delete */
+        .edit_delete_box {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+
+        .edit_Btn,
+        .delete_Btn {
+            background-color: #B3B6C3;
+            color: black;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            height: 35px;
+            font-size: 0.85rem;
+        }
+
+        /* Empty state */
+        .no-results {
+            width: 100%;
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+            font-size: 1.1rem;
+        }
+
+        /* Rating stars */
+        .stars {
+            color: #f59e0b;
+            margin-right: 4px;
+        }
