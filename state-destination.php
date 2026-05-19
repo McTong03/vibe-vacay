@@ -1,3 +1,11 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+include 'conn.php';
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,6 +14,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>State Destination Page</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/menubar.css">
 </head>
 <style>
     :root {
@@ -28,97 +37,6 @@
         background-color: #f8fafc;
         color: var(--text-main);
         padding-bottom: 4rem;
-    }
-
-    /* ── HEADER ── */
-    #header {
-        background-color: var(--navy);
-        height: 55px;
-        border-radius: 50px;
-        margin-left: 8px;
-        margin-right: 20px;
-        margin-top: 25px;
-        width: 1480px;
-        position: relative;
-        z-index: 2;
-    }
-
-    .logo {
-        width: 65px;
-        height: 65px;
-        margin-top: -3px;
-        margin-left: 30px;
-    }
-
-    .logo-name,
-    .home,
-    .destination-management,
-    .statistic,
-    .user-management,
-    .logout,
-    .profile {
-        font-size: 17px;
-        font-weight: bold;
-    }
-
-    .logo-name {
-        margin-top: -47px;
-        margin-left: 100px;
-        color: white;
-    }
-
-    .home {
-        margin-top: -37px;
-        margin-left: 380px;
-        color: white;
-    }
-
-    .destination-management {
-        margin-top: -37px;
-        margin-left: 510px;
-        color: white;
-    }
-
-    .statistic {
-        margin-top: -37px;
-        margin-left: 770px;
-        color: white;
-    }
-
-    .user-management {
-        margin-top: -37px;
-        margin-left: 930px;
-        color: white;
-    }
-
-    .logout {
-        margin-top: -37px;
-        margin-left: 1180px;
-        color: white;
-    }
-
-    .profile-box {
-        background-color: white;
-        width: 160px;
-        height: 35px;
-        margin-top: -46px;
-        margin-left: 1280px;
-        border-radius: 30px;
-    }
-
-    .profile {
-        padding-top: 8px;
-        margin-left: 35px;
-    }
-
-    .profile-icon {
-        width: 30px;
-        height: 30px;
-        border-radius: 60px;
-        margin-left: 100px;
-        position: relative;
-        top: -42px;
-        left: 5px;
     }
 
     /* Back button */
@@ -184,6 +102,15 @@
     .state-content {
         color: white;
         max-width: 700px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .state-title-row {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 0.75rem;
     }
 
     .state-content h1 {
@@ -191,7 +118,7 @@
         font-size: 3rem;
         font-weight: 900;
         line-height: 1.1;
-        margin-bottom: 0.75rem;
+        margin-bottom: 0;
         text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
     }
 
@@ -208,24 +135,6 @@
         align-items: center;
         gap: 1.5rem;
         flex-wrap: wrap;
-    }
-
-    .state-rating {
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-        background: rgba(255, 255, 255, 0.18);
-        backdrop-filter: blur(6px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        padding: 0.35rem 0.9rem;
-        border-radius: 20px;
-        font-size: 0.88rem;
-        font-weight: 600;
-    }
-
-    .state-rating .stars {
-        color: #fbbf24;
-        letter-spacing: 1px;
     }
 
     .state-tags {
@@ -616,50 +525,31 @@
 </style>
 
 <body>
-
-    <!-- ── HEADER ── -->
-    <header id="header">
-        <div class="logo-container">
-            <img src="icon/LogoName.png" class="logo" />
-        </div>
-        <p class="logo-name">Vibe Vacay</p>
-        <p class="home">Home</p>
-        <p class="destination-management">Destination Management</p>
-        <p class="statistic">Statistic</p>
-        <p class="user-management">User Management</p>
-        <p class="logout">Log Out</p>
-        <div class="profile-box">
-            <p class="profile">Profile</p>
-            <img src="icon/profile1.jpg" class="profile-icon" />
-        </div>
-    </header>
+    <?php include('./includes/navbar.php'); ?>
 
     <!-- ── STATE / HERO ── -->
     <section class="state">
-        <!-- Circular back button -->
-        <button type="button" class="back_Btn" onclick="window.location.href='tagging-type-management.php'">
-            <img src="icon/error.png" class="back-icon" />
-        </button>
-        <div class="state-content">
+    <div class="state-content">
+
+        <!-- Back button + Title side by side -->
+        <div class="state-title-row">
+            <button type="button" class="state-back" onclick="window.location.href='recommendation-page.php'">&#8592;</button>
             <h1>Kuala Lumpur</h1>
-            <p class="state-desc">
-                Malaysia's capital city blends modern skyscrapers with cultural heritage. From iconic landmarks to
-                shopping districts and street food — KL is endlessly vibrant, buzzing with energy and excitement.
-            </p>
-            <div class="state-meta">
-                <div class="state-rating">
-                    <span class="stars">★★★★★</span>
-                    <span>5.0</span>
-                    <span style="opacity:0.7; font-weight:400;">· Kuala Lumpur, Malaysia</span>
-                </div>
-                <div class="state-tags">
-                    <span class="state-tag">🏙 Urban</span>
-                    <span class="state-tag">✨ Vibrant</span>
-                    <span class="state-tag">🌿 Lifestyle</span>
-                </div>
+        </div>
+
+        <p class="state-desc">
+            Malaysia's capital city blends modern skyscrapers with cultural heritage. From iconic landmarks to
+            shopping districts and street food — KL is endlessly vibrant, buzzing with energy and excitement.
+        </p>
+        <div class="state-meta">
+            <div class="state-tags">
+                <span class="state-tag">🏙 Urban</span>
+                <span class="state-tag">✨ Vibrant</span>
+                <span class="state-tag">🌿 Lifestyle</span>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
     <!-- ── SEARCH ── -->
     <div class="search-container">

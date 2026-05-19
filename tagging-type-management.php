@@ -389,7 +389,6 @@ $stmt->close();
 </style>
 
 <body>
-
     <?php include('./includes/admin-nav-bar.php'); ?>
 
     <!-- TITLE -->

@@ -23,6 +23,7 @@ $profilePicture = $_SESSION['profile_picture'] ?? 'Image/defaultProfile.png';
         <a href="./recommendation-page.php">Destination Management</a>
         <a href="./filter-search-page.php">Statistic</a>
         <a href="./wishlist-page.php">User Management</a>
+        <a href="./tagging-type-management.php">Tagging Type Management</a>
     </nav>
     <div class="auth-buttons">
         <a href="./logout.php" class="login">Log Out</a>
