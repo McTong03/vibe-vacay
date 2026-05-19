@@ -1,4 +1,8 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 if (isset($_POST['btn-add'])) {
     include("conn.php");
 
@@ -6,7 +10,7 @@ if (isset($_POST['btn-add'])) {
     $default_points = intval($_POST['default_points']);
 
     $sql = "INSERT INTO destinations ( destination_name, default_points)
-                VALUES ('$action_name', '$default_points')";
+                VALUES ('$destination_name', '$default_points')";
 
     if (!mysqli_query($con, $sql)) {
         die('Error: ' . mysqli_error($con));
@@ -15,7 +19,7 @@ if (isset($_POST['btn-add'])) {
     mysqli_close($con);
 
     echo '<script>alert("New destination created successfully!");
-            window.location.href = "A-PointManagement.php";
+            window.location.href = "destination-management.php";
             </script>';
 }
 ?>
@@ -27,105 +31,13 @@ if (isset($_POST['btn-add'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Destination Page</title>
+    <link rel="stylesheet" href="css/menubar.css">
+
 </head>
 <style>
     body {
         height: 1000px;
     }
-
-    /* Header Styles */
-    #header {
-        background-color: #1A2B49;
-        height: 55px;
-        border-radius: 50px;
-        margin-left: 8px;
-        margin-right: 20px;
-        margin-top: 25px;
-        width: 1480px;
-        position: relative;
-        z-index: 2;
-    }
-
-    .logo {
-        width: 65px;
-        height: 65px;
-        margin-top: -3px;
-        margin-left: 30px;
-    }
-
-    .logo-name,
-    .home,
-    .destination-management,
-    .statistic,
-    .user-management,
-    .logout,
-    .profile {
-        /* font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; */
-        font-size: 17px;
-        font-weight: bold
-    }
-
-    .logo-name {
-        margin-top: -47px;
-        margin-left: 100px;
-        color: white;
-    }
-
-    .home {
-        margin-top: -37px;
-        margin-left: 380px;
-        color: white;
-    }
-
-    .destination-management {
-        margin-top: -37px;
-        margin-left: 510px;
-        color: white;
-    }
-
-    .statistic {
-        margin-top: -37px;
-        margin-left: 770px;
-        color: white;
-    }
-
-    .user-management {
-        margin-top: -37px;
-        margin-left: 930px;
-        color: white;
-    }
-
-    .logout {
-        margin-top: -37px;
-        margin-left: 1180px;
-        color: white;
-    }
-
-    .profile-box {
-        background-color: white;
-        width: 160px;
-        height: 35px;
-        margin-top: -46px;
-        margin-left: 1280px;
-        border-radius: 30px;
-    }
-
-    .profile {
-        padding-top: 8px;
-        margin-left: 35px;
-    }
-
-    .profile-icon {
-        width: 30px;
-        height: 30px;
-        border-radius: 60px;
-        margin-left: 100px;
-        /* top: -20px; */
-        position: relative;
-        top: -42px;
-        left: 5px;
-    }
-
 
     /* Content Styles */
     .content-container {
@@ -267,25 +179,7 @@ if (isset($_POST['btn-add'])) {
 </style>
 
 <body>
-    <header id="header">
-        <div class="logo-container">
-            <img src="icon/LogoName.png" class="logo" />
-        </div>
-
-        <p class="logo-name">Vibe Vacay</p>
-        <p class="home">Home</p>
-        <p class="destination-management">Destination Management</p>
-        <p class="statistic">Statistic</p>
-        <p class="user-management">User Managememt</p>
-        <p class="logout">Log Out</p>
-
-
-        <div class="profile-box">
-            <p class="profile">Profile</p>
-            <img src="icon/profile1.jpg" class="profile-icon" />
-
-        </div>
-    </header>
+    <?php include('./includes/admin-nav-bar.php'); ?>
 
     <div class="title">
         <button type="button" class="back_Btn" onclick="window.location.href='destination-management.php'">
