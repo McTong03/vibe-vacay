@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Redirect if not logged in or not an admin
 if (empty($_SESSION['user_id']) || strtolower($_SESSION['user_role']) !== 'admin') {
-    header('Location: ../login-page.php');
+    header('Location: ./login-page.php');
     exit();
 }
 
@@ -21,8 +21,8 @@ $profilePicture = $_SESSION['profile_picture'] ?? 'Image/defaultProfile.png';
     <nav class="nav-links">
         <a href="./admin-dashboard.php">Home</a>
         <a href="./destination-management.php">Destination Management</a>
-        <a href="./filter-search-page.php">Statistic</a>
-        <a href="./wishlist-page.php">User Management</a>
+        <a href="./statistics-and-report.php">Statistic</a>
+        <a href="./user-management.php">User Management</a>
         <a href="./tagging-type-management.php">Tagging Type Management</a>
     </nav>
     <div class="auth-buttons">
