@@ -151,7 +151,7 @@ body {
     border: 1.5px solid #c8d3e8;
     border-radius: 16px;
     overflow: hidden;
-    margin: 10px auto 32px auto;
+    margin: 10px auto 38px auto;
 }
  
 .destination-item {
@@ -179,8 +179,8 @@ body {
     flex: 1;
 }
  
-.destination-location {
-    font-size: 11px;
+.destination-state {
+    font-size: 15px;
     color: #6b7fa8;
     font-weight: 500;
     text-transform: uppercase;
@@ -189,7 +189,7 @@ body {
 }
  
 .destination-name {
-    font-size: 15px;
+    font-size: 21px;
     font-weight: 600;
     color: #1A2B49;
 }
@@ -198,7 +198,7 @@ body {
     display: flex;
     align-items: center;
     gap: 5px;
-    font-size: 15px;
+    font-size: 21px;
     font-weight: 700;
     color: #1A2B49;
     flex-shrink: 0;
@@ -213,23 +213,6 @@ body {
     background-color: #ffffff;
     border: 1.5px solid #c8d3e8;
     border-radius: 16px;
-    height: 210px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    margin: 10px auto 32px auto;
-    color: #8a9bbf;
-}
- 
-.chart-placeholder svg {
-    width: 44px;
-    height: 44px;
-    opacity: 0.45;
-}
- 
-.chart-placeholder span {
-    font-size: 15px;
-    font-weight: 500;
+    padding: 24px;
+    min-height: 300px;
 }
