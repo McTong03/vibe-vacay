@@ -1,6 +1,8 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 include 'conn.php';
-
 // ── ADD ──
 if (isset($_POST['action']) && $_POST['action'] === 'add') {
     $name = trim($_POST['tag_type_name']);
@@ -32,6 +34,13 @@ if (isset($_POST['action']) && $_POST['action'] === 'edit') {
 if (isset($_POST['action']) && $_POST['action'] === 'delete') {
     $id = intval($_POST['tag_type_id']);
     if ($id > 0) {
+        // Delete all tags belonging to this tag type first
+        $stmt = $conn->prepare("DELETE FROM destination_tags WHERE tag_type_id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $stmt->close();
+
+        // Then delete the tag type itself
         $stmt = $conn->prepare("DELETE FROM tag_type WHERE tag_type_id = ?");
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -62,6 +71,7 @@ $stmt->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tagging Type Management Page</title>
+    <link rel="stylesheet" href="css/menubar.css">
 </head>
 <style>
     body {
@@ -70,96 +80,6 @@ $stmt->close();
         font-family: system-ui, sans-serif;
     }
 
-    /* Header */
-    #header {
-        background-color: #1A2B49;
-        height: 55px;
-        border-radius: 50px;
-        margin-left: 8px;
-        margin-right: 20px;
-        margin-top: 25px;
-        width: 1480px;
-        position: relative;
-        z-index: 2;
-    }
-
-    .logo {
-        width: 65px;
-        height: 65px;
-        margin-top: -3px;
-        margin-left: 30px;
-    }
-
-    .logo-name,
-    .home,
-    .destination-management,
-    .statistic,
-    .user-management,
-    .logout,
-    .profile {
-        font-size: 17px;
-        font-weight: bold;
-    }
-
-    .logo-name {
-        margin-top: -47px;
-        margin-left: 100px;
-        color: white;
-    }
-
-    .home {
-        margin-top: -37px;
-        margin-left: 380px;
-        color: white;
-    }
-
-    .destination-management {
-        margin-top: -37px;
-        margin-left: 510px;
-        color: white;
-    }
-
-    .statistic {
-        margin-top: -37px;
-        margin-left: 770px;
-        color: white;
-    }
-
-    .user-management {
-        margin-top: -37px;
-        margin-left: 930px;
-        color: white;
-    }
-
-    .logout {
-        margin-top: -37px;
-        margin-left: 1180px;
-        color: white;
-    }
-
-    .profile-box {
-        background-color: white;
-        width: 160px;
-        height: 35px;
-        margin-top: -46px;
-        margin-left: 1280px;
-        border-radius: 30px;
-    }
-
-    .profile {
-        padding-top: 8px;
-        margin-left: 35px;
-    }
-
-    .profile-icon {
-        width: 30px;
-        height: 30px;
-        border-radius: 60px;
-        margin-left: 100px;
-        position: relative;
-        top: -42px;
-        left: 5px;
-    }
 
     /* Search */
     .search-bar {
@@ -470,22 +390,7 @@ $stmt->close();
 
 <body>
 
-    <!-- HEADER -->
-    <header id="header">
-        <div class="logo-container">
-            <img src="icon/LogoName.png" class="logo" />
-        </div>
-        <p class="logo-name">Vibe Vacay</p>
-        <p class="home">Home</p>
-        <p class="destination-management">Destination Management</p>
-        <p class="statistic">Statistic</p>
-        <p class="user-management">User Management</p>
-        <p class="logout">Log Out</p>
-        <div class="profile-box">
-            <p class="profile">Profile</p>
-            <img src="icon/profile1.jpg" class="profile-icon" />
-        </div>
-    </header>
+    <?php include('./includes/admin-nav-bar.php'); ?>
 
     <!-- TITLE -->
     <div class="title">
