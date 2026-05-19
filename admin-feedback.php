@@ -43,17 +43,19 @@ if (!$destination) {
  
 // ── Fetch tags for this destination ─────────────────────────
 $stmt = $conn->prepare("
-    SELECT t.tag_name
+    SELECT t.tag_name, tt.tag_type_name
     FROM destination_tag_mapping dtm
     JOIN destination_tags t ON t.tag_id = dtm.tag_id
+    JOIN tag_type tt ON tt.tag_type_id = t.tag_type_id
     WHERE dtm.destination_id = ?
+    ORDER BY tt.tag_type_id, t.tag_id
 ");
 $stmt->bind_param("i", $destination_id);
 $stmt->execute();
 $tags_result = $stmt->get_result();
 $tags = [];
 while ($tag = $tags_result->fetch_assoc()) {
-    $tags[] = $tag['tag_name'];
+    $tags[$tag['tag_type_name']][] = $tag['tag_name'];
 }
 $stmt->close();
 
@@ -268,23 +270,38 @@ $similarJson = json_encode($similar);
     }
 
     .batucaves-name {
-        margin-top: -180px;
+        margin-top: -210px;
         font-size: 45px;
         margin-left: 60px;
     }
 
     .malaysia {
         font-size: 26px;
-        margin-top: -50px;
+        margin-top: -40px;
         margin-left: 60px;
+        position: relative;
         font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif
     }
 
-    .tag{
+    .tags-overlay-row {
+        position: relative;
+        margin-top: 30px;
         margin-left: 60px;
-        color: #474141;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        z-index: 2;
+    }
+
+    .tag-overlay-pill {
+        background-color: rgba(255, 255, 255, 0.35);
+        color: white;
+        border-radius: 30px;
+        padding: 10px 28px;
         font-size: 18px;
-        margin-top: -8px;
+        font-weight: 500;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
     }
 
     .heritage-container,
@@ -325,7 +342,7 @@ $similarJson = json_encode($similar);
         height: 100px;
         width: 250px;
         border-radius: 30px;
-        margin-top: -130px;
+        margin-top: -180px;
         margin-left: 1150px;
     }
 
@@ -354,17 +371,14 @@ $similarJson = json_encode($similar);
     }
     
     .overview {
-        font-size: 36px;
         margin-top: 110px;
         margin-left: 0;
-        font-family: 'Open Sans';
-        font-weight: bold;
     }
 
     .overview1,
     .overview2,
     .overview3 {
-        font-size: 25px;
+        font-size: 20px;
         color: #6F6767;
         margin-left: 50px;
     }
@@ -415,11 +429,9 @@ $similarJson = json_encode($similar);
     }
 
     .gallery {
-        font-size: 36px;
         margin-top: 40px;
         margin-left: 50px;
-        font-family: 'Open Sans';
-        font-weight: bold;
+        cursor: pointer;
     }
 
     .batucaves2,
@@ -428,17 +440,18 @@ $similarJson = json_encode($similar);
     .batucaves5,
     .batucaves6,
     .batucaves7 {
-        width: 450px;
-        height: 350px;
+        width: 350px;
+        height: 300px;
         border-radius: 10px;
     }
 
     .image-container {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 400px);
         margin-left: 50px;
-        gap: 35px;
-        column-gap: 2px;
+        gap: 30px;
+        column-gap: 1px;
+        cursor: pointer;
     }
 
     .next-button img,
@@ -448,11 +461,8 @@ $similarJson = json_encode($similar);
     }
 
     .saying {
-        font-size: 36px;
-        font-family: 'Open Sans';
-        font-weight: bold;
         margin-top: -15px;
-        margin-left: 50px;
+        margin-left: 500px;
     }
 
     .batu-caves-name {
@@ -464,17 +474,24 @@ $similarJson = json_encode($similar);
 
     .batu-container {
         max-width: 400px;
-        height: 400px;
+        height: auto;
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         margin-left: 50px;
         border-radius: 18px;
+        position: relative;
+        cursor: pointer;
         
+    }
+
+    .batu-container:hover {
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        transition: box-shadow 0.3s ease;
     }
 
     .card-container {
         display: grid;
-        grid-template-columns: repeat(3, 450px);
-        gap: 10px;
+        grid-template-columns: repeat(4, 350px);
+        gap: 3px;
         row-gap: 30px;
     }
 
@@ -506,63 +523,65 @@ $similarJson = json_encode($similar);
     }
 
     .rating-description {
-        font-size: 14px;
-        width: 340px;
+        font-size: 12px;
+        width: 270px;
         position: relative;
         left: 20px;
         top: -30px;
-        line-height: 20px;
+        line-height: 15px;
     }
 
     .batucaves8 {
-        width: 76px;
+        width: 70px;
         border-radius: 8px;
         position: relative;
         left: 20px;
-        height: 76px;
-    }
-
-    .next-button1 {
-        border:none;
-        background: none;
-        position: relative;
-        left: 1350px;
+        height: 70px;
     }
 
     .similar-place {
-        font-size: 36px;
-        margin-left: 50px;
-        font-family: 'Open Sans';
-        font-weight: bold;
-        padding-top: 500px;
+        margin-left: 60px;
+        padding-top: 250px;
     }
 
     .similar-container {
-        height: 460px;
-        width: 400px;
+        height: 360px;
+        width: 300px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        margin-left: 50px;
-        border-radius: 10px;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: box-shadow 0.3s ease;
+        margin-left: 60px;
     }
+    .similar-container:hover {
+        box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    }
+
+    .similar-container:hover .thean-hou {
+        filter: brightness(80%);
+        transition: filter 0.3s ease;
+    }
+ 
 
     .thean-hou,
     .national-mosque,
     .genting-highlands {
-        width: 400px;
-        height: 300px;
+        width: 100%;
+        height: 200px;
+        border-radius: 20px 20px 0 0; 
     }
 
     .kuala-lumpur,
     .thean-hou-temple,
     .hot,
     .ratings1 {
-        padding-left: 30px;
+        padding-left: 25px;
     }
     
     .kuala-lumpur {
         font-size: 12px;
         color: #63687A;
-        padding-top: 10px;
+        padding-top: 6px;
     }
 
     .thean-hou-temple {
@@ -606,7 +625,7 @@ $similarJson = json_encode($similar);
         color: #63687A;
         font-size: 14px;
         margin-top: -50px;
-        margin-left: 200px;
+        margin-left: 150px;
     }
  
     .free {
@@ -618,33 +637,37 @@ $similarJson = json_encode($similar);
 
     .similar-card-container {
         display: grid;
-        grid-template-columns: repeat(3, 470px);
+        grid-template-columns: repeat(4, 350px);
     }
 
     .trash-button {
-        border: none;
-        background: none;
-        margin-left: 340px;
-        margin-top: -210px;
         position: absolute;
-    }
+        top: 12px;
+        right: 12px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        }
 
     .trash-button img {
-        width: 30px;
-    }
-
-
-    .next-button2 {
-        border:none;
-        background: none;
-        position: relative;
-        top: -300px;
-        left: 1400px;
+        width: 25px;
     }
 
     .no-reviews {
         margin-left: 60px;
     }
+
+    .overview,
+    .gallery,
+    .saying,
+    .experience,
+    .similar-place {
+        font-size: 25px;
+        font-family: 'Open Sans';
+        font-weight: bold;
+    }
+
 
 </style>
 
@@ -672,15 +695,16 @@ $similarJson = json_encode($similar);
     <img class="batucaves1" src="<?php echo $heroImg; ?>" alt="<?php echo htmlspecialchars($destination['destination_name']); ?>">
 
     <p class="batucaves-name"><?php echo htmlspecialchars($destination['destination_name']); ?></p>
-    <p class="malaysia"><?php echo htmlspecialchars($destination['state_name']); ?>, Malaysia</p>
+    <p class="malaysia"><?php echo htmlspecialchars($destination['state_name'] ?? ''); ?>, Malaysia</p>
     
     <?php if (!empty($tags)): ?>
-        <p class="tag">Tag:</p>
-        <div class="tags-row">
-                <?php foreach ($tags as $tag): ?>
-                    <span class="tag-pill"><?php echo htmlspecialchars($tag); ?></span>
+        <div class="tags-overlay-row">
+            <?php foreach ($tags as $type => $tagList): ?>
+                <?php foreach ($tagList as $tag): ?>
+                    <span class="tag-overlay-pill"><?php echo htmlspecialchars($tag); ?></span>
                 <?php endforeach; ?>
-            </div>
+            <?php endforeach; ?>
+        </div>
     <?php endif; ?>
 
     <div class="rating-container">
@@ -703,16 +727,9 @@ $similarJson = json_encode($similar);
 
     <p class="gallery">Gallery</p>
 
-    <div class="image-container" id="galleryGrid">
-        <?php for ($i = 0; $i < 6; $i++): ?>
-            <img class="batucaves2"
-                src="<?php echo $heroImg; ?>"
-                alt="<?php echo htmlspecialchars($destination['destination_name']); ?>">
-        <?php endfor; ?>
+    <div class="image-container" id="galleryGrid"></div>
 
-    </div>
-
-    <div style="display:flex; gap:10px; position:relative; left:1500px; top:-400px;">   
+    <div style="display:flex; gap:10px; position:relative; left:1500px; top:-180px;">   
         <button style="border:none; background:none; cursor:pointer;" class="next-button" id="galleryPrevBtn" onclick="changeGalleryPage(-1)">
             <img src="icon/previous-button.png" alt="prev">
         </button>
@@ -779,7 +796,7 @@ $similarJson = json_encode($similar);
         <p class="no-reviews" id="no-reviews-msg">No reviews yet for this destination.</p>
     <?php endif; ?>
   
-    <div style="display:flex; gap:10px; justify-content:flex-end; padding-right:60px; margin-top:-450px;">
+    <div style="display:flex; gap:10px; justify-content:flex-end; padding-right:60px; margin-top:-200px;">
         <button style="border:none; background:none; cursor:pointer; display:none;" id="reviewsPrevBtn" onclick="changeReviewPage(-1)">
             <img src="icon/previous-button.png" alt="prev" style="width:70px;">
         </button>
@@ -834,7 +851,7 @@ $similarJson = json_encode($similar);
         <p style="margin-left:50px; color:#666; margin-bottom:60px;">No similar places found.</p>
     <?php endif; ?>
 
-    <div>
+    <div style="display:flex; gap:10px; justify-content:flex-end; position:absolute; right:80px; margin-top:-220px;">
         <button style="border:none; background:none; cursor:pointer;" class="next-button2" id="similarPrevBtn" onclick="changeSimilarPage(-1)">
             <img src="icon/previous-button.png" alt="prev" >
         </button>
@@ -847,7 +864,7 @@ $similarJson = json_encode($similar);
 <script>
     var galleryImages = <?php echo $galleryJson; ?>;
     var galleryPage   = 0;
-    var galleryPerPage = 6;
+    var galleryPerPage = 4;
 
     function renderGallery() {
         var grid  = document.getElementById('galleryGrid');
@@ -875,7 +892,7 @@ $similarJson = json_encode($similar);
     (function() {
         var cards = document.querySelectorAll('.card-container .batu-container');
         cards.forEach(function(card, i) {
-            if (i >= 6) card.style.display = 'none';
+            if (i >= 4) card.style.display = 'none';
         });
     })();
 
@@ -890,7 +907,7 @@ $similarJson = json_encode($similar);
     renderGallery();
 
     var reviewPage = 0;
-    var reviewsPerPage = 6;
+    var reviewsPerPage = 4;
 
     function changeReviewPage(dir) {
         var cards = document.querySelectorAll('.card-container .batu-container');
@@ -919,7 +936,7 @@ $similarJson = json_encode($similar);
         var cards = document.querySelectorAll('.card-container .batu-container');
         reviewsExpanded = !reviewsExpanded;
         cards.forEach(function(card, i) {
-            if (i >= 6) {
+            if (i >= 4) {
                 card.style.display = reviewsExpanded ? 'block' : 'none';
             }
         });
@@ -932,7 +949,7 @@ $similarJson = json_encode($similar);
         similarExpanded = !similarExpanded;
  
         cards.forEach(function(card, i) {
-            if (i >= 3) {
+            if (i >= 4) {
                 card.classList.toggle('hidden-card', !similarExpanded);
             }
         });
@@ -942,7 +959,7 @@ $similarJson = json_encode($similar);
 
     var similarPlaces  = <?php echo $similarJson; ?>;
     var similarPage    = 0;
-    var similarPerPage = 3;
+    var similarPerPage = 4;
 
     function renderSimilar() {
         var grid  = document.getElementById('similarGrid');
@@ -959,7 +976,6 @@ $similarJson = json_encode($similar);
 
             var div = document.createElement('div');
             div.className = 'similar-container';
-            div.style.cursor = 'pointer';
             div.onclick = function() {
                 window.location.href = 'admin-feedback.php?id=' + place.destination_id;
             };

@@ -170,11 +170,11 @@ $result = mysqli_query($conn, $sql);
     }
 
     .similar-container {
-        height: 460px;
+        height: 380px;
         width: 300px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        margin-left: 70px;
-        border-radius: 10px;
+        margin-left: 120px;
+        border-radius: 20px;
         margin-top: 10px;
     }
 
@@ -183,8 +183,9 @@ $result = mysqli_query($conn, $sql);
     .butterfly-image,
     .bird-park-image,
     .sunway-lagoon-image {
-        width: 300px;
-        height: 300px;
+        width: 100%;
+        height: 200px;
+        border-radius: 20px 20px 0 0; 
     }
 
     .kuala-lumpur,
@@ -261,9 +262,8 @@ $result = mysqli_query($conn, $sql);
 
     .heart-button {
         width: 25px;
-        margin-top: -11px;
-        margin-left: -13px;
-        position: absolute;
+        margin-top: 7px;
+        position: relative;
     }
 
     .heart-container {
@@ -273,7 +273,7 @@ $result = mysqli_query($conn, $sql);
         width: 40px;
         height: 40px;
         position: absolute;
-        margin-top: -450px;
+        margin-top: -350px;
         margin-left: 250px;
     }
 
@@ -385,6 +385,12 @@ $result = mysqli_query($conn, $sql);
     }
     ?>
     </div>
+
+    <div class="view-more-container">
+        <button class="view-more">View More</button>
+    </div>
+    
+    
 
 <script>
 function removeWishlist(favourite_id) {
