@@ -8,6 +8,7 @@ include 'conn.php';
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=\, initial-scale=1.0">
@@ -15,7 +16,7 @@ include 'conn.php';
     <link rel="stylesheet" href="css/menubar.css">
 </head>
 <style>
-     body{
+    body {
         height: 4000px;
     }
 
@@ -33,8 +34,10 @@ include 'conn.php';
         align-items: center;
         gap: 15px;
         padding-left: 20px;
-        position: relative;  /* add this */
-        z-index: 3;          /* add this — higher than header's z-index: 2 */
+        position: relative;
+        /* add this */
+        z-index: 3;
+        /* add this — higher than header's z-index: 2 */
 
     }
 
@@ -51,19 +54,20 @@ include 'conn.php';
     .budget-box,
     .travel-companion-box,
     .destination-type-box,
-    .travel-preferences-box{
+    .travel-preferences-box {
         align-items: center;
         margin-left: 20px;
         border-radius: 30px;
     }
 
     /* Filter button Styles */
-    .filter-actions{
+    .filter-actions {
         display: flex;
         gap: 8px;
         align-items: center;
         justify-content: center;
-        margin-left: 100px; /* push to the right */
+        margin-left: 100px;
+        /* push to the right */
 
     }
 
@@ -90,7 +94,7 @@ include 'conn.php';
     /* Global Search Bar */
     .search-container {
         display: flex;
-        align-items: center; 
+        align-items: center;
         justify-content: space-between;
         margin-top: 25px;
         padding-bottom: 1rem;
@@ -106,7 +110,7 @@ include 'conn.php';
         width: 600px;
         justify-content: space-between;
         align-items: center;
-        margin: 0 auto; 
+        margin: 0 auto;
     }
 
     .search-bar input {
@@ -117,16 +121,18 @@ include 'conn.php';
         width: 100%;
     }
 
-    .search-bar input::placeholder { color: #cbd5e1; }
+    .search-bar input::placeholder {
+        color: #cbd5e1;
+    }
 
     .search-bar button {
-            background-color: white;
-            color: var(--primary-dark);
-            border: none;
-            padding: 0.6rem 2rem;
-            border-radius: 30px;
-            font-weight: bold;
-            cursor: pointer;
+        background-color: white;
+        color: var(--primary-dark);
+        border: none;
+        padding: 0.6rem 2rem;
+        border-radius: 30px;
+        font-weight: bold;
+        cursor: pointer;
     }
 
     /*Add Button */
@@ -143,26 +149,28 @@ include 'conn.php';
         gap: 8px;
         align-items: center;
         justify-content: center;
-        flex-shrink: 0; 
-        cursor: pointer; 
+        flex-shrink: 0;
+        cursor: pointer;
     }
 
     /* Destination Styles */
-    .destination{
-            width:350px;
-            height:flex;
-            background-color: white;
-            float:left;
-            margin: 10px;
-            padding:15px;
-            box-sizing:border-box;
-            border-radius:10px;
-            border: 2px solid #b6b5b5ff;
-        }
-    .destination_name{
+    .destination {
+        width: 350px;
+        height: flex;
+        background-color: white;
+        float: left;
+        margin: 10px;
+        padding: 15px;
+        box-sizing: border-box;
+        border-radius: 10px;
+        border: 2px solid #b6b5b5ff;
+    }
+
+    .destination_name {
         margin: 10px 0 0 0;
     }
-    .destination_state{
+
+    .destination_state {
         margin: 2px 0 25px 0;
     }
 
@@ -171,72 +179,77 @@ include 'conn.php';
     .destination_review_count,
     .destination_description,
     .destination_phone_number {
-        margin: 10px 0;        /* tight spacing between all p tags */
-        display: block;       /* needed for span (phone number) to respect margin */
+        margin: 10px 0;
+        /* tight spacing between all p tags */
+        display: block;
+        /* needed for span (phone number) to respect margin */
     }
 
-        /* Open Hour Styles */
-        .destination_open_hour select {
-            width: 230px;
-            height: 25px;
-            border-radius: 30px;
-            border: 1px solid #b6b5b5ff;
-            padding-left: 10px;
-        }
+    /* Open Hour Styles */
+    .destination_open_hour select {
+        width: 230px;
+        height: 25px;
+        border-radius: 30px;
+        border: 1px solid #b6b5b5ff;
+        padding-left: 10px;
+    }
 
-        /* Destination Tag Styles */
-        .destination_tag {
-            background-color: #D9D9D9;
-            color: black;
-            border: none;
-            padding: 0.3rem 1rem;
-            border-radius: 30px;
-        }
-        .tagging_box {
-            display: flex;
-            align-items: center;
-            justify-content: left;
-            gap: 5px;
-        }
+    /* Destination Tag Styles */
+    .destination_tag {
+        background-color: #D9D9D9;
+        color: black;
+        border: none;
+        padding: 0.3rem 1rem;
+        border-radius: 30px;
+    }
 
-        /* Edit button Styles */
-        .edit_delete_box{
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            justify-content: right;
+    .tagging_box {
+        display: flex;
+        align-items: center;
+        justify-content: left;
+        gap: 5px;
+    }
 
-        }
+    /* Edit button Styles */
+    .edit_delete_box {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: right;
 
-        .edit_Btn {
-            background-color: #B3B6C3; 
-            color: black;
-            border: none;
-            padding: 0.6rem 2rem;
-            border-radius: 30px;
-            font-weight: bold;
-            cursor: pointer;
-            height: 35px;
-        }
+    }
 
-        .delete_Btn {
-            background-color: #B3B6C3;  
-            color: black;
-            border: none;
-            padding: 0.6rem 2rem;
-            border-radius: 30px;
-            font-weight: bold;
-            cursor: pointer;
-            height: 35px;
-        }
+    .edit_Btn {
+        background-color: #B3B6C3;
+        color: black;
+        border: none;
+        padding: 0.6rem 2rem;
+        border-radius: 30px;
+        font-weight: bold;
+        cursor: pointer;
+        height: 35px;
+    }
 
+    .delete_Btn {
+        background-color: #B3B6C3;
+        color: black;
+        border: none;
+        padding: 0.6rem 2rem;
+        border-radius: 30px;
+        font-weight: bold;
+        cursor: pointer;
+        height: 35px;
+    }
 </style>
+
 <body>
     <?php include('./includes/admin-nav-bar.php'); ?>
 
     <div class="title">
         <h1 style="margin-left: 15px; margin-top: 15px;">
-            <img src="icon/destination.png" style="width: 40px; height: 40px; margin-left: 25px; margin-top: 25px; margin-right: 15px;" alt="Tagging Type">
+            <img src="icon/destination.png"
+                style="width: 40px; height: 40px; margin-left: 25px; margin-top: 25px; margin-right: 15px;"
+                alt="Tagging Type">
             Destination Management
         </h1>
     </div>
@@ -300,14 +313,15 @@ include 'conn.php';
             <input type="text" placeholder="Find places and things to do">
             <button>Search</button>
         </div>
-            <button type="button" class="add_Btn" onclick="window.location.href='add-destination.php'">+ Add Destination</button>
+        <button type="button" class="add_Btn" onclick="window.location.href='add-destination.php'">+ Add
+            Destination</button>
     </div>
-    
+
 
 
     <div class="destination-list">
         <div class="destination">
-    
+
             <img src="capstone assignment/png.png" class="destination_image" />
 
             <h2 class="destination_name">Menara Kuala Lumpur</h2>
@@ -322,7 +336,7 @@ include 'conn.php';
 
             <span class="destination_phone_number">Phone Number: 03-2630 3033</span>
 
-            <p class="destination_description">Description: One of the world's tallest, 
+            <p class="destination_description">Description: One of the world's tallest,
                 this landmark tower offers scenic city views & a revolving restaurant...</p>
 
             <div class="tagging_box">
@@ -331,13 +345,15 @@ include 'conn.php';
             </div>
 
             <div class="edit_delete_box">
-                <button type="button" class="edit_Btn" onclick="window.location.href='edit-destination.php'">Edit</button>
-                <button type="button" class="delete_Btn" onclick="window.location.href='delete-destination.php'">Delete</button>
+                <button type="button" class="edit_Btn"
+                    onclick="window.location.href='edit-destination.php'">Edit</button>
+                <button type="button" class="delete_Btn"
+                    onclick="window.location.href='delete-destination.php'">Delete</button>
             </div>
         </div>
 
         <div class="destination">
-    
+
             <img src="capstone assignment/png.png" class="destination_image" />
 
             <h2 class="destination_name">Menara Kuala Lumpur</h2>
@@ -352,7 +368,7 @@ include 'conn.php';
 
             <span class="destination_phone_number">Phone Number: 03-2630 3033</span>
 
-            <p class="destination_description">Description: One of the world's tallest, 
+            <p class="destination_description">Description: One of the world's tallest,
                 this landmark tower offers scenic city views & a revolving restaurant...</p>
 
             <div class="tagging_box">
@@ -361,13 +377,15 @@ include 'conn.php';
             </div>
 
             <div class="edit_delete_box">
-                <button type="button" class="edit_Btn" onclick="window.location.href='edit-destination.php'">Edit</button>
-                <button type="button" class="delete_Btn" onclick="window.location.href='delete-destination.php'">Delete</button>
+                <button type="button" class="edit_Btn"
+                    onclick="window.location.href='edit-destination.php'">Edit</button>
+                <button type="button" class="delete_Btn"
+                    onclick="window.location.href='delete-destination.php'">Delete</button>
             </div>
-    </div>
+        </div>
 
-     <div class="destination">
-    
+        <div class="destination">
+
             <img src="capstone assignment/png.png" class="destination_image" />
 
             <h2 class="destination_name">Menara Kuala Lumpur</h2>
@@ -382,7 +400,7 @@ include 'conn.php';
 
             <span class="destination_phone_number">Phone Number: 03-2630 3033</span>
 
-            <p class="destination_description">Description: One of the world's tallest, 
+            <p class="destination_description">Description: One of the world's tallest,
                 this landmark tower offers scenic city views & a revolving restaurant...</p>
 
             <div class="tagging_box">
@@ -391,13 +409,15 @@ include 'conn.php';
             </div>
 
             <div class="edit_delete_box">
-                <button type="button" class="edit_Btn" onclick="window.location.href='edit-destination.php'">Edit</button>
-                <button type="button" class="delete_Btn" onclick="window.location.href='delete-destination.php'">Delete</button>
+                <button type="button" class="edit_Btn"
+                    onclick="window.location.href='edit-destination.php'">Edit</button>
+                <button type="button" class="delete_Btn"
+                    onclick="window.location.href='delete-destination.php'">Delete</button>
             </div>
-    </div>
+        </div>
 
-     <div class="destination">
-    
+        <div class="destination">
+
             <img src="capstone assignment/png.png" class="destination_image" />
 
             <h2 class="destination_name">Menara Kuala Lumpur</h2>
@@ -412,7 +432,7 @@ include 'conn.php';
 
             <span class="destination_phone_number">Phone Number: 03-2630 3033</span>
 
-            <p class="destination_description">Description: One of the world's tallest, 
+            <p class="destination_description">Description: One of the world's tallest,
                 this landmark tower offers scenic city views & a revolving restaurant...</p>
 
             <div class="tagging_box">
@@ -421,10 +441,13 @@ include 'conn.php';
             </div>
 
             <div class="edit_delete_box">
-                <button type="button" class="edit_Btn" onclick="window.location.href='edit-destination.php'">Edit</button>
-                <button type="button" class="delete_Btn" onclick="window.location.href='delete-destination.php'">Delete</button>
+                <button type="button" class="edit_Btn"
+                    onclick="window.location.href='edit-destination.php'">Edit</button>
+                <button type="button" class="delete_Btn"
+                    onclick="window.location.href='delete-destination.php'">Delete</button>
             </div>
+        </div>
     </div>
-</div>
 </body>
+
 </html>

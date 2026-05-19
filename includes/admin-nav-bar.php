@@ -20,7 +20,7 @@ $profilePicture = $_SESSION['profile_picture'] ?? 'Image/defaultProfile.png';
     </div>
     <nav class="nav-links">
         <a href="./admin-dashboard.php">Home</a>
-        <a href="./recommendation-page.php">Destination Management</a>
+        <a href="./destination-management.php">Destination Management</a>
         <a href="./filter-search-page.php">Statistic</a>
         <a href="./wishlist-page.php">User Management</a>
         <a href="./tagging-type-management.php">Tagging Type Management</a>
