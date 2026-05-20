@@ -1,5 +1,5 @@
 <?php
-// session_start();
+session_start();
 require 'conn.php';
 
 // if (!isset($_SESSION['user_id'])) {
@@ -160,6 +160,7 @@ $similarJson = json_encode($similar);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Destination Description</title>
+    <link rel="stylesheet" href="css/menubar.css">
 </head>
 
 <style>
@@ -882,25 +883,7 @@ $similarJson = json_encode($similar);
 </style>
 
 <body>
-    <header id="header">
-        <div class="logo-container">
-            <img src="icon/LogoName.png" class="logo" />
-        </div>
-
-        <p class="logo-name">Vibe Vacay</p>
-        <p class="home">Home</p>
-        <p class="recommendation">Recommendation</p>
-        <p class="wishlist">Wishlist</p>
-        <p class="about-us">About Us</p>
-        <p class="logout">Log Out</p>
-
-
-        <div class="profile-box">
-            <p class="profile">Profile</p>
-            <img src="icon/profile1.jpg" class="profile-icon" />
-
-        </div>
-    </header>
+    <?php include('./includes/navbar.php'); ?>
 
     <img class="batucaves1" src="<?php echo $heroImg; ?>" alt="<?php echo htmlspecialchars($destination['destination_name']); ?>">
 
@@ -1263,6 +1246,9 @@ $similarJson = json_encode($similar);
     }
 
     renderSimilar();
+
+    console.log(similarPlaces);
+
 
 
     function setRating(value) {

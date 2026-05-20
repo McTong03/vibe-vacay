@@ -64,6 +64,7 @@ $stmt->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management</title>
+    <link rel="stylesheet" href="css/menubar.css">
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto+Slab:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Titan+One&display=swap');
@@ -433,23 +434,7 @@ $stmt->close();
 </head>
 
 <body>
-    <header id="header">
-        <div class="logo-container">
-            <img src="icon/LogoName.png" class="logo" />
-        </div>
-
-        <p class="logo-name">Vibe Vacay</p>
-        <p class="home">Home</p>
-        <p class="destination-management">Destination Management</p>
-        <p class="statistic">Statistic</p>
-        <p class="user-management">User Management</p>
-        <p class="logout">Log Out</p>
-
-        <div class="profile-box">
-            <p class="profile">Profile</p>
-            <img src="icon/profile1.jpg" class="profile-icon" />
-        </div>
-    </header>
+    <?php include('./includes/admin-nav-bar.php'); ?>
 
     <div class="second-part">
         <div class="manage-container">

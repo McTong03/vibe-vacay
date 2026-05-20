@@ -17,7 +17,7 @@ $profilePicture = $isLoggedIn ? ($_SESSION['profile_picture'] ?? 'image/defaultP
         <a href="./landing-page.php">Home</a>
         <a href="./recommendation-page.php">Recommendation</a>
         <a href="./filter-search-page.php">Filter & Search</a>
-        <a href="./wishlist-page.php">Wishlist</a>
+        <a href="./wishlist.php">Wishlist</a>
         <a href="./about-us-page.php">About Us</a>
     </nav>
     <div class="auth-buttons">

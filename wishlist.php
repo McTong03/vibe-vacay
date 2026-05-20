@@ -2,10 +2,10 @@
 require 'conn.php';
 session_start();
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
-}
+// if (!isset($_SESSION['user_id'])) {
+//     header("Location: login.php");
+//     exit();
+// }
 
 $user_id = $_SESSION['user_id'];
 
@@ -24,17 +24,20 @@ $sql = "SELECT f.favourite_id,
         WHERE f.user_id = '$user_id'
         GROUP BY f.favourite_id";
 $result = mysqli_query($conn, $sql);
+$count = mysqli_num_rows($result);
 
-// if(isset($_GET['favourite_id'])) {
-//     $favourite_id = $_GET['favourite_id'];
-//     $user_id = $_SESSION['user_id'];
+if(isset($_GET['favourite_id'])) {
+    $favourite_id = $_GET['favourite_id'];
+    $user_id = $_SESSION['user_id'];
     
-//     $sql = "DELETE FROM favorites WHERE favourite_id = '$favourite_id' AND user_id = '$user_id'";
-//     mysqli_query($conn, $sql);
-// }
+    $sql = "DELETE FROM favorites WHERE favourite_id = '$favourite_id' AND user_id = '$user_id'";
+    mysqli_query($conn, $sql);
 
-// header('Location: wishlist.php');
-// exit();
+    header('Location: wishlist.php');
+    exit();
+}
+
+
 ?>
 
 
@@ -46,6 +49,7 @@ $result = mysqli_query($conn, $sql);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wishlist</title>
+    <link rel="stylesheet" href="css/menubar.css">
 </head>
 
 <style>
@@ -277,8 +281,12 @@ $result = mysqli_query($conn, $sql);
         margin-left: 250px;
     }
 
+    .hidden-card {
+        display: none;
+    }
+
     .view-more-container {
-        margin-top: 300px;
+        margin-top: 80px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -312,36 +320,22 @@ $result = mysqli_query($conn, $sql);
 </style>
 
 <body>
-    <header id="header">
-        <div class="logo-container">
-            <img src="icon/LogoName.png" class="logo" />
-        </div>
-
-        <p class="logo-name">Vibe Vacay</p>
-        <p class="home">Home</p>
-        <p class="recommendation">Recommendation</p>
-        <p class="wishlist">Wishlist</p>
-        <p class="about-us">About Us</p>
-        <p class="logout">Log Out</p>
-
-
-        <div class="profile-box">
-            <p class="profile">Profile</p>
-            <img src="icon/profile1.jpg" class="profile-icon" />
-
-        </div>
-    </header>
+    <?php include('./includes/navbar.php'); ?>
 
     <img class="favourite" src="icon/favourite.png">
 
     <p class="wishlist-name">Wishlist</p>
 
+
+
     <div class="similar-card-container">
     <?php 
-    if(mysqli_num_rows($result) > 0) {
-        while($row = mysqli_fetch_assoc($result)) { 
+    if($count > 0) {
+        $i = 0; // ← added
+        while($row = mysqli_fetch_assoc($result)) {
+            $i++; // ← added
     ?>
-        <div class="similar-container">
+        <div class="similar-container <?php echo $i > 8 ? 'hidden-card' : ''; ?>">
             <div>
                 <?php $firstImg = !empty($row['image_url']) ? explode(',', $row['image_url'])[0] : 'image/default.jpg'; ?>
                 <img class="KLCC" src="<?php echo htmlspecialchars(trim($firstImg)); ?>">
@@ -386,8 +380,8 @@ $result = mysqli_query($conn, $sql);
     ?>
     </div>
 
-    <div class="view-more-container">
-        <button class="view-more">View More</button>
+    <div class="view-more-container" <?php echo $count <= 8 ? 'style="display:none;"' : ''; ?>>
+        <button class="view-more" onclick="showMore()">View More</button>
     </div>
     
     
@@ -411,6 +405,26 @@ function removeWishlist(favourite_id) {
             alert(data.message);
         }
     });
+}
+
+var expanded = false;
+
+function showMore() {
+    expanded = !expanded;
+    var btn = document.querySelector('.view-more');
+    var cards = document.querySelectorAll('.similar-container');
+
+    if (expanded) {
+        cards.forEach(function(card) {
+            card.style.display = 'block';
+        });
+        btn.textContent = 'Show Less';
+    } else {
+        cards.forEach(function(card, i) {
+            card.style.display = i >= 8 ? 'none' : 'block';
+        });
+        btn.textContent = 'View More';
+    }
 }
 </script>
     
