@@ -3,504 +3,260 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 include 'conn.php';
+
+// ── GET STATE ──
+$state_id = isset($_GET['state_id']) ? (int)$_GET['state_id'] : 1;
+
+$stmt = $conn->prepare("SELECT * FROM states WHERE state_id = ?");
+$stmt->bind_param("i", $state_id);
+$stmt->execute();
+$state = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+if (!$state) {
+    die("State not found.");
+}
+
+// ── GET DESTINATION CATEGORIES for this state ──
+// destinations → destination_tag_mapping → destination_tags → tag_type
+$cat_sql = "
+    SELECT DISTINCT tt.tag_type_id, tt.tag_type_name
+    FROM tag_type tt
+    JOIN destination_tags dt  ON dt.tag_type_id    = tt.tag_type_id
+    JOIN destination_tag_mapping dtm ON dtm.tag_id = dt.tag_id
+    JOIN destinations d       ON d.destination_id  = dtm.destination_id
+    WHERE d.state_id = ?
+    ORDER BY tt.tag_type_name
+";
+$stmt = $conn->prepare($cat_sql);
+$stmt->bind_param("i", $state_id);
+$stmt->execute();
+$categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
+// ── GET DESTINATIONS PER CATEGORY (top 4 by rating) ──
+$destinations_by_cat = [];
+foreach ($categories as $cat) {
+    $d_sql = "
+        SELECT d.*, dt.tag_name AS climate_tag
+        FROM destinations d
+        JOIN destination_tag_mapping dtm ON dtm.destination_id = d.destination_id
+        JOIN destination_tags dt         ON dt.tag_id          = dtm.tag_id
+        WHERE d.state_id = ? AND dt.tag_type_id = ?
+        ORDER BY d.average_rating DESC
+    ";
+    $stmt = $conn->prepare($d_sql);
+    $stmt->bind_param("ii", $state_id, $cat['tag_type_id']);
+    $stmt->execute();
+    $destinations_by_cat[$cat['tag_type_id']] = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+}
+
+// ── GET REVIEWS FOR THIS STATE ──
+$rev_sql = "
+    SELECT r.*, u.user_name AS username,
+           d.destination_name, d.image_url AS dest_img
+    FROM reviews r
+    JOIN users u        ON u.user_id        = r.user_id
+    JOIN destinations d ON d.destination_id = r.destination_id
+    WHERE d.state_id = ?
+    ORDER BY r.create_at DESC
+    LIMIT 9
+";
+$stmt = $conn->prepare($rev_sql);
+$stmt->bind_param("i", $state_id);
+$stmt->execute();
+$reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
+// ── GET USER FAVORITES ──
+$user_favorites = [];
+if (isset($_SESSION['user_id'])) {
+    $fav_sql = "SELECT destination_id FROM favorites WHERE user_id = ?";
+    $stmt    = $conn->prepare($fav_sql);
+    $stmt->bind_param("i", $_SESSION['user_id']);
+    $stmt->execute();
+    $fav_result = $stmt->get_result();
+    while ($row = $fav_result->fetch_assoc()) {
+        $user_favorites[] = $row['destination_id'];
+    }
+    $stmt->close();
+}
+
+// ── HELPERS ──
+function formatPrice($price) {
+    $p = trim($price);
+    $p = preg_replace('/^RM\s*/i', '', $p);
+    if (!$p || $p == '0' || strtolower($p) == 'free') return 'Free';
+    return 'From RM' . $p;
+}
+
+function timeAgo($datetime) {
+    $now  = new DateTime();
+    $past = new DateTime($datetime);
+    $diff = $now->diff($past);
+    if ($diff->days == 0)  return 'Today';
+    if ($diff->days == 1)  return 'Yesterday';
+    if ($diff->days < 7)   return $diff->days . ' days ago';
+    if ($diff->days < 30)  return floor($diff->days / 7)  . ' week'  . (floor($diff->days / 7)  > 1 ? 's' : '') . ' ago';
+    if ($diff->days < 365) return floor($diff->days / 30) . ' month' . (floor($diff->days / 30) > 1 ? 's' : '') . ' ago';
+    return floor($diff->days / 365) . ' year' . (floor($diff->days / 365) > 1 ? 's' : '') . ' ago';
+}
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>State Destination Page</title>
+    <title><?= htmlspecialchars($state['state_name']) ?> - Destinations</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/menubar.css">
     <link rel="stylesheet" href="css/state-destination.css">
+    <style>
+        .heart-icon.favorited { color: #ef4444; }
+        .heart-icon { cursor: pointer; user-select: none; transition: color 0.2s, transform 0.15s; }
+        .heart-icon:active { transform: scale(1.3); }
+        .no-destinations { grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.9rem; }
+    </style>
 </head>
-
-
 <body>
     <?php include('./includes/navbar.php'); ?>
 
     <!-- ── STATE / HERO ── -->
-    <section class="state">
-    <div class="state-content">
-
-        <!-- Back button + Title side by side -->
-        <div class="state-title-row">
-            <button type="button" class="back_Btn" onclick="window.location.href='tagging-type-management.php'">
-            <img src="icon/error.png" class="back-icon" />
-        </button>
-            <h1>Kuala Lumpur</h1>
-        </div>
-
-        <p class="state-desc">
-            Malaysia's capital city blends modern skyscrapers with cultural heritage. From iconic landmarks to
-            shopping districts and street food — KL is endlessly vibrant, buzzing with energy and excitement.
-        </p>
-        <div class="state-meta">
-            <div class="state-tags">
-                <span class="state-tag">Urban</span>
-                <span class="state-tag">Vibrant</span>
-                <span class="state-tag">Lifestyle</span>
+    <section class="state" style="background-image: linear-gradient(to bottom, rgba(10,20,40,0.35) 0%, rgba(10,20,40,0.68) 100%), url('<?= htmlspecialchars($state['state_url']) ?>') center/cover no-repeat;">
+        <div class="state-content">
+            <div class="state-title-row">
+                <button type="button" class="back_Btn" onclick="history.back()">
+                    <img src="icon/error.png" class="back-icon" />
+                </button>
+                <h1><?= htmlspecialchars($state['state_name']) ?></h1>
+            </div>
+            <p class="state-desc"><?= htmlspecialchars($state['state_description'] ?? '') ?></p>
+            <div class="state-meta">
+                <div class="state-tags">
+                    <?php foreach ($categories as $cat): ?>
+                        <span class="state-tag"><?= htmlspecialchars($cat['tag_type_name']) ?></span>
+                    <?php endforeach; ?>
+                </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
     <!-- ── SEARCH ── -->
     <div class="search-container">
         <div class="search-bar">
-            <input type="text" placeholder="Find places and things to do">
-            <button>Search</button>
+            <input type="text" id="searchInput" placeholder="Find places and things to do" oninput="filterCards()">
+            <button onclick="filterCards()">Search</button>
         </div>
     </div>
 
-    <!-- ── Top Sights ── -->
-    <div class="destination-list">
+    <!-- ── DESTINATION SECTIONS BY CATEGORY ── -->
+    <?php if (empty($categories)): ?>
+        <p style="text-align:center; padding:3rem; color:#6b7280;">No destination categories found for this state.</p>
+    <?php endif; ?>
+
+    <?php foreach ($categories as $cat): ?>
+    <div class="destination-list" id="section-<?= $cat['tag_type_id'] ?>">
         <div class="section-title-row">
-            <h1>Top Sights In Kuala Lumpur</h1>
-        </div>
-        <div class="destination-cards">
-
-            <div class="dest-card" onclick="window.location.href='destination-description.php'">
-                <div class="heart-icon">&#9825;</div>
-                <img class="thumbnail"
-                    src="https://images.unsplash.com/photo-1540306354890-50b9ebef1e1c?auto=format&fit=crop&q=80&w=400"
-                    alt="KL Tower">
-                <div class="card-info">
-                    <span class="location">Kuala Lumpur</span>
-                    <h3 class="dest-title">Menara Kuala Lumpur Observation Deck Ticket</h3>
-                    <span class="climate">Climate: Summer</span>
-                    <div class="card-footer">
-                        <div class="rating"><span class="score">4.7</span><span class="star">&#9733;</span><span
-                                class="reviews">(1,748)</span></div>
-                        <div class="price">From RM140</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="dest-card" onclick="window.location.href='destination-description.php'">
-                <div class="heart-icon">&#9825;</div>
-                <img class="thumbnail"
-                    src="https://images.unsplash.com/photo-1596422846543-75c6fc197f11?auto=format&fit=crop&q=80&w=400"
-                    alt="Petronas">
-                <div class="card-info">
-                    <span class="location">Kuala Lumpur</span>
-                    <h3 class="dest-title">Skip-the-Line Petronas Twin Towers E-Ticket</h3>
-                    <span class="climate">Climate: Summer</span>
-                    <div class="card-footer">
-                        <div class="rating"><span class="score">4.9</span><span class="star">&#9733;</span><span
-                                class="reviews">(5,210)</span></div>
-                        <div class="price">From RM182</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="dest-card" onclick="window.location.href='destination-description.php'">
-                <div class="heart-icon">&#9825;</div>
-                <img class="thumbnail"
-                    src="https://images.unsplash.com/photo-1555217851-6141535bd771?auto=format&fit=crop&q=80&w=400"
-                    alt="Batu Caves">
-                <div class="card-info">
-                    <span class="location">Kuala Lumpur</span>
-                    <h3 class="dest-title">Batu Caves Guided Heritage Tour</h3>
-                    <span class="climate">Climate: Summer</span>
-                    <div class="card-footer">
-                        <div class="rating"><span class="score">4.6</span><span class="star">&#9733;</span><span
-                                class="reviews">(3,148)</span></div>
-                        <div class="price">From RM55</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="dest-card" onclick="window.location.href='destination-description.php'">
-                <div class="heart-icon">&#9825;</div>
-                <img class="thumbnail"
-                    src="https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&q=80&w=400"
-                    alt="Aquaria">
-                <div class="card-info">
-                    <span class="location">Kuala Lumpur</span>
-                    <h3 class="dest-title">Aquaria KLCC Entry Ticket</h3>
-                    <span class="climate">Climate: Summer</span>
-                    <div class="card-footer">
-                        <div class="rating"><span class="score">4.5</span><span class="star">&#9733;</span><span
-                                class="reviews">(2,901)</span></div>
-                        <div class="price">From RM65</div>
-                    </div>
-                </div>
-            </div>
-            <button type="button" class="view-more-circle" onclick="window.location.href='tagging-type-management.php'">
+            <h1><?= htmlspecialchars($cat['tag_type_name']) ?> In <?= htmlspecialchars($state['state_name']) ?></h1>
+            <button type="button" class="view-more-circle"
+                onclick="window.location.href='destination-list.php?state_id=<?= $state_id ?>&tag_type_id=<?= $cat['tag_type_id'] ?>'">
                 <img src="icon/error.png" class="view-icon" />
             </button>
         </div>
-    </div>
-
-    <!-- ── Outdoor Attractions ── -->
-    <div class="destination-list">
-        <div class="section-title-row">
-            <h1>Outdoor Attractions In Kuala Lumpur</h1>
-        </div>
         <div class="destination-cards">
-
-            <div class="dest-card" onclick="window.location.href='destination-description.php'">
-                <div class="heart-icon">&#9825;</div>
-                <img class="thumbnail"
-                    src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=400"
-                    alt="KLCC Park">
-                <div class="card-info">
-                    <span class="location">Kuala Lumpur</span>
-                    <h3 class="dest-title">KLCC Park &amp; Fountain Show</h3>
-                    <span class="climate">Climate: Summer</span>
-                    <div class="card-footer">
-                        <div class="rating"><span class="score">4.6</span><span class="star">&#9733;</span><span
-                                class="reviews">(3,102)</span></div>
-                        <div class="price">Free</div>
+            <?php $dests = $destinations_by_cat[$cat['tag_type_id']] ?? []; ?>
+            <?php if (empty($dests)): ?>
+                <div class="no-destinations">No destinations found in this category.</div>
+            <?php else: ?>
+                <?php foreach (array_slice($dests, 0, 4) as $dest):
+                    $is_fav = in_array($dest['destination_id'], $user_favorites);
+                ?>
+                <div class="dest-card searchable-card"
+                     data-title="<?= htmlspecialchars(strtolower($dest['destination_name'])) ?>"
+                     onclick="window.location.href='destination-description.php?destination_id=<?= $dest['destination_id'] ?>'">
+                    <div class="heart-icon <?= $is_fav ? 'favorited' : '' ?>"
+                         onclick="toggleFavorite(event, this, <?= $dest['destination_id'] ?>)">
+                        <?= $is_fav ? '&#9829;' : '&#9825;' ?>
+                    </div>
+                    <img class="thumbnail"
+                         src="<?= htmlspecialchars($dest['image_url']) ?>"
+                         alt="<?= htmlspecialchars($dest['destination_name']) ?>"
+                         onerror="this.src='images/placeholder.jpg'">
+                    <div class="card-info">
+                        <span class="location"><?= htmlspecialchars($state['state_name']) ?></span>
+                        <h3 class="dest-title"><?= htmlspecialchars($dest['destination_name']) ?></h3>
+                        <span class="climate">Climate: <?= htmlspecialchars($dest['climate_tag'] ?? 'N/A') ?></span>
+                        <div class="card-footer">
+                            <div class="rating">
+                                <span class="score"><?= number_format($dest['average_rating'], 1) ?></span>
+                                <span class="star">&#9733;</span>
+                                <span class="reviews">(<?= number_format($dest['reviews_count']) ?>)</span>
+                            </div>
+                            <div class="price"><?= formatPrice($dest['price']) ?></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="dest-card" onclick="window.location.href='destination-description.php'">
-                <div class="heart-icon">&#9825;</div>
-                <img class="thumbnail"
-                    src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=400"
-                    alt="Bukit Nanas">
-                <div class="card-info">
-                    <span class="location">Kuala Lumpur</span>
-                    <h3 class="dest-title">Bukit Nanas Forest Reserve Trail</h3>
-                    <span class="climate">Climate: Summer</span>
-                    <div class="card-footer">
-                        <div class="rating"><span class="score">4.4</span><span class="star">&#9733;</span><span
-                                class="reviews">(892)</span></div>
-                        <div class="price">Free</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="dest-card" onclick="window.location.href='destination-description.php'">
-                <div class="heart-icon">&#9825;</div>
-                <img class="thumbnail"
-                    src="https://images.unsplash.com/photo-1518791841217-8f162f1912da?auto=format&fit=crop&q=80&w=400"
-                    alt="KL Bird Park">
-                <div class="card-info">
-                    <span class="location">Kuala Lumpur</span>
-                    <h3 class="dest-title">KL Bird Park Entry Ticket</h3>
-                    <span class="climate">Climate: Summer</span>
-                    <div class="card-footer">
-                        <div class="rating"><span class="score">4.5</span><span class="star">&#9733;</span><span
-                                class="reviews">(4,430)</span></div>
-                        <div class="price">From RM67</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="dest-card" onclick="window.location.href='destination-description.php'">
-                <div class="heart-icon">&#9825;</div>
-                <img class="thumbnail"
-                    src="https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&q=80&w=400"
-                    alt="Perdana Botanical">
-                <div class="card-info">
-                    <span class="location">Kuala Lumpur</span>
-                    <h3 class="dest-title">Perdana Botanical Garden Guided Walk</h3>
-                    <span class="climate">Climate: Summer</span>
-                    <div class="card-footer">
-                        <div class="rating"><span class="score">4.3</span><span class="star">&#9733;</span><span
-                                class="reviews">(1,205)</span></div>
-                        <div class="price">Free</div>
-                    </div>
-                </div>
-            </div>
-            <button type="button" class="view-more-circle" onclick="window.location.href='tagging-type-management.php'">
-                <img src="icon/error.png" class="view-icon" />
-            </button>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
     </div>
-
-    <!-- ── Historical Places ── -->
-    <div class="destination-list">
-        <div class="section-title-row">
-            <h1>Historical Places In Kuala Lumpur</h1>
-        </div>
-        <div class="destination-cards">
-
-            <div class="dest-card" onclick="window.location.href='destination-description.php'">
-                <div class="heart-icon">&#9825;</div>
-                <img class="thumbnail"
-                    src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&q=80&w=400"
-                    alt="Sultan Abdul Samad">
-                <div class="card-info">
-                    <span class="location">Kuala Lumpur</span>
-                    <h3 class="dest-title">Sultan Abdul Samad Building Walking Tour</h3>
-                    <span class="climate">Climate: Summer</span>
-                    <div class="card-footer">
-                        <div class="rating"><span class="score">4.5</span><span class="star">&#9733;</span><span
-                                class="reviews">(2,340)</span></div>
-                        <div class="price">Free</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="dest-card" onclick="window.location.href='destination-description.php'">
-                <div class="heart-icon">&#9825;</div>
-                <img class="thumbnail"
-                    src="https://images.unsplash.com/photo-1568454537842-d933259bb258?auto=format&fit=crop&q=80&w=400"
-                    alt="National Museum">
-                <div class="card-info">
-                    <span class="location">Kuala Lumpur</span>
-                    <h3 class="dest-title">National Museum KL Admission Ticket</h3>
-                    <span class="climate">Climate: Summer</span>
-                    <div class="card-footer">
-                        <div class="rating"><span class="score">4.3</span><span class="star">&#9733;</span><span
-                                class="reviews">(1,560)</span></div>
-                        <div class="price">From RM5</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="dest-card" onclick="window.location.href='destination-description.php'">
-                <div class="heart-icon">&#9825;</div>
-                <img class="thumbnail"
-                    src="https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=400"
-                    alt="Merdeka Square">
-                <div class="card-info">
-                    <span class="location">Kuala Lumpur</span>
-                    <h3 class="dest-title">Merdeka Square Heritage Walking Tour</h3>
-                    <span class="climate">Climate: Summer</span>
-                    <div class="card-footer">
-                        <div class="rating"><span class="score">4.4</span><span class="star">&#9733;</span><span
-                                class="reviews">(987)</span></div>
-                        <div class="price">Free</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="dest-card" onclick="window.location.href='destination-description.php'">
-                <div class="heart-icon">&#9825;</div>
-                <img class="thumbnail"
-                    src="https://images.unsplash.com/photo-1533929736458-ca588d08c8be?auto=format&fit=crop&q=80&w=400"
-                    alt="Jamek Mosque">
-                <div class="card-info">
-                    <span class="location">Kuala Lumpur</span>
-                    <h3 class="dest-title">Masjid Jamek Guided Cultural Tour</h3>
-                    <span class="climate">Climate: Summer</span>
-                    <div class="card-footer">
-                        <div class="rating"><span class="score">4.6</span><span class="star">&#9733;</span><span
-                                class="reviews">(2,118)</span></div>
-                        <div class="price">Free</div>
-                    </div>
-                </div>
-            </div>
-            <button type="button" class="view-more-circle" onclick="window.location.href='tagging-type-management.php'">
-                <img src="icon/error.png" class="view-icon" />
-            </button>
-        </div>
-    </div>
+    <?php endforeach; ?>
 
     <!-- ── REVIEWS SECTION ── -->
     <div class="reviews-section">
-        <h1>What people are saying about Kuala Lumpur</h1>
+        <h1>What people are saying about <?= htmlspecialchars($state['state_name']) ?></h1>
+        <?php if (empty($reviews)): ?>
+            <p style="text-align:center; color:var(--text-muted); padding:2rem 0;">No reviews yet for this state.</p>
+        <?php else: ?>
         <div class="review-cards" id="reviewGrid">
-
-            <!-- Review 1 -->
-            <div class="review-card">
+            <?php foreach ($reviews as $i => $review): ?>
+            <div class="review-card <?= $i >= 3 ? 'hidden' : '' ?>">
                 <div class="review-place">
                     <img class="review-place-img"
-                        src="https://images.unsplash.com/photo-1540306354890-50b9ebef1e1c?auto=format&fit=crop&q=80&w=100"
-                        alt="KL Tower">
+                         src="<?= htmlspecialchars($review['dest_img']) ?>"
+                         alt="<?= htmlspecialchars($review['destination_name']) ?>"
+                         onerror="this.src='images/placeholder.jpg'">
                     <div>
-                        <div class="review-place-name">Menara Kuala Lumpur</div>
-                        <div class="review-place-rating"><span class="stars">★★★★★</span><span>5.0 · Excellent</span>
+                        <div class="review-place-name"><?= htmlspecialchars($review['destination_name']) ?></div>
+                        <div class="review-place-rating">
+                            <span class="stars">
+                                <?= str_repeat('★', round($review['rating'])) . str_repeat('☆', 5 - round($review['rating'])) ?>
+                            </span>
+                            <span>
+                                <?= number_format($review['rating'], 1) ?> &middot;
+                                <?php $labels = [5=>'Excellent',4=>'Very Good',3=>'Good',2=>'Fair',1=>'Poor'];
+                                      echo $labels[round($review['rating'])] ?? ''; ?>
+                            </span>
                         </div>
                     </div>
                 </div>
                 <div class="review-user">
-                    <img class="review-avatar" src="https://i.pravatar.cc/60?img=1" alt="User">
+                    <?php $avatar = 'https://ui-avatars.com/api/?name=' . urlencode($review['username']) . '&background=1A2B49&color=fff&size=60'; ?>
+                    <img class="review-avatar" src="<?= $avatar ?>" alt="<?= htmlspecialchars($review['username']) ?>">
                     <div>
-                        <div class="review-username">Sarah Lim</div>
-                        <div class="review-date">Reviewed 3 days ago</div>
+                        <div class="review-username"><?= htmlspecialchars($review['username']) ?></div>
+                        <div class="review-date">Reviewed <?= timeAgo($review['create_at']) ?></div>
                     </div>
                 </div>
-                <p class="review-comment">Absolutely stunning views from the top! The observation deck gives you a 360°
-                    panorama of the whole city. Went at sunset and it was magical. Highly recommend buying tickets in
-                    advance to skip the queue.</p>
+                <p class="review-comment"><?= htmlspecialchars($review['comment']) ?></p>
+                <?php if (!empty($review['image_url'])): ?>
                 <div class="review-photos">
-                    <img class="review-photo"
-                        src="https://images.unsplash.com/photo-1540306354890-50b9ebef1e1c?auto=format&fit=crop&q=80&w=100"
-                        alt="">
-                    <img class="review-photo"
-                        src="https://images.unsplash.com/photo-1596422846543-75c6fc197f11?auto=format&fit=crop&q=80&w=100"
-                        alt="">
-                    <img class="review-photo"
-                        src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=100"
-                        alt="">
+                    <?php foreach (array_slice(explode(',', $review['image_url']), 0, 3) as $photo):
+                        $photo = trim($photo); if (!$photo) continue; ?>
+                        <img class="review-photo" src="<?= htmlspecialchars($photo) ?>" alt="" onerror="this.style.display='none'">
+                    <?php endforeach; ?>
                 </div>
+                <?php endif; ?>
             </div>
-
-            <!-- Review 2 -->
-            <div class="review-card">
-                <div class="review-place">
-                    <img class="review-place-img"
-                        src="https://images.unsplash.com/photo-1596422846543-75c6fc197f11?auto=format&fit=crop&q=80&w=100"
-                        alt="Petronas">
-                    <div>
-                        <div class="review-place-name">Petronas Twin Towers</div>
-                        <div class="review-place-rating"><span class="stars">★★★★★</span><span>4.9 · Outstanding</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="review-user">
-                    <img class="review-avatar" src="https://i.pravatar.cc/60?img=5" alt="User">
-                    <div>
-                        <div class="review-username">Ahmad Razif</div>
-                        <div class="review-date">Reviewed 1 week ago</div>
-                    </div>
-                </div>
-                <p class="review-comment">One of the most iconic buildings in the world and it did not disappoint. The
-                    sky bridge is a highlight. Staff were friendly and the whole experience was well organised. Worth
-                    every ringgit.</p>
-                <div class="review-photos">
-                    <img class="review-photo"
-                        src="https://images.unsplash.com/photo-1596422846543-75c6fc197f11?auto=format&fit=crop&q=80&w=100"
-                        alt="">
-                    <img class="review-photo"
-                        src="https://images.unsplash.com/photo-1555217851-6141535bd771?auto=format&fit=crop&q=80&w=100"
-                        alt="">
-                </div>
-            </div>
-
-            <!-- Review 3 -->
-            <div class="review-card">
-                <div class="review-place">
-                    <img class="review-place-img"
-                        src="https://images.unsplash.com/photo-1555217851-6141535bd771?auto=format&fit=crop&q=80&w=100"
-                        alt="Batu Caves">
-                    <div>
-                        <div class="review-place-name">Batu Caves</div>
-                        <div class="review-place-rating"><span class="stars">★★★★☆</span><span>4.6 · Great</span></div>
-                    </div>
-                </div>
-                <div class="review-user">
-                    <img class="review-avatar" src="https://i.pravatar.cc/60?img=9" alt="User">
-                    <div>
-                        <div class="review-username">Priya Nair</div>
-                        <div class="review-date">Reviewed 2 weeks ago</div>
-                    </div>
-                </div>
-                <p class="review-comment">An incredible Hindu temple nestled inside a limestone hill. The giant golden
-                    Murugan statue at the entrance is awe-inspiring. Go early in the morning to avoid crowds and the
-                    midday heat. 272 steps but totally worth it!</p>
-                <div class="review-photos">
-                    <img class="review-photo"
-                        src="https://images.unsplash.com/photo-1555217851-6141535bd771?auto=format&fit=crop&q=80&w=100"
-                        alt="">
-                    <img class="review-photo"
-                        src="https://images.unsplash.com/photo-1518791841217-8f162f1912da?auto=format&fit=crop&q=80&w=100"
-                        alt="">
-                    <img class="review-photo"
-                        src="https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&q=80&w=100"
-                        alt="">
-                </div>
-            </div>
-
-            <!-- Hidden reviews -->
-            <div class="review-card hidden">
-                <div class="review-place">
-                    <img class="review-place-img"
-                        src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=100"
-                        alt="KLCC Park">
-                    <div>
-                        <div class="review-place-name">KLCC Park</div>
-                        <div class="review-place-rating"><span class="stars">★★★★★</span><span>4.7 · Excellent</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="review-user">
-                    <img class="review-avatar" src="https://i.pravatar.cc/60?img=12" alt="User">
-                    <div>
-                        <div class="review-username">Jason Tan</div>
-                        <div class="review-date">Reviewed 3 weeks ago</div>
-                    </div>
-                </div>
-                <p class="review-comment">Perfect place for a morning jog with the Twin Towers as your backdrop. The
-                    fountains at night are stunning. Great for families too — kids loved the playground area and the
-                    splash pool.</p>
-                <div class="review-photos">
-                    <img class="review-photo"
-                        src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=100"
-                        alt="">
-                    <img class="review-photo"
-                        src="https://images.unsplash.com/photo-1470770903676-69b98201ea1c?auto=format&fit=crop&q=80&w=100"
-                        alt="">
-                </div>
-            </div>
-
-            <div class="review-card hidden">
-                <div class="review-place">
-                    <img class="review-place-img"
-                        src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&q=80&w=100"
-                        alt="Sultan Abdul Samad">
-                    <div>
-                        <div class="review-place-name">Sultan Abdul Samad Building</div>
-                        <div class="review-place-rating"><span class="stars">★★★★☆</span><span>4.5 · Very Good</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="review-user">
-                    <img class="review-avatar" src="https://i.pravatar.cc/60?img=20" alt="User">
-                    <div>
-                        <div class="review-username">Wei Ling Chong</div>
-                        <div class="review-date">Reviewed 1 month ago</div>
-                    </div>
-                </div>
-                <p class="review-comment">A Moorish-style architectural gem right in the heart of KL. Best viewed in the
-                    evening when it's all lit up. The surrounding Merdeka Square area is also great for a leisurely
-                    stroll through history.</p>
-                <div class="review-photos">
-                    <img class="review-photo"
-                        src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&q=80&w=100"
-                        alt="">
-                    <img class="review-photo"
-                        src="https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=100"
-                        alt="">
-                </div>
-            </div>
-
-            <div class="review-card hidden">
-                <div class="review-place">
-                    <img class="review-place-img"
-                        src="https://images.unsplash.com/photo-1518791841217-8f162f1912da?auto=format&fit=crop&q=80&w=100"
-                        alt="KL Bird Park">
-                    <div>
-                        <div class="review-place-name">KL Bird Park</div>
-                        <div class="review-place-rating"><span class="stars">★★★★★</span><span>4.8 · Outstanding</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="review-user">
-                    <img class="review-avatar" src="https://i.pravatar.cc/60?img=33" alt="User">
-                    <div>
-                        <div class="review-username">Marcus Lee</div>
-                        <div class="review-date">Reviewed 1 month ago</div>
-                    </div>
-                </div>
-                <p class="review-comment">World's largest free-flight bird park — you walk among thousands of birds in a
-                    huge netted enclosure. The hornbills and parrots are particularly impressive. Great for photography
-                    enthusiasts!</p>
-                <div class="review-photos">
-                    <img class="review-photo"
-                        src="https://images.unsplash.com/photo-1518791841217-8f162f1912da?auto=format&fit=crop&q=80&w=100"
-                        alt="">
-                    <img class="review-photo"
-                        src="https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&q=80&w=100"
-                        alt="">
-                </div>
-            </div>
-
+            <?php endforeach; ?>
         </div>
-
+        <?php if (count($reviews) > 3): ?>
         <div class="view-more-wrap">
             <button class="view-more-btn" id="viewMoreBtn" onclick="showMoreReviews()">View More</button>
         </div>
+        <?php endif; ?>
+        <?php endif; ?>
     </div>
 
     <script>
@@ -508,8 +264,42 @@ include 'conn.php';
             document.querySelectorAll('.review-card.hidden').forEach(c => c.classList.remove('hidden'));
             document.getElementById('viewMoreBtn').style.display = 'none';
         }
+
+        function filterCards() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            document.querySelectorAll('.searchable-card').forEach(card => {
+                const title = card.getAttribute('data-title') || '';
+                card.style.display = (!query || title.includes(query)) ? '' : 'none';
+            });
+        }
+
+        function toggleFavorite(event, el, destinationId) {
+            event.stopPropagation();
+            <?php if (!isset($_SESSION['user_id'])): ?>
+                window.location.href = 'login.php?redirect=' + encodeURIComponent(window.location.href);
+                return;
+            <?php endif; ?>
+            const isFav  = el.classList.contains('favorited');
+            const action = isFav ? 'remove' : 'add';
+            fetch('favorite-toggle.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'destination_id=' + destinationId + '&action=' + action
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    if (action === 'add') {
+                        el.classList.add('favorited');
+                        el.innerHTML = '&#9829;';
+                    } else {
+                        el.classList.remove('favorited');
+                        el.innerHTML = '&#9825;';
+                    }
+                }
+            })
+            .catch(err => console.error('Favourite error:', err));
+        }
     </script>
-
 </body>
-
 </html>
