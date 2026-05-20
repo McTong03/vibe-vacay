@@ -11,7 +11,8 @@ body {
     height: 55px;
     border-radius: 50px;
     margin: 25px 20px 0 8px;
-    width: calc(100% - 28px);  /* ← change from 1460px to this */
+    width: calc(100% - 28px);
+    /* ← change from 1460px to this */
     display: flex;
     align-items: center;
     gap: 15px;
@@ -129,7 +130,8 @@ body {
     flex-wrap: wrap;
     padding: 0 10px;
     margin-left: 5px;
-    align-items: stretch; /* make all cards in a row same height */
+    align-items: stretch;
+    /* make all cards in a row same height */
 }
 
 .destination {
@@ -144,7 +146,8 @@ body {
     /* Add these 3 lines */
     display: flex;
     flex-direction: column;
-    float: none; /* remove float, flexbox handles layout now */
+    float: none;
+    /* remove float, flexbox handles layout now */
 }
 
 .destination_image {
@@ -219,30 +222,148 @@ body {
     gap: 8px;
     align-items: center;
     justify-content: flex-end;
-    margin-top: auto; /* ← this is the key fix */
+    margin-top: auto;
+
 }
 
 .edit_Btn,
 .delete_Btn {
     background-color: #B3B6C3;
-    color: black;
     border: none;
-    padding: 0.5rem 1.5rem;
     border-radius: 30px;
-    font-weight: bold;
-    cursor: pointer;
     height: 35px;
+    padding: 0 1.2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
     font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
-/* Empty state */
-.no-results {
+.feature-icon {
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    max-width: 16px;
+    object-fit: contain;
+}
+
+.modal-title-icon {
+    width: 40px;
+    height: 40px;
+}
+
+/* ═════════ MODAL ═════════ */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
-    text-align: center;
-    padding: 60px 20px;
-    color: #888;
-    font-size: 1.1rem;
+    height: 100%;
+
+    background: rgba(0, 0, 0, 0.55);
+
+    display: none;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 9999;
 }
 
+.modal-overlay.active {
+    display: flex;
+}
 
+.modal-box {
+    background-color: #21375d;
+    width: 520px;
+    max-width: 90%;
 
+    border-radius: 18px;
+
+    padding: 36px 40px 32px;
+
+    position: relative;
+
+    box-sizing: border-box;
+}
+
+.modal-close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+
+    background: none;
+    border: none;
+
+    color: white;
+
+    font-size: 22px;
+
+    cursor: pointer;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    margin-bottom: 24px;
+}
+
+.modal-title-icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.modal-header h2 {
+    color: white;
+    margin: 0;
+}
+
+.modal-delete-msg {
+    color: #e0e0e0;
+    font-size: 15px;
+}
+
+.modal-delete-name {
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+
+    margin-top: 10px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+
+    margin-top: 30px;
+}
+
+.modal-btn {
+    border: none;
+    border-radius: 10px;
+
+    padding: 12px 28px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.modal-btn-reset {
+    background: white;
+    color: #1A2B49;
+}
+
+.modal-btn-danger {
+    background: #c0392b;
+    color: white;
+}
