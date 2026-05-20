@@ -16,6 +16,7 @@ if (isset($_GET['success'])) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,6 +24,7 @@ if (isset($_GET['success'])) {
     <link rel="stylesheet" href="css/menubar.css">
     <link rel="stylesheet" href="css/landingpage.css">
 </head>
+
 <body>
 
     <?php include('./includes/navbar.php'); ?>
@@ -39,7 +41,9 @@ if (isset($_GET['success'])) {
     <section class="hero" style="background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2)),
         url('Image/travel_luggage.jpg') center/cover;">
         <h1>Discover your perfect destination based on how you feel</h1>
-        <a href="./recommendation-page.php" class="explore-btn">Explore <span>➔</span></a>
+        <a href="./recommendation-page.php" class="explore-btn" style="margin-left: 70rem; margin-top: 3rem;">
+            Explore <span>➔</span>
+        </a>
         <p>Not sure where to go? Let your mood decide. Discover destinations perfectly matched to how you feel right now.</p>
     </section>
 
@@ -108,4 +112,5 @@ if (isset($_GET['success'])) {
     </section>
 
 </body>
+
 </html>
