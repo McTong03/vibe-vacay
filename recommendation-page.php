@@ -301,7 +301,9 @@ $rpParam = isset($_GET['reviews_page']) ? '&reviews_page=' . (int)$_GET['reviews
                     $sImg = !empty($state['state_url']) ? $state['state_url']
                         : 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&q=80&w=400';
                     ?>
-                    <div class="state-card">
+                    <div class="state-card"
+                        onclick="window.location.href='state-destination.php?state_id=<?= $state['state_id'] ?>'"
+                        style="cursor:pointer;">
                         <img src="<?= htmlspecialchars($sImg) ?>"
                             alt="<?= htmlspecialchars($state['state_name']) ?>"
                             onerror="this.src='https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&q=80&w=400'">
@@ -460,6 +462,26 @@ $rpParam = isset($_GET['reviews_page']) ? '&reviews_page=' . (int)$_GET['reviews
                 .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
         }
 
+        function toggleComment(uid) {
+            const textEl = document.getElementById(uid + '-text');
+            const fullEl = document.getElementById(uid + '-full');
+            const link = textEl ? textEl.nextElementSibling : null;
+
+            if (!textEl || !fullEl) return;
+
+            const isExpanded = link && link.textContent === 'Show less';
+
+            if (isExpanded) {
+                // Collapse
+                const shortText = fullEl.textContent.substring(0, 200) + '...';
+                textEl.textContent = shortText;
+                if (link) link.textContent = 'Show more';
+            } else {
+                // Expand
+                textEl.textContent = fullEl.textContent;
+                if (link) link.textContent = 'Show less';
+            }
+        }
 
         // ── Load More Reviews ──────────────────────────────────────────
         let reviewOffset = <?= $reviewsPerPage ?>;

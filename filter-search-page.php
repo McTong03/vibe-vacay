@@ -2,10 +2,10 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-
+ 
 // ─── DB Connection ───────────────────────────────────────────────────────────
 require_once('./conn.php'); // gives us $conn (mysqli)
-
+ 
 // ─── Read GET params ──────────────────────────────────────────────────────────
 $selectedMood      = isset($_GET['mood'])      ? (int)$_GET['mood']      : 0;
 $selectedClimate   = isset($_GET['climate'])   ? (int)$_GET['climate']   : 0;
@@ -16,7 +16,7 @@ $hiddenGems        = isset($_GET['hidden'])    && $_GET['hidden'] === '1';
 $searchText        = isset($_GET['search'])    ? trim($_GET['search'])   : '';
 $isRandom          = isset($_GET['random'])    && $_GET['random'] === '1';
 $isSearched        = array_key_exists('searched', $_GET);
-
+ 
 // ─── Mood → Destination Type tag mapping (NOT from tag_mapping table) ────────
 // Stressed/Sad → relaxing/fun places; Adventurous → nature/history; Happy → city/entertainment
 $moodTypeMap = [
@@ -26,7 +26,7 @@ $moodTypeMap = [
     23 => [16, 17],      // Adventurous → Natural, Historical
     24 => [15, 19],      // Happy     → City Life, Entertainment
 ];
-
+ 
 // ─── Budget → price range mapping ────────────────────────────────────────────
 $budgetRangeMap = [
     5  => [0,   100],
@@ -36,20 +36,20 @@ $budgetRangeMap = [
     9  => [400, 500],
     10 => [500, 999999],
 ];
-
+ 
 // ─── Collect tag IDs for AND-logic (exclude mood & budget — handled separately) ──
 $tagIds = [];
 if ($selectedClimate)   $tagIds[] = $selectedClimate;
 if ($selectedCompanion) $tagIds[] = $selectedCompanion;
 if ($selectedType)      $tagIds[] = $selectedType;
-
+ 
 // ─── Query DB ────────────────────────────────────────────────────────────────
 $destinations = [];
-
+ 
 if ($isSearched) {
     $bindValues = [];
     $bindTypes  = '';
-
+ 
     $sql = "
         SELECT
             d.destination_id,
@@ -64,7 +64,7 @@ if ($isSearched) {
         LEFT JOIN states s ON d.state_id = s.state_id
         WHERE 1=1
     ";
-
+ 
     // Free-text search
     if ($searchText !== '') {
         $sql .= " AND (d.destination_name LIKE ? OR d.description LIKE ?)";
@@ -73,12 +73,12 @@ if ($isSearched) {
         $bindValues[] = $likeVal;
         $bindTypes   .= 'ss';
     }
-
+ 
     // Hidden gems
     if ($hiddenGems) {
         $sql .= " AND d.reviews_count < 500 AND d.average_rating >= 4.0";
     }
-
+ 
     // ── MOOD: map to destination_type tags via tag_mapping ────────────────────
     if ($selectedMood && !empty($moodTypeMap[$selectedMood])) {
         $moodTypeTags   = $moodTypeMap[$selectedMood];
@@ -95,14 +95,14 @@ if ($isSearched) {
             $bindTypes   .= 'i';
         }
     }
-
+ 
     // ── BUDGET: filter by actual price field using REGEXP to extract first number ─
     if ($selectedBudget && isset($budgetRangeMap[$selectedBudget])) {
         [$minPrice, $maxPrice] = $budgetRangeMap[$selectedBudget];
         // Extract the first number from price string (handles "RM10", "RM49 - RM79", "RM25 (Adult)..." etc)
         // First strip "RM" prefix, then extract leading number
         $priceExpr = "CAST(REGEXP_REPLACE(REGEXP_REPLACE(d.price, 'RM', ''), '[^0-9].*', '') AS UNSIGNED)";
-
+ 
         // Free destinations: include only in RM0-RM100 range
         if ($minPrice === 0) {
             $sql .= "
@@ -121,7 +121,7 @@ if ($isSearched) {
         $bindValues[] = $maxPrice;
         $bindTypes   .= 'ii';
     }
-
+ 
     // ── Climate & Companion & Destination Type: AND-logic via tag_mapping ─────
     if (!empty($tagIds)) {
         $inPlaceholders = implode(',', array_fill(0, count($tagIds), '?'));
@@ -142,32 +142,30 @@ if ($isSearched) {
         $bindValues[] = $tagCount;
         $bindTypes   .= 'i';
     }
-
+ 
     $sql .= $isRandom
         ? " ORDER BY RAND() LIMIT 1"
         : " ORDER BY d.average_rating DESC";
-
+ 
     $stmt = mysqli_prepare($conn, $sql);
-
+ 
     if (!empty($bindValues)) {
         mysqli_stmt_bind_param($stmt, $bindTypes, ...$bindValues);
     }
-
+ 
     mysqli_stmt_execute($stmt);
     $result       = mysqli_stmt_get_result($stmt);
     $destinations = mysqli_fetch_all($result, MYSQLI_ASSOC);
     mysqli_stmt_close($stmt);
 }
-
+ 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-function esc(string $s): string
-{
+function esc(string $s): string {
     return htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
 }
-
+ 
 // Build a query string keeping current filters, with overrides
-function qstr(array $overrides = []): string
-{
+function qstr(array $overrides = []): string {
     $base = [
         'mood'      => $GLOBALS['selectedMood'],
         'climate'   => $GLOBALS['selectedClimate'],
@@ -184,6 +182,7 @@ function qstr(array $overrides = []): string
     return '?' . http_build_query($merged);
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

@@ -60,7 +60,7 @@ $rev_sql = "
     JOIN users u        ON u.user_id        = r.user_id
     JOIN destinations d ON d.destination_id = r.destination_id
     WHERE d.state_id = ?
-    ORDER BY r.create_at DESC
+    ORDER BY r.created_at DESC
     LIMIT 9
 ";
 $stmt = $conn->prepare($rev_sql);
