@@ -618,6 +618,7 @@ function qstr(array $overrides = []): string {
     <div class="random-modal-overlay" id="random-modal-overlay" onclick="closeModal()">
         <canvas id="confetti-canvas"></canvas>
         <div class="random-modal" id="random-modal" onclick="event.stopPropagation()">
+            <button class="random-modal-close" onclick="closeModal()">✕</button>
             <img src="" alt="" class="random-modal-img" id="modal-img">
             <div class="random-modal-body">
                 <div class="random-modal-emoji">🎉</div>

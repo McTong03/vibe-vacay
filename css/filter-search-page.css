@@ -639,28 +639,39 @@ a.btn-clear {
     position: relative;
 }
 
-.modal-close-btn {
+s.random-modal {
+    position: relative; /* 确保已经有这个，没有就加 */
+}
+
+.random-modal-close {
     position: absolute;
     top: 12px;
     right: 12px;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
+    z-index: 10;
+    background: rgba(255,255,255,0.9);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
     border: none;
-    background: rgba(0, 0, 0, 0.45);
-    color: white;
-    font-size: 0.9rem;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
     font-weight: 700;
     cursor: pointer;
-    z-index: 10;
+    color: #444;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    transition: all 0.2s;
+    line-height: 1;
 }
 
-.modal-close-btn:hover {
-    background: rgba(0, 0, 0, 0.7);
+.random-modal-close:hover {
+    background: #fff;
+    color: #000;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
 }
 
 @keyframes popIn {
