@@ -87,20 +87,20 @@ $reviewsPage    = max(0, (int)($_GET['reviews_page'] ?? 0));
 $reviewsPerPage = 6;
 $reviewsOffset  = $reviewsPage * $reviewsPerPage;
 
-$totalReviews   = (int)$pdo->query("SELECT COUNT(*) FROM reviews WHERE rating >= 4")->fetchColumn();
+$totalReviews   = (int)$pdo->query("SELECT COUNT(*) FROM reviews WHERE rating >= 3")->fetchColumn();
 $maxReviewsPage = max(0, (int)ceil($totalReviews / $reviewsPerPage) - 1);
 
 $reviews = [];
 try {
     $reviews = $pdo->query("
         SELECT r.review_id, r.rating, r.comment, r.image_url, r.created_at,
-               u.username, u.profile_image,
-               d.destination_name
+           u.user_name AS username, u.profile_image,
+           d.destination_name
         FROM reviews r
-        JOIN users u        ON u.user_id        = r.user_id
+        LEFT JOIN users u        ON u.user_id        = r.user_id
         JOIN destinations d ON d.destination_id = r.destination_id
-        WHERE r.rating >= 4
-        ORDER BY RAND()
+        WHERE r.rating >= 3
+        ORDER BY r.review_id ASC  
         LIMIT $reviewsPerPage OFFSET $reviewsOffset
     ")->fetchAll();
 } catch (Exception $e) {
@@ -114,8 +114,8 @@ if (empty($reviews)) {
                    d.destination_name
             FROM reviews r
             JOIN destinations d ON d.destination_id = r.destination_id
-            WHERE r.rating >= 4
-            ORDER BY RAND()
+            WHERE r.rating >= 3
+            ORDER BY r.review_id ASC
             LIMIT $reviewsPerPage OFFSET $reviewsOffset
         ")->fetchAll();
     } catch (Exception $e) {
@@ -183,9 +183,6 @@ function renderReviewCard(array $rev): string
 </div>
 HTML;
 }
-
-$shownReviews  = array_slice($reviews, 0, 3);
-$hiddenReviews = array_slice($reviews, 3);
 
 $dpParam = isset($_GET['dest_page'])    ? '&dest_page='    . (int)$_GET['dest_page']    : '';
 $rpParam = isset($_GET['reviews_page']) ? '&reviews_page=' . (int)$_GET['reviews_page'] : '';
@@ -321,42 +318,22 @@ $rpParam = isset($_GET['reviews_page']) ? '&reviews_page=' . (int)$_GET['reviews
             <p style="text-align:center;color:#6b7280;padding:2rem 0;">No reviews available yet.</p>
         <?php else: ?>
 
-            <div class="reviews-grid" id="reviews-primary">
-                <?php foreach ($shownReviews as $rev): ?>
+            <div class="reviews-grid" id="reviews-grid">
+                <?php foreach ($reviews as $rev): ?>
                     <?= renderReviewCard($rev) ?>
                 <?php endforeach; ?>
             </div>
 
-            <?php if (!empty($hiddenReviews)): ?>
-                <div class="reviews-grid reviews-grid-extra" id="reviews-extra">
-                    <?php foreach ($hiddenReviews as $rev): ?>
-                        <?= renderReviewCard($rev) ?>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-
-        <?php endif; ?>
-
-        <div class="view-more-container">
-            <div style="flex:1;border-top:3px solid #1e293b;"></div>
-
-            <?php if (!empty($hiddenReviews)): ?>
-                <button class="btn-view-more" id="btn-toggle" onclick="toggleReviews()">View More</button>
-            <?php elseif ($reviewsPage < $maxReviewsPage): ?>
-                <a href="?reviews_page=<?= $reviewsPage + 1 ?>&dest_page=<?= $destPage ?>"
-                    class="btn-view-more">Load More Reviews</a>
-            <?php endif; ?>
-
-            <div style="flex:1;border-top:3px solid #1e293b;"></div>
-        </div>
-
-        <?php if ($reviewsPage > 0): ?>
-            <div style="text-align:center;margin-top:1rem;">
-                <a href="?reviews_page=<?= $reviewsPage - 1 ?>&dest_page=<?= $destPage ?>"
-                    class="btn-view-more" style="font-size:.9rem;padding:.7rem 2rem;">Show Less</a>
+            <div class="view-more-container">
+                <div style="flex:1;border-top:3px solid #1e293b;"></div>
+                <?php if ($totalReviews > $reviewsPerPage): ?>
+                    <button class="btn-view-more" id="btn-load-more" onclick="loadMoreReviews()">View More</button>
+                <?php endif; ?>
+                <button class="btn-view-more" id="btn-show-less" onclick="showLessReviews()" style="display:none;">Show Less</button>
+                <div style="flex:1;border-top:3px solid #1e293b;"></div>
             </div>
-        <?php endif; ?>
 
+        <?php endif; ?>
     </div><!-- /container -->
 
     <script>
@@ -483,27 +460,120 @@ $rpParam = isset($_GET['reviews_page']) ? '&reviews_page=' . (int)$_GET['reviews
                 .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
         }
 
-        // ── Review toggle (unchanged) ──────────────────────────────────
-        function toggleReviews() {
-            const extra = document.getElementById('reviews-extra');
-            const btn = document.getElementById('btn-toggle');
-            if (!extra) return;
-            const open = extra.classList.toggle('visible');
-            btn.textContent = open ? 'Show Less' : 'View More';
+
+        // ── Load More Reviews ──────────────────────────────────────────
+        let reviewOffset = <?= $reviewsPerPage ?>;
+
+        function loadMoreReviews() {
+            const btn = document.getElementById('btn-load-more');
+            btn.textContent = 'Loading...';
+            btn.disabled = true;
+
+            fetch(`ajax-handler.php?action=reviews&offset=${reviewOffset}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.error) return;
+
+                    const grid = document.getElementById('reviews-grid');
+
+                    data.reviews.forEach(rev => {
+                        const colors = ['#ff7f50', '#ff6b6b', '#4ecdc4', '#45b7d1', '#96c93d', '#f7b731', '#a29bfe'];
+                        const name = rev.username || 'Traveller';
+                        const initial = name[0].toUpperCase();
+                        const color = colors[name.charCodeAt(0) % colors.length];
+                        const rating = Math.max(1, Math.min(5, parseInt(rev.rating) || 5));
+                        const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+                        const date = rev.created_at ?
+                            new Date(rev.created_at).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                            }) :
+                            '';
+                        const comment = rev.comment || '';
+                        const isLong = comment.length > 200;
+                        const uid = 'r' + (rev.review_id || Math.floor(Math.random() * 9999));
+
+                        let commentBlock = '';
+                        if (isLong) {
+                            commentBlock = `
+                        <p class="review-text" id="${uid}-text">${escHtml(comment.substring(0,200))}...</p>
+                        <a class="show-more" onclick="toggleComment('${uid}')" style="cursor:pointer;">Show more</a>
+                        <span id="${uid}-full" style="display:none;">${escHtml(comment)}</span>`;
+                        } else {
+                            commentBlock = `<p class="review-text">${escHtml(comment)}</p>`;
+                        }
+
+                        const imgHtml = rev.image_url ?
+                            `<div class="review-images"><div class="img-wrapper">
+                           <img src="${escHtml(rev.image_url)}" alt="Review image"
+                                onerror="this.parentElement.style.display='none'">
+                       </div></div>` :
+                            '';
+
+                        grid.innerHTML += `
+                    <div class="review-card">
+                        <a href="#" class="tour-link">${escHtml(rev.destination_name || 'Tour')}</a>
+                        <div class="stars">${stars}</div>
+                        <div class="user-info">
+                            <div class="avatar" style="background:${color};">${initial}</div>
+                            <div class="user-details">
+                                <div class="name">${escHtml(name)}</div>
+                                <div class="date">${date}</div>
+                            </div>
+                        </div>
+                        ${commentBlock}
+                        ${imgHtml}
+                    </div>`;
+                    });
+
+                    reviewOffset += data.reviews.length;
+
+                    if (data.hasMore) {
+                        btn.textContent = 'View More';
+                        btn.disabled = false;
+                    } else {
+                        btn.textContent = 'No More Reviews';
+                        btn.disabled = true;
+                        btn.style.opacity = '0.5';
+                    }
+                    document.getElementById('btn-show-less').style.display = 'inline-block';
+                })
+                .catch(err => {
+                    console.error(err);
+                    btn.textContent = 'View More';
+                    btn.disabled = false;
+                });
         }
 
-        function toggleComment(uid) {
-            const el = document.getElementById(uid + '-text');
-            const full = document.getElementById(uid + '-full');
-            const btn = el ? el.nextElementSibling : null;
-            if (!el || !full || !btn) return;
-            if (btn.textContent === 'Show more') {
-                el.textContent = full.textContent;
-                btn.textContent = 'Show less';
-            } else {
-                el.textContent = el.textContent.substring(0, 200) + '...';
-                btn.textContent = 'Show more';
-            }
+        function showLessReviews() {
+            const grid = document.getElementById('reviews-grid');
+            const allCards = grid.querySelectorAll('.review-card');
+
+            // 只保留前6个
+            allCards.forEach((card, index) => {
+                if (index >= <?= $reviewsPerPage ?>) {
+                    card.remove();
+                }
+            });
+
+            // 重置 offset
+            reviewOffset = <?= $reviewsPerPage ?>;
+
+            // 恢复按钮状态
+            const loadBtn = document.getElementById('btn-load-more');
+            loadBtn.textContent = 'View More';
+            loadBtn.disabled = false;
+            loadBtn.style.opacity = '1';
+            loadBtn.style.display = 'inline-block';
+
+            // 隐藏 Show Less
+            document.getElementById('btn-show-less').style.display = 'none';
+
+            // 滚回 reviews 区域
+            grid.scrollIntoView({
+                behavior: 'smooth'
+            });
         }
     </script>
 

@@ -109,5 +109,38 @@ if ($action === 'destinations') {
     ]);
     exit;
 }
- 
+
+
+// ─── Reviews ─────────────────────────────────────────────────────────────────
+if ($action === 'reviews') {
+    $perPage = 6;
+    $offset  = max(0, (int)($_GET['offset'] ?? 0));
+
+    try {
+        $reviews = $pdo->query("
+            SELECT r.review_id, r.rating, r.comment, r.image_url, r.created_at,
+                   u.user_name AS username, d.destination_name
+            FROM reviews r
+            LEFT JOIN users u   ON u.user_id        = r.user_id
+            JOIN destinations d ON d.destination_id = r.destination_id
+            WHERE r.rating >= 3
+            ORDER BY r.review_id ASC
+            LIMIT $perPage OFFSET $offset
+        ")->fetchAll();
+    } catch (Exception $e) {
+        echo json_encode(['error' => $e->getMessage()]); // 看具体错误
+        exit;
+    }
+
+    $totalReviews = (int)$pdo->query("SELECT COUNT(*) FROM reviews WHERE rating >= 3")->fetchColumn();
+
+    echo json_encode([
+        'reviews' => $reviews,
+        'hasMore' => ($offset + $perPage) < $totalReviews,
+        'total'   => $totalReviews,  // 临时加，看总数
+        'offset'  => $offset,        // 临时加，确认 offset
+    ]);
+    exit;
+}
+
 echo json_encode(['error' => 'Unknown action']);
