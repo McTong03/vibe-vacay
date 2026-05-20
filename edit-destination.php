@@ -1,352 +1,334 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+include("conn.php");
+
+// ── AJAX: return tags by tag_type_id ──
+if (isset($_GET['get_tags'])) {
+    $tid = intval($_GET['get_tags']);
+    $result = $conn->query("SELECT tag_id, tag_name FROM destination_tags WHERE tag_type_id = $tid ORDER BY tag_name");
+    $tags = [];
+    while ($row = $result->fetch_assoc()) $tags[] = $row;
+    header('Content-Type: application/json');
+    echo json_encode($tags);
+    exit();
+}
+
+// ── Get destination_id ──
+$destination_id = intval($_GET['id'] ?? 0);
+if ($destination_id <= 0) {
+    header("Location: destination-management.php");
+    exit();
+}
+
+// ── Fetch existing destination data ──
+$stmt = $conn->prepare("SELECT * FROM destinations WHERE destination_id = ?");
+$stmt->bind_param("i", $destination_id);
+$stmt->execute();
+$dest = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+if (!$dest) {
+    header("Location: destination-management.php");
+    exit();
+}
+
+// ── Fetch existing tags for this destination ──
+$existingTags = [];
+$stmt = $conn->prepare("
+    SELECT dt.tag_id, dt.tag_name 
+    FROM destination_tag_mapping dtm
+    JOIN destination_tags dt ON dtm.tag_id = dt.tag_id
+    WHERE dtm.destination_id = ?
+");
+$stmt->bind_param("i", $destination_id);
+$stmt->execute();
+$res = $stmt->get_result();
+while ($row = $res->fetch_assoc()) $existingTags[$row['tag_id']] = $row['tag_name'];
+$stmt->close();
+
+// ── Fetch states ──
+$states = [];
+$res = $conn->query("SELECT state_id, state_name FROM states ORDER BY state_name");
+while ($row = $res->fetch_assoc()) $states[] = $row;
+
+// ── Fetch tag types ──
+$tagTypes = [];
+$res = $conn->query("SELECT tag_type_id, tag_type_name FROM tag_type ORDER BY tag_type_name");
+while ($row = $res->fetch_assoc()) $tagTypes[] = $row;
+
+// ── Handle form submission ──
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['btn-edit'])) {
+
+    $destination_name = trim($_POST['destination_name']);
+    $state_id         = intval($_POST['state_id']);
+    $description      = trim($_POST['description']);
+    $phone_number     = trim($_POST['phone_number']);
+    $average_rating   = floatval($_POST['average_rating']);
+    $price            = floatval($_POST['price']);
+
+    // Handle image — keep old if no new file uploaded
+    $image_url = $dest['image_url'];
+    if (!empty($_POST['image_url'])) {
+        $image_url = trim($_POST['image_url']);
+    }
+
+    // Update destinations table
+    $stmt = $conn->prepare("UPDATE destinations SET 
+        state_id=?, destination_name=?, description=?, image_url=?, 
+        phone_number=?, average_rating=?, price=?
+        WHERE destination_id=?");
+    $stmt->bind_param("issssddi", $state_id, $destination_name, $description, $image_url, $phone_number, $average_rating, $price, $destination_id);
+    $stmt->execute();
+    $stmt->close();
+
+    // Delete old tag mappings then re-insert
+    $stmt = $conn->prepare("DELETE FROM destination_tag_mapping WHERE destination_id = ?");
+    $stmt->bind_param("i", $destination_id);
+    $stmt->execute();
+    $stmt->close();
+
+    if (!empty($_POST['tags'])) {
+        $stmt = $conn->prepare("INSERT INTO destination_tag_mapping (destination_id, tag_id) VALUES (?, ?)");
+        foreach ($_POST['tags'] as $tag_id) {
+            $tag_id = intval($tag_id);
+            if ($tag_id > 0) {
+                $stmt->bind_param("ii", $destination_id, $tag_id);
+                $stmt->execute();
+            }
+        }
+        $stmt->close();
+    }
+
+    mysqli_close($conn);
+    echo '<script>alert("Destination updated successfully!"); window.location.href="destination-management.php";</script>';
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Destination Page</title>
+    <link rel="stylesheet" href="css/menubar.css">
+    <link rel="stylesheet" href="css/add-destination.css">
 </head>
-<style>
-    body {
-        height: 1000px;
-    }
-
-    /* Header Styles */
-    #header {
-        background-color: #1A2B49;
-        height: 55px;
-        border-radius: 50px;
-        margin-left: 8px;
-        margin-right: 20px;
-        margin-top: 25px;
-        width: 1480px;
-        position: relative;
-        z-index: 2;
-    }
-
-    .logo {
-        width: 65px;
-        height: 65px;
-        margin-top: -3px;
-        margin-left: 30px;
-    }
-
-    .logo-name,
-    .home,
-    .destination-management,
-    .statistic,
-    .user-management,
-    .logout,
-    .profile {
-        /* font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; */
-        font-size: 17px;
-        font-weight: bold
-    }
-
-    .logo-name {
-        margin-top: -47px;
-        margin-left: 100px;
-        color: white;
-    }
-
-    .home {
-        margin-top: -37px;
-        margin-left: 380px;
-        color: white;
-    }
-
-    .destination-management {
-        margin-top: -37px;
-        margin-left: 510px;
-        color: white;
-    }
-
-    .statistic {
-        margin-top: -37px;
-        margin-left: 770px;
-        color: white;
-    }
-
-    .user-management {
-        margin-top: -37px;
-        margin-left: 930px;
-        color: white;
-    }
-
-    .logout {
-        margin-top: -37px;
-        margin-left: 1180px;
-        color: white;
-    }
-
-    .profile-box {
-        background-color: white;
-        width: 160px;
-        height: 35px;
-        margin-top: -46px;
-        margin-left: 1280px;
-        border-radius: 30px;
-    }
-
-    .profile {
-        padding-top: 8px;
-        margin-left: 35px;
-    }
-
-    .profile-icon {
-        width: 30px;
-        height: 30px;
-        border-radius: 60px;
-        margin-left: 100px;
-        /* top: -20px; */
-        position: relative;
-        top: -42px;
-        left: 5px;
-    }
-
-
-    /* Content Styles */
-    .content-container {
-        margin-top: 20px;
-        margin-left: 150px;
-        background-color: #21375d;
-        width: 1200px;
-        padding: 30px;
-        border-radius: 15px;
-    }
-
-    .container h3 {
-        margin: 0;
-        color: white;
-    }
-
-    /* Tag Type Styles */
-    .tag-type {
-        background-color: #F9F2F2;
-        width: 95%;
-        height: 35px;
-        margin-top: 10px;
-        margin-bottom: 10px;
-        border-radius: 10px;
-
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        padding-left: 20px;
-        padding-right: 20px;
-    }
-
-    .description-box {
-        height: 150px;
-        resize: vertical;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        align-items: flex-start;
-        font-family: inherit;
-        font-size: 1rem;
-    }
-
-    /* Back Button Styles */
-    .back_Btn {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        border: none;
-        background-color: #1A2B49;
-
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        cursor: pointer;
-    }
-
-    .back-icon {
-        width: 22px;
-        height: 22px;
-        filter: brightness(0) invert(1);
-    }
-
-    /* Title Styles */
-    .title {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        margin-left: 15px;
-        margin-top: 20px;
-    }
-
-    .title-icon {
-        width: 40px;
-        height: 40px;
-    }
-
-    .title h1 {
-        margin: 0;
-    }
-
-    .filter-bar {
-        height: 55px;
-        border-radius: 50px;
-        display: flex;
-        align-items: center;
-        position: relative; 
-        z-index: 3;     
-    }
-
-    .filter-bar select {
-        width: 1180px;
-        height: 30px;
-        background-color: #F9F2F2;
-        border-radius: 10px;
-        padding-left: 10px;
-    }
-
-    .filter-box{
-        align-items: center;
-        margin-left: 20px;
-        border-radius: 30px;
-    }
-    .title h1 {
-        margin: 0;
-}
-
-
-    /* Add button Styles */
-    .filter-actions {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        justify-content: center;
-        margin-top: 20px;
-    }
-
-    .btn {
-        padding: 0.6rem 2rem;
-        border-radius: 10px;
-        font-weight: bold;
-        font-size: 0.9rem;
-        cursor: pointer;
-        width: 200px;
-    }
-
-    .btn-reset {
-        background-color: white;
-        color: var(--primary-dark);
-        border: none;
-    }
-
-    .btn-add {
-        background-color: #0064CE;
-        color: white;
-        border-color: grey;
-    }
-</style>
-
 <body>
-    <header id="header">
-        <div class="logo-container">
-            <img src="icon/LogoName.png" class="logo" />
-        </div>
-
-        <p class="logo-name">Vibe Vacay</p>
-        <p class="home">Home</p>
-        <p class="destination-management">Destination Management</p>
-        <p class="statistic">Statistic</p>
-        <p class="user-management">User Managememt</p>
-        <p class="logout">Log Out</p>
-
-
-        <div class="profile-box">
-            <p class="profile">Profile</p>
-            <img src="icon/profile1.jpg" class="profile-icon" />
-
-        </div>
-    </header>
+    <?php include('./includes/admin-nav-bar.php'); ?>
 
     <div class="title">
         <button type="button" class="back_Btn" onclick="window.location.href='destination-management.php'">
             <img src="icon/error.png" class="back-icon" />
         </button>
-
         <img src="icon/destination.png" class="title-icon" alt="Destination">
-
         <h1>Edit Destination</h1>
     </div>
 
     <div class="content-container">
-        <div class="container">
-            <h3>Destination Name</h3>
-            <input type="text" class="tag-type" placeholder="Enter destination name">
+        <form class="container" method="POST" action="edit-destination.php?id=<?= $destination_id ?>">
 
-             <h3>Destination Picture</h3>
-            <input type="text" class="tag-type" placeholder="Enter destination picture URL">
+            <h3>Destination Name</h3>
+            <input type="text" name="destination_name" class="tag-type"
+                value="<?= htmlspecialchars($dest['destination_name']) ?>" required>
+
+            <h3>Destination Picture URL</h3>
+            <input type="text" name="image_url" class="tag-type"
+                value="<?= htmlspecialchars($dest['image_url']) ?>"
+                placeholder="Enter destination picture URL">
 
             <h3>Destination State</h3>
             <div class="filter-bar">
-                <select name="filter-box" required>
+                <select name="state_id" required>
                     <option value="">Please Select</option>
-                    <option value="mood">Johor</option>
-                    <option value="Family">Kedah</option>
-                    <option value="Friend">Melacca</option>
-                    <option value="Colleague">Negeri Sembilan</option>
-                    <option value="Other">Pahang</option>
-                    <option value="Other">Penang</option>
-                    <option value="Other">Perak</option>
-                    <option value="Other">Perlis</option>
-                    <option value="Other">Sabah</option>
-                    <option value="Other">Sarawak</option>
-                    <option value="Other">Terengganu</option>
-                    <option value="Other">Kuala Lumpur</option>
-                    <option value="Other">Putrajaya</option>
-                    <option value="Other">Labuan</option>
+                    <?php foreach ($states as $s): ?>
+                        <option value="<?= $s['state_id'] ?>"
+                            <?= $s['state_id'] == $dest['state_id'] ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($s['state_name']) ?>
+                        </option>
+                    <?php endforeach; ?>
                 </select>
             </div>
 
-            <h3>Tagging Type</h3>
+            <h3>Tag Type</h3>
             <div class="filter-bar">
-                <select name="filter-box" required>
+                <select name="tag_type_id" id="tagTypeSelect">
                     <option value="">Please Select</option>
-                    <option value="mood">Mood</option>
-                    <option value="Family">Climate</option>
-                    <option value="Friend">Travel Companion</option>
-                    <option value="Colleague">Destination Type</option>
-                    <option value="Other">Hidden Destination</option>
-                    <option value="Other">Budget</option>
+                    <?php foreach ($tagTypes as $tt): ?>
+                        <option value="<?= $tt['tag_type_id'] ?>"><?= htmlspecialchars($tt['tag_type_name']) ?></option>
+                    <?php endforeach; ?>
                 </select>
             </div>
 
-            <h3>Tagging</h3>
-            <div class="filter-bar">
-                <select name="filter-box" required>
-                    <option value="">Please Select</option>
-                    <option value="mood">Mood</option>
-                    <option value="Family">Climate</option>
-                    <option value="Friend">Travel Companion</option>
-                    <option value="Colleague">Destination Type</option>
-                    <option value="Other">Hidden Destination</option>
-                    <option value="Other">Budget</option>
-                </select>
+            <h3>Tags</h3>
+            <div id="tagCheckboxes">
+                <span style="color:#6b7280; font-size:0.88rem;">Select a tag type first</span>
+            </div>
+
+            <!-- Selected tags display -->
+            <div id="selectedTagsContainer" style="margin-top:0.75rem;">
+                <p style="font-size:0.8rem; color:#6b7280; margin-bottom:0.5rem;">Selected tags:</p>
+                <div id="selectedTagsDisplay"></div>
             </div>
 
             <h3>Destination Price (RM)</h3>
-            <input type="text" class="tag-type" placeholder="Enter destination price">
+            <input type="number" step="0.01" name="price" class="tag-type"
+                value="<?= $dest['price'] ?>" required>
 
             <h3>Destination Rating (/5)</h3>
-            <input type="text" class="tag-type" placeholder="Enter destination rating">
+            <input type="number" step="0.1" min="0" max="5" name="average_rating" class="tag-type"
+                value="<?= $dest['average_rating'] ?>" required>
 
-            <h3>Destination Phone Number (01x-xxxxxxx)</h3>
-            <input type="text" class="tag-type" placeholder="Enter destination phone number">
+            <h3>Destination Phone Number</h3>
+            <input type="text" name="phone_number" class="tag-type"
+                value="<?= htmlspecialchars($dest['phone_number']) ?>"
+                placeholder="01x-xxxxxxx">
 
             <h3>Destination Description</h3>
-            <textarea class="tag-type description-box" placeholder="Enter destination description"></textarea>
+            <textarea name="description" class="tag-type description-box"><?= htmlspecialchars($dest['description']) ?></textarea>
+
             <div class="filter-actions">
                 <button type="reset" class="btn btn-reset">Reset</button>
-                <button class="btn btn-add" onclick="window.location.href='destination-management.php'">Edit Destination</button>
+                <button type="submit" name="btn-edit" class="btn btn-add">Edit Destination</button>
             </div>
-        </div>
-    </div>
-</body>
 
+        </form>
+    </div>
+
+    <!-- Pass existing tags to JS -->
+    <script>
+        const selectedTags = <?= json_encode($existingTags) ?>;
+
+        function renderSelectedTags() {
+            const container = document.getElementById('selectedTagsContainer');
+            const display = document.getElementById('selectedTagsDisplay');
+            display.innerHTML = '';
+
+            const ids = Object.keys(selectedTags);
+            if (ids.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.style.display = 'block';
+
+            ids.forEach(tag_id => {
+                const pill = document.createElement('span');
+                pill.style.cssText = `
+                    display: inline-flex; align-items: center; gap: 6px;
+                    background: #1A2B49; color: white; border-radius: 30px;
+                    padding: 0.4rem 1rem; font-size: 0.85rem; font-weight: 500;
+                `;
+                pill.innerHTML = `
+                    ${selectedTags[tag_id]}
+                    <input type="hidden" name="tags[]" value="${tag_id}">
+                    <span onclick="removeTag(${tag_id})" style="cursor:pointer; font-size:1rem; font-weight:700; line-height:1; margin-left:2px;">×</span>
+                `;
+                display.appendChild(pill);
+            });
+        }
+
+        function removeTag(tag_id) {
+            delete selectedTags[tag_id];
+            const cb = document.querySelector(`input[type=checkbox][value="${tag_id}"]`);
+            if (cb) {
+                cb.checked = false;
+                const label = cb.closest('label');
+                if (label) {
+                    label.style.background = 'white';
+                    label.style.color = '#1A2B49';
+                    label.style.borderColor = '#1A2B49';
+                    label.querySelector('.plus-icon').textContent = '+';
+                }
+            }
+            renderSelectedTags();
+        }
+
+        document.getElementById('tagTypeSelect').addEventListener('change', function () {
+            const tid = this.value;
+            const box = document.getElementById('tagCheckboxes');
+            box.innerHTML = '';
+            box.style.display = 'flex';
+
+            if (!tid) {
+                box.innerHTML = '<span style="color:#6b7280;font-size:0.88rem;">Select a tag type first</span>';
+                return;
+            }
+
+            box.innerHTML = '<span style="color:#6b7280;font-size:0.88rem;">Loading...</span>';
+
+            fetch('edit-destination.php?get_tags=' + tid + '&id=<?= $destination_id ?>')
+                .then(res => res.json())
+                .then(tags => {
+                    box.innerHTML = '';
+                    if (tags.length === 0) {
+                        box.innerHTML = '<span style="color:#6b7280;font-size:0.88rem;">No tags found</span>';
+                        return;
+                    }
+                    tags.forEach(tag => {
+                        const label = document.createElement('label');
+                        label.style.cssText = `
+                            display: inline-flex; align-items: center; gap: 6px;
+                            background: white; border: 2px solid #1A2B49; border-radius: 30px;
+                            padding: 0.4rem 1rem; font-size: 0.88rem; font-weight: 500;
+                            cursor: pointer; color: #1A2B49; transition: all 0.15s; user-select: none;
+                        `;
+
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.name = 'tags_check[]';
+                        checkbox.value = tag.tag_id;
+                        checkbox.style.display = 'none';
+
+                        const plus = document.createElement('span');
+                        plus.className = 'plus-icon';
+                        plus.style.cssText = 'font-size:1rem; font-weight:700; line-height:1;';
+
+                        const tagName = document.createElement('span');
+                        tagName.textContent = tag.tag_name;
+
+                        // Pre-check if already selected
+                        if (selectedTags[tag.tag_id]) {
+                            checkbox.checked = true;
+                            label.style.background = '#1A2B49';
+                            label.style.color = 'white';
+                            label.style.borderColor = '#1A2B49';
+                            plus.textContent = '✓';
+                        } else {
+                            plus.textContent = '+';
+                        }
+
+                        label.appendChild(checkbox);
+                        label.appendChild(tagName);
+                        label.appendChild(plus);
+
+                        label.addEventListener('click', function () {
+                            checkbox.checked = !checkbox.checked;
+                            if (checkbox.checked) {
+                                label.style.background = '#1A2B49';
+                                label.style.color = 'white';
+                                label.style.borderColor = '#1A2B49';
+                                plus.textContent = '✓';
+                                selectedTags[tag.tag_id] = tag.tag_name;
+                            } else {
+                                label.style.background = 'white';
+                                label.style.color = '#1A2B49';
+                                label.style.borderColor = '#1A2B49';
+                                plus.textContent = '+';
+                                delete selectedTags[tag.tag_id];
+                            }
+                            renderSelectedTags();
+                        });
+
+                        box.appendChild(label);
+                    });
+                });
+        });
+
+        // Render existing tags on page load
+        renderSelectedTags();
+    </script>
+</body>
 </html>
