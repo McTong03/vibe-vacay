@@ -46,28 +46,35 @@ if ($action === 'hero_nav') {
     $heroTags = [];
     try {
         $tagStmt = $pdo->prepare("
-            SELECT DISTINCT tt.tag_type_name
-            FROM tag_type tt
-            JOIN destination_tags dt ON dt.tag_type_id = tt.tag_type_id
-            JOIN destinations d      ON d.destination_id = dt.destination_id
+            SELECT dt.tag_name, dt.tag_type_id, COUNT(dtm.tag_id) AS tag_count
+            FROM destination_tags dt
+            JOIN destination_tag_mapping dtm ON dtm.tag_id = dt.tag_id
+            JOIN destinations d              ON d.destination_id = dtm.destination_id
             WHERE d.state_id = ?
-            LIMIT 3
+            AND dt.tag_type_id != 5
+            GROUP BY dt.tag_id, dt.tag_name, dt.tag_type_id
+            ORDER BY tag_count DESC
+            LIMIT 6
         ");
         $tagStmt->execute([$heroState['state_id']]);
-        $heroTags = $tagStmt->fetchAll(PDO::FETCH_COLUMN);
+        $heroTags = $tagStmt->fetchAll();
     } catch (Exception $e) {
         $heroTags = [];
     }
-    if (empty($heroTags)) $heroTags = ['Urban', 'Vibrant', 'Lifestyle'];
- 
+    if (empty($heroTags)) {
+        $heroTags = ['Urban', 'Vibrant', 'Lifestyle'];
+    }
+
     // Rating
-    $ratingStmt = $pdo->prepare("SELECT ROUND(AVG(average_rating),1) FROM destinations WHERE state_id = ?");
+    $ratingStmt = $pdo->prepare("SELECT ROUND(AVG(average_rating),1) AS avg_rating FROM destinations WHERE state_id = ?");
     $ratingStmt->execute([$heroState['state_id']]);
- 
+    $avgRating = $ratingStmt->fetchColumn();
+
     echo json_encode([
         'state_name' => $heroState['state_name'],
-        'state_url' => trim($heroState['state_url']),
+        'state_url'  => $heroState['state_url'],
         'tags'       => $heroTags,
+        'avg_rating' => $avgRating,
     ]);
     exit;
 }

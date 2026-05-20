@@ -46,19 +46,27 @@ $heroState = $allStates[$_SESSION['hero_index']];
 $heroTags = [];
 try {
     $tagStmt = $pdo->prepare("
-        SELECT DISTINCT tt.tag_type_name
-        FROM tag_type tt
-        JOIN destination_tags dt ON dt.tag_type_id = tt.tag_type_id
-        JOIN destinations d      ON d.destination_id = dt.destination_id
+        SELECT dt.tag_name, dt.tag_type_id, COUNT(dtm.tag_id) AS tag_count
+        FROM destination_tags dt
+        JOIN destination_tag_mapping dtm ON dtm.tag_id = dt.tag_id
+        JOIN destinations d              ON d.destination_id = dtm.destination_id
         WHERE d.state_id = ?
-        LIMIT 3
+        AND dt.tag_type_id != 5
+        GROUP BY dt.tag_id, dt.tag_name, dt.tag_type_id
+        ORDER BY tag_count DESC
+        LIMIT 6
     ");
     $tagStmt->execute([$heroState['state_id']]);
-    $heroTags = $tagStmt->fetchAll(PDO::FETCH_COLUMN);
+    $heroTagRows = $tagStmt->fetchAll();
+    $heroTags = $heroTagRows;
 } catch (Exception $e) {
     $heroTags = [];
 }
-if (empty($heroTags)) $heroTags = ['Urban', 'Vibrant', 'Lifestyle'];
+if (empty($heroTags)) $heroTags = [
+    ['tag_name' => 'Urban',     'tag_type_id' => 4],
+    ['tag_name' => 'Vibrant',   'tag_type_id' => 4],
+    ['tag_name' => 'Lifestyle', 'tag_type_id' => 4],
+];
 
 // Hero rating
 $ratingStmt = $pdo->prepare("SELECT ROUND(AVG(average_rating),1) FROM destinations WHERE state_id = ?");
@@ -222,12 +230,19 @@ $rpParam = isset($_GET['reviews_page']) ? '&reviews_page=' . (int)$_GET['reviews
 
         <div class="tags">
             <span class="tag-label">Tag:</span>
-            <?php foreach ($heroTags as $tag): ?>
+            <?php
+            $tagTypeEmojis = [
+                1 => '🌤️',  // Climate
+                2 => '💰',  // Price
+                3 => '👥',  // Travel With
+                4 => '🏖️',  // Vibe
+            ];
+            ?>
+            <?php foreach ($heroTags as $tagRow): ?>
                 <?php
-                $emojis = ['🏙️', '✨', '🌿', '🏖️', '🏔️'];
-                $emoji  = $emojis[$i % count($emojis)];
+                $emoji = $tagTypeEmojis[$tagRow['tag_type_id']] ?? '📍';
                 ?>
-                <span class="tag"><?= $emoji ?> <?= htmlspecialchars($tag) ?></span>
+                <span class="tag"><?= $emoji ?> <?= htmlspecialchars($tagRow['tag_name']) ?></span>
             <?php endforeach; ?>
         </div>
 
@@ -380,12 +395,19 @@ $rpParam = isset($_GET['reviews_page']) ? '&reviews_page=' . (int)$_GET['reviews
                         `Discover the beauty and culture of ${data.state_name}. Explore top-rated destinations, local experiences, and hidden gems waiting to be found.`;
 
                     // Tags
+                    const tagTypeEmojis = {
+                        1: '🌤️',
+                        2: '💰',
+                        3: '👥',
+                        4: '🏖️'
+                    };
                     const tagsEl = document.querySelector('#hero-section .tags');
                     tagsEl.innerHTML = '<span class="tag-label">Tag:</span>';
                     data.tags.forEach(tag => {
                         const span = document.createElement('span');
                         span.className = 'tag';
-                        span.textContent = tag;
+                        const emoji = tagTypeEmojis[tag.tag_type_id] || '📍';
+                        span.textContent = emoji + ' ' + tag.tag_name;
                         tagsEl.appendChild(span);
                     });
 
