@@ -21,7 +21,7 @@ require 'conn.php';
 // $logged_user = $user_result->fetch_assoc();
 // $stmt->close();
 
- 
+
 if (!isset($_GET['id'])) {
     $first = $conn->query("SELECT destination_id FROM destinations ORDER BY destination_id ASC LIMIT 1");
     $row   = $first->fetch_assoc();
@@ -32,10 +32,10 @@ if (!isset($_GET['id'])) {
         die('<p style="padding:40px; font-size:20px;">No destinations found in database.</p>');
     }
 }
- 
+
 $destination_id = intval($_GET['id']);
 
-   
+
 $stmt = $conn->prepare("
     SELECT 
         d.destination_id,
@@ -56,12 +56,12 @@ $stmt->execute();
 $result      = $stmt->get_result();
 $destination = $result->fetch_assoc();
 $stmt->close();
- 
+
 if (!$destination) {
     header("Location: destination-description.php");
     exit();
 }
- 
+
 // ── Fetch tags for this destination ─────────────────────────
 $stmt = $conn->prepare("
     SELECT t.tag_name, tt.tag_type_name
@@ -127,19 +127,21 @@ while ($row = $similar_result->fetch_assoc()) {
     $similar[] = $row;
 }
 $stmt->close();
- 
-function imgSrc($url, $fallback = 'image/default.jpg') {
+
+function imgSrc($url, $fallback = 'image/default.jpg')
+{
     return !empty($url) ? htmlspecialchars($url) : $fallback;
 }
- 
-function formatPrice($price) {
+
+function formatPrice($price)
+{
     $price = trim($price);
     $price = preg_replace('/^RM\s*/i', '', $price);
     return ($price == '0' || strtolower($price) == 'free' || empty($price))
         ? 'Free'
         : 'RM ' . htmlspecialchars($price);
 }
- 
+
 $firstImage = explode(',', $destination['image_url'])[0];
 $heroImg = imgSrc(trim($firstImage));
 
@@ -161,726 +163,17 @@ $similarJson = json_encode($similar);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Destination Description</title>
     <link rel="stylesheet" href="css/menubar.css">
+    <link rel="stylesheet" href="css/destination-description.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto+Slab:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Titan+One&display=swap');
+
+        @import url('https://fonts.googleapis.com/css2?family=Changa:wght@200..800&family=Cherry+Bomb+One&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto+Slab:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Titan+One&display=swap');
+    </style>
+
 </head>
 
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto+Slab:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Titan+One&display=swap');
 
-    @import url('https://fonts.googleapis.com/css2?family=Changa:wght@200..800&family=Cherry+Bomb+One&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto+Slab:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Titan+One&display=swap');
-</style>
-
-<style>
-
-    body{
-        height: 5000px;
-        width: 100%;
-        margin: 0;  
-        padding: 0;
-        overflow-x: hidden; 
-    }
-
-    #header {
-        background-color: #1A2B49;
-        height: 55px;
-        border-radius: 50px;
-        margin-left: 90px;
-        margin-right: 20px;
-        margin-top: 25px;
-        width: calc(100% - 180px);
-        position: relative;
-        z-index: 2;
-    }
-
-    .logo {
-        width: 65px;
-        height: 65px;
-        margin-top: -3px;
-        margin-left: 30px;
-    }
-
-    .logo-name,
-    .home,
-    .recommendation,
-    .wishlist,
-    .about-us,
-    .logout,
-    .profile {
-        /* font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; */
-        font-size: 17px;
-        font-weight: bold
-    }
-
-    .logo-name {
-        margin-top: -47px;
-        margin-left: 100px;
-        color: white;
-    }
-
-    .home {
-        margin-top: -37px;
-        margin-left: 380px;
-        color: white;
-    }
-
-    .recommendation {
-        margin-top: -37px;
-        margin-left: 530px;
-        color: white;
-    }
-
-    .wishlist {
-        margin-top: -37px;
-        margin-left: 760px;
-        color: white;
-    }
-
-    .about-us {
-        margin-top: -37px;
-        margin-left: 930px;
-        color: white;
-    }
-
-    .logout {
-        margin-top: -37px;
-        margin-left: 1180px;
-        color: white;
-    }
-
-    .profile-box{
-        background-color: white;
-        width: 160px;
-        height: 35px;
-        margin-top: -46px;
-        margin-left: 1280px;
-        border-radius: 30px;
-    }
-
-    .profile {
-        padding-top: 8px;
-        margin-left: 35px;
-    }
-
-    .profile-icon {
-        width: 30px;
-        height: 30px;
-        border-radius: 60px;
-        margin-left: 100px;
-        /* top: -20px; */
-        position: relative;
-        top: -42px;
-        left: 5px;
-    }
-
-    .batucaves1 {
-        width: 100%; 
-        margin-top: -80px;
-        height: 600px;
-        filter: brightness(70%);
-        margin-left: 0;
-        display: block;
-        object-fit: cover;
-    }
-
-    .batucaves-name,
-    .malaysia,
-    .tag,
-    .heritage-container,
-    .culture-container,
-    .landmark-container,
-    .rating-container {
-        position: relative;
-        color: white;
-    }
-
-    .batucaves-name {
-        margin-top: -210px;
-        font-size: 45px;
-        margin-left: 60px;
-    }
-
-    .malaysia {
-        font-size: 26px;
-        margin-top: -40px;
-        margin-left: 60px;
-        position: relative;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif
-    }
-
-    .tags-overlay-row {
-        position: relative;
-        margin-top: 30px;
-        margin-left: 60px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        z-index: 2;
-    }
-
-    .tag-overlay-pill {
-        background-color: rgba(255, 255, 255, 0.35);
-        color: white;
-        border-radius: 30px;
-        padding: 10px 28px;
-        font-size: 18px;
-        font-weight: 500;
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
-    }
-
-    .heritage-container,
-    .culture-container,
-    .landmark-container {
-        background-color: rgba(255, 255, 255, 0.4);
-        height: 50px;
-        width: 150px;
-        border-radius: 30px;
-    }
-
-    .heritage-container {
-        margin-left: 60px;
-        margin-top: 5px;
-        
-    }
-
-    .heritage,
-    .culture,
-    .landmark {
-        font-size: 20px;
-        padding-top: 13px;
-        padding-left: 40px;
-    }
-
-    .culture-container {
-        margin-top: -70px;
-        margin-left: 225px;
-    }
-
-    .landmark-container {
-        margin-top: -70px;
-        margin-left: 390px;
-    }
-
-    .rating-container {
-        background-color: rgba(255, 255, 255, 0.4);
-        height: 100px;
-        width: 250px;
-        border-radius: 30px;
-        margin-top: -180px;
-        margin-left: 1150px;
-    }
-
-    .rating {
-        font-size: 64px;
-        padding-top: 15px;
-        padding-left: 40px;
-    }
-
-    .rating-name {
-        margin-top: -100px;
-        margin-left: 140px;
-        font-size: 25px;
-    }
-    
-    .overview-price-wrapper {
-        display: flex;
-        align-items: flex-start;
-        gap: 40px;
-        margin-top: 40px;
-        padding: 0 50px;
-    }
-
-    .overview-container {
-        flex: 1;
-    }
-    
-    .overview {
-        margin-top: 150px;
-        margin-left: 0;
-    }
-
-    .overview1,
-    .overview2,
-    .overview3 {
-        font-size: 20px;
-        color: #6F6767;
-        margin-left: 50px;
-    }
-
-    .overview1 {
-        margin-top:-10px;
-    }
-
-    .highlight {
-        color: #383333;
-    }
-
-    .overview-container{
-        width: 1200px;
-    }
-
-    .overview2 {
-        margin-top: -10px;
-        line-height: 35px;
-    }
-
-    .overview3 {
-        margin-top: 20px;
-        line-height: 35px;
-    }
-
-    .add-container1{
-        margin-top: 60px;
-        margin-left: 750px;
-        position: absolute;
-        
-    }
-
-    .heart-shape {
-        width: 34px;
-        position: absolute;
-        margin-top: 35px;
-        margin-left: 80px;
-    }
-
-    .add{
-        font-size: 20px;
-        border: none;
-        background-color: #0064CE;
-        color: white;
-        width: 250px;
-        height: 65px;
-        border-radius: 20px;
-        padding-left: 30px;
-        margin-top: 20px;
-        margin-left: 50px;
-        cursor: pointer;
-    }
-
-    .price-container {
-        background-color: #D3D3D4;
-        width: 300px;
-        min-width: 530px;
-        height: 114px;
-        margin-top: 60px;
-        margin-left: 1080px;
-        position: absolute;
-        border-radius: 20px;
-        flex-shrink: 0;
-        align-self: flex-start;
-    }
-
-    .price-tag {
-        width: 90px;
-        margin-top: 10px;
-        margin-left: 60px;
-    }
-
-    .price {
-        font-size: 48px;
-        margin-top: -70px;
-        margin-left: 240px;
-    }
-
-    .gallery {
-        font-size: 30px;
-        margin-top: 40px;
-        margin-left: 50px;
-        font-family: 'Open Sans';
-        font-weight: bold;
-    }
-
-    .batucaves2,
-    .batucaves3,
-    .batucaves4,
-    .batucaves5,
-    .batucaves6,
-    .batucaves7 {
-        width: 350px;
-        height: 300px;
-        border-radius: 10px;
-    }
-
-    .image-container {
-        display: grid;
-        grid-template-columns: repeat(4, 400px);
-        margin-left: 50px;
-        gap: 30px;
-        column-gap: 1px;
-        cursor: pointer;
-    }
-
-    .next-button img,
-    .next-button1 img,
-    .next-button2 img {
-        width: 70px;
-    }
-
-    .saying {
-        margin-top: -15px;
-        margin-left: 500px;
-    }
-
-    .batu-caves-name {
-        font-size: 12px;
-        margin-left: 20px;
-        position: relative;
-        text-decoration: underline;
-    }
-
-    .batu-container {
-        max-width: 400px;
-        height: auto;
-        overflow: visible;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        margin-left: 50px;
-        border-radius: 18px;
-        margin-top: 10px;
-        cursor: pointer;
-        
-    }
-
-    .batu-container:hover {
-        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-        transition: box-shadow 0.3s ease;
-    }
-
-    .card-container {
-        display: grid;
-        grid-template-columns: repeat(4, 350px);
-        gap: 3px;
-        row-gap: 30px;
-    }
-
-    .star1 {
-        width: 15px;
-        position: relative;
-        left: 20px;
-    }
-
-    .profile-picture {  
-        width: 35px;
-        position: relative;
-        top: 10px;
-        left: 20px;
-    }
-
-    .rating-names {
-        left: 70px;
-        font-size: 12px;
-        position: relative;
-        top: -37px;
-    }
-
-    .rating-date {
-        font-size: 10px;
-        position: relative;
-        left: 70px;
-        top: -46px;
-    }
-
-    .rating-description {
-        font-size: 12px;
-        width: 270px;
-        position: relative;
-        left: 20px;
-        top: -30px;
-        line-height: 15px;
-    }
-
-    .batucaves8 {
-        width: 70px;
-        border-radius: 8px;
-        position: relative;
-        left: 20px;
-        height: 70px;
-    }
-
-    .next-button1 {
-        border:none;
-        background: none;
-        position: relative;
-        left: 1350px;
-        top: -180px;
-    }
-
-    .experience {
-        margin-left: 70px;
-        margin-top: 250px;
-    }
-
-    .rating-experience-container {
-        width: 1000px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        height: 400px;
-        margin-left: 70px;
-        margin-top: -10px;
-        background-color: #FAF9F9;
-        cursor: pointer;
-    }
-
-    .rating-name1,
-    .description1,
-    .photo {
-        font-size: 16px;
-        text-decoration: underline;
-        font-family: 'Open Sans';
-        font-weight: bold;
-        padding-left: 40px;
-    }
-
-    .rating-name1 {
-        padding-top: 20px;
-    }
-
-    .star2 {
-        width:  30px;
-        margin-top: -6px;
-        margin-left: 30px;
-    }
-
-    .star-container {
-        border: none;
-        background-color: #FAF9F9;
-    }
-
-
-    #review-comment {
-        background-color: #E8E5E5;
-        width: 800px;
-        height: 50px;
-        border-radius: 10px;
-        margin-left: 40px;
-        border: none;
-        padding-left: 20px;
-        font-size: 16px;
-        box-sizing: border-box;
-    }
-    
-    #review-comment::placeholder { 
-        color: #888; 
-    }
-
-    .description1 {
-        padding-top: 10px;
-        font-size: 16px;
-    }
-
-    #search-input {
-        background-color: #E8E5E5;
-        width: 800px;
-        height: 50px;
-        border-radius: 10px;
-        margin-left: 40px;
-        border: none;
-    }
-
-    #search-input::placeholder {
-        padding-left: 20px;
-        color: black;
-    }
-
-    .photo {
-        margin-top: 30px;
-    }
-
-    .upload-area { 
-        margin-left: 40px; 
-        margin-top: 10px; 
-    }
-
-    .upload-box {
-        display: flex;
-        background-color: #E8E5E5;
-        width: 300px;
-        height: 50px;
-        border-radius: 10px;
-    }
-
-    .upload-icon {
-        width: 35px;
-        height: 35px;
-        margin-top: 8px;
-        margin-left: 20px;
-    }
-
-    .upload-image {
-        padding-top: 15px;
-        padding-left: 30px;
-        font-size: 20px;
-    }
-
-    .photo-preview-row { 
-        display: flex; 
-        flex-wrap: wrap; 
-        gap: 10px; 
-        margin-top: 12px; 
-        min-height: 20px;
-    }
-
-    .photo-preview-item { 
-        position: relative; 
-        width: 80px; 
-        height: 80px; 
-    }
-
-    .photo-preview-item img { 
-        width: 80px; 
-        height: 80px; 
-        object-fit: cover; 
-        border-radius: 8px; 
-    }
-
-    .remove-photo {
-        position: absolute; 
-        top: -6px; 
-        right: -6px;
-        background: red; 
-        color: white; 
-        border: none;
-        border-radius: 50%; 
-        width: 20px; 
-        height: 20px;
-        font-size: 13px; 
-        cursor: pointer; 
-        line-height: 20px;
-        text-align: center; 
-        padding: 0;
-    }
-
-    .submit-button {
-        margin-top: -40px;
-        margin-left: 700px;
-        width: 200px;
-        height: 50px;
-        font-weight: bold;
-        font-size: 20px;
-        background-color: #CECCCC;
-        border: none;
-        position: absolute;
-    }
-
-    .similar-place {
-        padding-top: 100px;
-    }
-
-    .similar-container {
-        height: 360px;
-        width: 300px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        border-radius: 20px;
-        cursor: pointer;
-        transition: box-shadow 0.3s ease;
-    }
-
-    .similar-container:hover {
-        box-shadow: 0 8px 24px rgba(0,0,0,0.18);
-    }
-
-    .similar-container:hover .thean-hou {
-        filter: brightness(80%);
-        transition: filter 0.3s ease;
-    }
-
-
-
-    .thean-hou,
-    .national-mosque,
-    .genting-highlands {
-        width: 100%;
-        height: 200px;
-        border-radius: 20px 20px 0 0; 
-    }
-
-    .kuala-lumpur,
-    .thean-hou-temple,
-    .hot,
-    .ratings1 {
-        padding-left: 25px;
-    }
-    
-    .kuala-lumpur {
-        font-size: 12px;
-        color: #63687A;
-        padding-top: 6px;
-    }
-
-    .thean-hou-temple {
-        font-size: 17px;
-        margin-top: -5px
-    }
-
-    .hot {
-        color: #1A2B49;
-        font-size: 12px;
-    }
-
-    .ratings1 {
-        margin-top: 30px;
-        font-size: 14px;
-        color: #1A2B49;
-    }
-
-    .star-icon {
-        width: 24px;
-        margin-left: 54px;
-        top: -36px;
-        position: relative;
-    }
-
-    .number-rating {
-        color: #63687A;
-        font-size: 10px;
-        margin-top: -56px;
-        margin-left: 83px;
-    }
-
-    .from-free-row {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 8px 20px 15px;
-    }
- 
-    .from {
-        color: #63687A;
-        font-size: 14px;
-        margin-top: -50px;
-        margin-left: 150px;
-    }
- 
-    .free {
-        color: #1A2B49;
-        font-size: 17px;
-        font-weight: bold;
-        margin-top: -50px;
-    }
-
-    .similar-card-container {
-        display: grid;
-        grid-template-columns: repeat(4, 350px);
-    }
-
-    .next-button1 {
-        margin-top: 320px;
-        margin-left: 40px;
-    }
-
-    .no-reviews {
-        margin-left: 60px;
-    }
-
-    .overview,
-    .gallery,
-    .saying,
-    .experience,
-    .similar-place {
-        font-size: 25px;
-        font-family: 'Open Sans';
-        font-weight: bold;
-    }
-
-
-</style>
 
 <body>
 
@@ -889,8 +182,9 @@ $similarJson = json_encode($similar);
     <img class="batucaves1" src="<?php echo $heroImg; ?>" alt="<?php echo htmlspecialchars($destination['destination_name']); ?>">
 
     <p class="batucaves-name"><?php echo htmlspecialchars($destination['destination_name']); ?></p>
+
     <p class="malaysia"><?php echo htmlspecialchars($destination['state_name'] ?? ''); ?>, Malaysia</p>
-    
+
     <?php if (!empty($tags)): ?>
         <div class="tags-overlay-row">
             <?php foreach ($tags as $type => $tagList): ?>
@@ -900,6 +194,8 @@ $similarJson = json_encode($similar);
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
+
+    
 
 
 
@@ -915,10 +211,16 @@ $similarJson = json_encode($similar);
         </div>
 
         <div class="add-container1">
-            <img class="heart-shape" src="icon/heart.png">
-            <button  class="add" onclick="addToWishlist()">Add to Wishlist</button>
+            <div>
+                <img class="heart-shape" src="icon/heart.png">
+            </div>
+
+            <div>
+                <button class="add" onclick="addToWishlist()">Add to Wishlist</button>
+            </div>
             <p id="wishlist-msg" style="font-size:14px; margin-top:10px;"></p>
         </div>
+
         
         <div class="price-container">
             <img class="price-tag" src="icon/price-tag.png">
@@ -926,12 +228,12 @@ $similarJson = json_encode($similar);
         </div>
     </div>
 
-    
+
     <p class="gallery">Gallery</p>
 
     <div class="image-container" id="galleryGrid"></div>
 
-    <div style="display:flex; gap:10px; position:relative; left:1500px; top:-180px;">   
+    <div style="display:flex; gap:10px; position:relative; left:1500px; top:-180px;">
         <button style="border:none; background:none; cursor:pointer;" class="next-button" id="galleryPrevBtn" onclick="changeGalleryPage(-1)">
             <img src="icon/previous-button.png" alt="prev">
         </button>
@@ -954,12 +256,12 @@ $similarJson = json_encode($similar);
 
                     <div>
                         <?php for ($i = 0; $i < intval($review['rating']); $i++): ?>
-                            <img class="star1" src="icon/star.png" alt="star">                        
+                            <img class="star1" src="icon/star.png" alt="star">
                         <?php endfor; ?>
                     </div>
 
                     <div>
-                        <img class="profile-picture" src="<?php echo htmlspecialchars($review['profile_picture']); ?>" 
+                        <img class="profile-picture" src="<?php echo htmlspecialchars($review['profile_picture']); ?>"
                             alt="profile">
                     </div>
 
@@ -983,12 +285,12 @@ $similarJson = json_encode($similar);
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>
-        </div> 
-        
+        </div>
+
     <?php else: ?>
         <p class="no-reviews" id="no-reviews-msg">No reviews yet for this destination.</p>
     <?php endif; ?>
-  
+
     <div style="display:flex; gap:10px; justify-content:flex-end; padding-right:100px; margin-top:-200px;">
         <button style="border:none; background:none; cursor:pointer; display:none;" id="reviewsPrevBtn" onclick="changeReviewPage(-1)">
             <img src="icon/previous-button.png" alt="prev" style="width:70px;">
@@ -1007,7 +309,7 @@ $similarJson = json_encode($similar);
         <div>
             <p class="rating-name1">Rating:</p>
         </div>
-        
+
         <div id="star-rating-row">
             <?php for ($s = 1; $s <= 5; $s++): ?>
                 <button class="star-container" onclick="setRating(<?php echo $s; ?>)" type="button">
@@ -1020,7 +322,7 @@ $similarJson = json_encode($similar);
 
         <div>
             <p class="description1">Description:</p>
-            <input id="review-comment" type="text" name="search" placeholder="Leave a comment..."/>
+            <input id="review-comment" type="text" name="search" placeholder="Leave a comment..." />
         </div>
 
         <div>
@@ -1041,180 +343,180 @@ $similarJson = json_encode($similar);
             <p id="review-msg" style="padding-left:40px; color:green; font-size:16px;"></p>
         </div>
 
-    <p class="similar-place">Similar Place</p>
+        <p class="similar-place">Similar Place</p>
 
-    <?php if (count($similar) > 0): ?>
-        <div class="similar-card-container" id="similarGrid">
-            <?php foreach ($similar as $place): ?>
-                <div class="similar-container"
-                    onclick="window.location.href='destination-description.php?id=<?php echo $place['destination_id']; ?>'">
-                    
-                    <div>
-                        <img class="thean-hou" src="<?php echo imgSrc($place['image_url']); ?>"
-                            alt="<?php echo htmlspecialchars($place['destination_name']); ?>">
-                    </div>
+        <?php if (count($similar) > 0): ?>
+            <div class="similar-card-container" id="similarGrid">
+                <?php foreach ($similar as $place): ?>
+                    <div class="similar-container"
+                        onclick="window.location.href='destination-description.php?id=<?php echo $place['destination_id']; ?>'">
 
-                    <div>
-                        <p class="kuala-lumpur"><?php echo htmlspecialchars($place['state_name']); ?></p>
-                    </div>
+                        <div>
+                            <img class="thean-hou" src="<?php echo imgSrc($place['image_url']); ?>"
+                                alt="<?php echo htmlspecialchars($place['destination_name']); ?>">
+                        </div>
 
-                    <div>
-                        <p class="thean-hou-temple"><?php echo htmlspecialchars($place['destination_name']); ?></p>
-                    </div>
+                        <div>
+                            <p class="kuala-lumpur"><?php echo htmlspecialchars($place['state_name']); ?></p>
+                        </div>
 
-                    <div>
-                        <p class="hot">Climate: Hot</p>
-                    </div>
+                        <div>
+                            <p class="thean-hou-temple"><?php echo htmlspecialchars($place['destination_name']); ?></p>
+                        </div>
 
-                    <div>
-                        <p class="ratings1"><?php echo number_format($place['average_rating'], 1); ?></p>
-                        <img class="star-icon" src="icon/star.png">
-                        <p class="number-rating">(<?php echo $place['reviews_count']; ?>)</p>
+                        <div>
+                            <p class="hot">Climate: Hot</p>
+                        </div>
 
-                    </div>
+                        <div>
+                            <p class="ratings1"><?php echo number_format($place['average_rating'], 1); ?></p>
+                            <img class="star-icon" src="icon/star.png">
+                            <p class="number-rating">(<?php echo $place['reviews_count']; ?>)</p>
 
-                    <div class="from-free-row">
+                        </div>
+
+                        <div class="from-free-row">
                             <span class="from">From</span>
                             <span class="free"><?php echo formatPrice($place['price']); ?></span>
                         </div>
-                </div>
-            <?php endforeach; ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <p style="margin-left:50px; color:#666; margin-bottom:60px;">No similar places found.</p>
+        <?php endif; ?>
+
+        <div style="display:flex; gap:10px; justify-content:flex-end; position:absolute; right:80px; margin-top:-220px;">
+            <button style="border:none; background:none; cursor:pointer;" class="next-button2" id="similarPrevBtn" onclick="changeSimilarPage(-1)">
+                <img src="icon/previous-button.png" alt="prev">
+            </button>
+            <button style="border:none; background:none; cursor:pointer;" class="next-button2" id="similarNextBtn" onclick="changeSimilarPage(1)">
+                <img src="icon/next.png" alt="next">
+            </button>
         </div>
-    <?php else: ?>
-        <p style="margin-left:50px; color:#666; margin-bottom:60px;">No similar places found.</p>
-    <?php endif; ?>
 
-    <div style="display:flex; gap:10px; justify-content:flex-end; position:absolute; right:80px; margin-top:-220px;">
-        <button style="border:none; background:none; cursor:pointer;" class="next-button2" id="similarPrevBtn" onclick="changeSimilarPage(-1)">
-            <img src="icon/previous-button.png" alt="prev" >
-        </button>
-        <button style="border:none; background:none; cursor:pointer;" class="next-button2" id="similarNextBtn" onclick="changeSimilarPage(1)">
-            <img src="icon/next.png" alt="next">
-        </button>
-    </div>
+        <script>
+            var galleryImages = <?php echo $galleryJson; ?>;
+            var galleryPage = 0;
+            var galleryPerPage = 4;
 
-<script>
-    var galleryImages = <?php echo $galleryJson; ?>;
-    var galleryPage   = 0;
-    var galleryPerPage = 4;
+            function renderGallery() {
+                var grid = document.getElementById('galleryGrid');
+                var start = galleryPage * galleryPerPage;
+                var slice = galleryImages.slice(start, start + galleryPerPage);
 
-    function renderGallery() {
-        var grid  = document.getElementById('galleryGrid');
-        var start = galleryPage * galleryPerPage;
-        var slice = galleryImages.slice(start, start + galleryPerPage);
+                grid.innerHTML = '';
+                slice.forEach(function(src) {
+                    var img = document.createElement('img');
+                    img.className = 'batucaves2';
+                    img.src = src;
+                    grid.appendChild(img);
+                });
 
-        grid.innerHTML = '';
-        slice.forEach(function(src) {
-            var img = document.createElement('img');
-            img.className = 'batucaves2';
-            img.src = src;
-            grid.appendChild(img);
-        });
+                // hide prev on first page
+                document.getElementById('galleryPrevBtn').style.visibility =
+                    galleryPage === 0 ? 'hidden' : 'visible';
 
-        // hide prev on first page
-        document.getElementById('galleryPrevBtn').style.visibility =
-            galleryPage === 0 ? 'hidden' : 'visible';
-
-        // hide next on last page
-        var totalPages = Math.ceil(galleryImages.length / galleryPerPage);
-        document.getElementById('galleryNextBtn').style.visibility =
-            galleryPage >= totalPages - 1 ? 'hidden' : 'visible';
-    }
-
-    (function() {
-        var cards = document.querySelectorAll('.card-container .batu-container');
-        cards.forEach(function(card, i) {
-            if (i >= 4) card.style.display = 'none';
-        });
-    })();
-
-    function changeGalleryPage(dir) {
-        var totalPages = Math.ceil(galleryImages.length / galleryPerPage);
-        galleryPage += dir;
-        if (galleryPage < 0) galleryPage = 0;
-        if (galleryPage >= totalPages) galleryPage = totalPages - 1;
-        renderGallery();
-    }
-
-    renderGallery();
-
-    // ── Reviews toggle ────────────────────────────────────
-    var reviewPage = 0;
-    var reviewsPerPage = 4;
-
-    function changeReviewPage(dir) {
-        var cards = document.querySelectorAll('.card-container .batu-container');
-        var totalPages = Math.ceil(cards.length / reviewsPerPage);
-
-        reviewPage += dir;
-        if (reviewPage < 0) reviewPage = 0;
-        if (reviewPage >= totalPages) reviewPage = totalPages - 1;
-
-        cards.forEach(function(card, i) {
-            var start = reviewPage * reviewsPerPage;
-            var end = start + reviewsPerPage;
-            card.style.display = (i >= start && i < end) ? 'block' : 'none';
-        });
-
-        document.getElementById('reviewsPrevBtn').style.display =
-            reviewPage === 0 ? 'none' : 'inline-block';
-
-        document.getElementById('reviewsNextBtn').style.display =
-            reviewPage >= totalPages - 1 ? 'none' : 'inline-block';
-    }
-
-    var reviewsExpanded = false;
-
-    function toggleReviews() {
-        var cards = document.querySelectorAll('.card-container .batu-container');
-        reviewsExpanded = !reviewsExpanded;
-        cards.forEach(function(card, i) {
-            if (i >= 4) {
-                card.style.display = reviewsExpanded ? 'block' : 'none';
+                // hide next on last page
+                var totalPages = Math.ceil(galleryImages.length / galleryPerPage);
+                document.getElementById('galleryNextBtn').style.visibility =
+                    galleryPage >= totalPages - 1 ? 'hidden' : 'visible';
             }
-        });
-    }
 
- 
-    function toggleSimilar() {
-        var cards = document.querySelectorAll('#similarGrid .similar-container');
-        var btn   = document.getElementById('similarNextBtn');
- 
-        similarExpanded = !similarExpanded;
- 
-        cards.forEach(function(card, i) {
-            if (i >= 4) {
-                card.classList.toggle('hidden-card', !similarExpanded);
+            (function() {
+                var cards = document.querySelectorAll('.card-container .batu-container');
+                cards.forEach(function(card, i) {
+                    if (i >= 4) card.style.display = 'none';
+                });
+            })();
+
+            function changeGalleryPage(dir) {
+                var totalPages = Math.ceil(galleryImages.length / galleryPerPage);
+                galleryPage += dir;
+                if (galleryPage < 0) galleryPage = 0;
+                if (galleryPage >= totalPages) galleryPage = totalPages - 1;
+                renderGallery();
             }
-        });
- 
-        btn.classList.toggle('expanded', similarExpanded);
-    }
 
-    var similarPlaces  = <?php echo $similarJson; ?>;
-    var similarPage    = 0;
-    var similarPerPage = 4;
+            renderGallery();
 
-    function renderSimilar() {
-        var grid  = document.getElementById('similarGrid');
-        var start = similarPage * similarPerPage;
-        var slice = similarPlaces.slice(start, start + similarPerPage);
+            // ── Reviews toggle ────────────────────────────────────
+            var reviewPage = 0;
+            var reviewsPerPage = 4;
 
-        grid.innerHTML = '';
-        slice.forEach(function(place) {
-            var firstImg = place.image_url ? place.image_url.split(',')[0].trim() : 'image/default.jpg';
-            var price = place.price ? place.price.trim() : '';
-            price = price.replace(/^RM\s*/i, '');
-            var priceDisplay = (price === '0' || price.toLowerCase() === 'free' || price === '')
-                ? 'Free' : 'RM ' + price;
+            function changeReviewPage(dir) {
+                var cards = document.querySelectorAll('.card-container .batu-container');
+                var totalPages = Math.ceil(cards.length / reviewsPerPage);
 
-            var div = document.createElement('div');
-            div.className = 'similar-container';
-            div.onclick = function() {
-                window.location.href = 'destination-description.php?id=' + place.destination_id;
-            };
+                reviewPage += dir;
+                if (reviewPage < 0) reviewPage = 0;
+                if (reviewPage >= totalPages) reviewPage = totalPages - 1;
 
-            div.innerHTML = `
+                cards.forEach(function(card, i) {
+                    var start = reviewPage * reviewsPerPage;
+                    var end = start + reviewsPerPage;
+                    card.style.display = (i >= start && i < end) ? 'block' : 'none';
+                });
+
+                document.getElementById('reviewsPrevBtn').style.display =
+                    reviewPage === 0 ? 'none' : 'inline-block';
+
+                document.getElementById('reviewsNextBtn').style.display =
+                    reviewPage >= totalPages - 1 ? 'none' : 'inline-block';
+            }
+
+            var reviewsExpanded = false;
+
+            function toggleReviews() {
+                var cards = document.querySelectorAll('.card-container .batu-container');
+                reviewsExpanded = !reviewsExpanded;
+                cards.forEach(function(card, i) {
+                    if (i >= 4) {
+                        card.style.display = reviewsExpanded ? 'block' : 'none';
+                    }
+                });
+            }
+
+
+            function toggleSimilar() {
+                var cards = document.querySelectorAll('#similarGrid .similar-container');
+                var btn = document.getElementById('similarNextBtn');
+
+                similarExpanded = !similarExpanded;
+
+                cards.forEach(function(card, i) {
+                    if (i >= 4) {
+                        card.classList.toggle('hidden-card', !similarExpanded);
+                    }
+                });
+
+                btn.classList.toggle('expanded', similarExpanded);
+            }
+
+            var similarPlaces = <?php echo $similarJson; ?>;
+            var similarPage = 0;
+            var similarPerPage = 4;
+
+            function renderSimilar() {
+                var grid = document.getElementById('similarGrid');
+                var start = similarPage * similarPerPage;
+                var slice = similarPlaces.slice(start, start + similarPerPage);
+
+                grid.innerHTML = '';
+                slice.forEach(function(place) {
+                    var firstImg = place.image_url ? place.image_url.split(',')[0].trim() : 'image/default.jpg';
+                    var price = place.price ? place.price.trim() : '';
+                    price = price.replace(/^RM\s*/i, '');
+                    var priceDisplay = (price === '0' || price.toLowerCase() === 'free' || price === '') ?
+                        'Free' : 'RM ' + price;
+
+                    var div = document.createElement('div');
+                    div.className = 'similar-container';
+                    div.onclick = function() {
+                        window.location.href = 'destination-description.php?id=' + place.destination_id;
+                    };
+
+                    div.innerHTML = `
                 <img class="thean-hou" src="${firstImg}" alt="${place.destination_name}">
                 <p class="kuala-lumpur">${place.state_name}</p>
                 <p class="thean-hou-temple">${place.destination_name}</p>
@@ -1227,135 +529,145 @@ $similarJson = json_encode($similar);
                     <span class="free">${priceDisplay}</span>
                 </div>
             `;
-            grid.appendChild(div);
-        });
+                    grid.appendChild(div);
+                });
 
-        document.getElementById('similarPrevBtn').style.visibility =
-            similarPage === 0 ? 'hidden' : 'visible';
+                document.getElementById('similarPrevBtn').style.visibility =
+                    similarPage === 0 ? 'hidden' : 'visible';
 
-        var totalPages = Math.ceil(similarPlaces.length / similarPerPage);
-        document.getElementById('similarNextBtn').style.visibility =
-            similarPage >= totalPages - 1 ? 'hidden' : 'visible';
-    }
+                var totalPages = Math.ceil(similarPlaces.length / similarPerPage);
+                document.getElementById('similarNextBtn').style.visibility =
+                    similarPage >= totalPages - 1 ? 'hidden' : 'visible';
+            }
 
-    function changeSimilarPage(dir) {
-        var totalPages = Math.ceil(similarPlaces.length / similarPerPage);
-        similarPage += dir;
-        if (similarPage < 0) similarPage = 0;
-        if (similarPage >= totalPages) similarPage = totalPages - 1;
-        renderSimilar();
-    }
+            function changeSimilarPage(dir) {
+                var totalPages = Math.ceil(similarPlaces.length / similarPerPage);
+                similarPage += dir;
+                if (similarPage < 0) similarPage = 0;
+                if (similarPage >= totalPages) similarPage = totalPages - 1;
+                renderSimilar();
+            }
 
-    renderSimilar();
+            renderSimilar();
 
-    console.log(similarPlaces);
+            console.log(similarPlaces);
 
 
 
-    function setRating(value) {
-        document.getElementById('selected-rating').value = value;
-        for (var i = 1; i <= 5; i++) {
-            document.getElementById('star-' + i).src =
-                i <= value ? 'icon/star.png' : 'icon/star1.png';
-        }
-    }
+            function setRating(value) {
+                document.getElementById('selected-rating').value = value;
+                for (var i = 1; i <= 5; i++) {
+                    document.getElementById('star-' + i).src =
+                        i <= value ? 'icon/star.png' : 'icon/star1.png';
+                }
+            }
 
-    // ── Multiple Photo Preview ────────────────────────────
-    var selectedFiles = [];
- 
-    document.getElementById('review-images').addEventListener('change', function() {
-        Array.from(this.files).forEach(function(file) {
-            selectedFiles.push(file);
-        });
-        renderPhotoPreview();
-        this.value = ''; // reset so same file can be picked again
-    });
- 
-    function renderPhotoPreview() {
-        var row = document.getElementById('photoPreviewRow');
-        row.innerHTML = '';
-        selectedFiles.forEach(function(file, index) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                var item = document.createElement('div');
-                item.className = 'photo-preview-item';
-                item.innerHTML = `
+            // ── Multiple Photo Preview ────────────────────────────
+            var selectedFiles = [];
+
+            document.getElementById('review-images').addEventListener('change', function() {
+                Array.from(this.files).forEach(function(file) {
+                    selectedFiles.push(file);
+                });
+                renderPhotoPreview();
+                this.value = ''; // reset so same file can be picked again
+            });
+
+            function renderPhotoPreview() {
+                var row = document.getElementById('photoPreviewRow');
+                row.innerHTML = '';
+                selectedFiles.forEach(function(file, index) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        var item = document.createElement('div');
+                        item.className = 'photo-preview-item';
+                        item.innerHTML = `
                     <img src="${e.target.result}" alt="preview">
                     <button class="remove-photo" onclick="removePhoto(${index})">×</button>
                 `;
-                row.appendChild(item);
-            };
-            reader.readAsDataURL(file);
-        });
-    }
- 
-    function removePhoto(index) {
-        selectedFiles.splice(index, 1);
-        renderPhotoPreview();
-    }
+                        row.appendChild(item);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
 
-    // ── Submit Review ─────────────────────────────────────
-    function submitReview() {
-        var rating  = document.getElementById('selected-rating').value;
-        var comment = document.getElementById('review-comment').value.trim();
-        var msg     = document.getElementById('review-msg');
-
-        if (rating == 0) { msg.style.color = 'red'; msg.textContent = 'Please select a rating.'; return; }
-        if (!comment)    { msg.style.color = 'red'; msg.textContent = 'Please write a comment.'; return; }
-
-        var formData = new FormData();
-        formData.append('destination_id', <?php echo $destination_id; ?>);
-        formData.append('rating', rating);
-        formData.append('comment', comment);
-        selectedFiles.forEach(function(file) {   
-        formData.append('images[]', file);
-    });
-
-        fetch('submit-review.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(function(res) { return res.json(); })
-        .then(function(data) {
-            if (data.success) {
-                msg.style.color = 'green';
-                msg.textContent = 'Review submitted successfully!';
-
-                // Reset form
-                setRating(0);
-                document.getElementById('review-comment').value = '';
-                selectedFiles = [];
+            function removePhoto(index) {
+                selectedFiles.splice(index, 1);
                 renderPhotoPreview();
+            }
 
-                setTimeout(function() {
-                    location.reload();
-                }, 1500);
+            // ── Submit Review ─────────────────────────────────────
+            function submitReview() {
+                var rating = document.getElementById('selected-rating').value;
+                var comment = document.getElementById('review-comment').value.trim();
+                var msg = document.getElementById('review-msg');
 
-                // Add new review card to the top of the card container
-                var container = document.querySelector('.card-container');
-                if (!container) {
-                    container = document.createElement('div');
-                    container.className = 'card-container';
-                    document.querySelector('.saying').after(container);
+                if (rating == 0) {
+                    msg.style.color = 'red';
+                    msg.textContent = 'Please select a rating.';
+                    return;
+                }
+                if (!comment) {
+                    msg.style.color = 'red';
+                    msg.textContent = 'Please write a comment.';
+                    return;
                 }
 
-                var noReviewMsg = document.getElementById('no-reviews-msg');
-                if (noReviewMsg) noReviewMsg.style.display = 'none';
+                var formData = new FormData();
+                formData.append('destination_id', <?php echo $destination_id; ?>);
+                formData.append('rating', rating);
+                formData.append('comment', comment);
+                selectedFiles.forEach(function(file) {
+                    formData.append('images[]', file);
+                });
 
-                var r = data.review;
-                var stars = '';
-                for (var i = 0; i < r.rating; i++) {
-                    stars += '<img class="star1" src="icon/star.png" alt="star">';
-                }
+                fetch('submit-review.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(function(res) {
+                        return res.json();
+                    })
+                    .then(function(data) {
+                        if (data.success) {
+                            msg.style.color = 'green';
+                            msg.textContent = 'Review submitted successfully!';
 
-                var card = document.createElement('div');
-                card.className = 'batu-container';
-                var imgHtml = '';
-                if (r.image_url) {
-                    var firstImg = r.image_url.split(',')[0].trim();
-                    imgHtml = `<img class="batucaves8" src="${firstImg}" alt="thumb">`;
-                }
-                card.innerHTML = `
+                            // Reset form
+                            setRating(0);
+                            document.getElementById('review-comment').value = '';
+                            selectedFiles = [];
+                            renderPhotoPreview();
+
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1500);
+
+                            // Add new review card to the top of the card container
+                            var container = document.querySelector('.card-container');
+                            if (!container) {
+                                container = document.createElement('div');
+                                container.className = 'card-container';
+                                document.querySelector('.saying').after(container);
+                            }
+
+                            var noReviewMsg = document.getElementById('no-reviews-msg');
+                            if (noReviewMsg) noReviewMsg.style.display = 'none';
+
+                            var r = data.review;
+                            var stars = '';
+                            for (var i = 0; i < r.rating; i++) {
+                                stars += '<img class="star1" src="icon/star.png" alt="star">';
+                            }
+
+                            var card = document.createElement('div');
+                            card.className = 'batu-container';
+                            var imgHtml = '';
+                            if (r.image_url) {
+                                var firstImg = r.image_url.split(',')[0].trim();
+                                imgHtml = `<img class="batucaves8" src="${firstImg}" alt="thumb">`;
+                            }
+                            card.innerHTML = `
                     <p class="batu-caves-name"><?php echo htmlspecialchars($destination['destination_name']); ?></p>
                     <div>${stars}</div>
                     <img class="profile-picture" src="${r.profile_picture}" alt="profile">
@@ -1365,44 +677,46 @@ $similarJson = json_encode($similar);
                     ${imgHtml}
                 `;
 
-                container.insertBefore(card, container.firstChild);
-            } else {
-                msg.style.color = 'red';
-                msg.textContent = data.message || 'Something went wrong.';
+                            container.insertBefore(card, container.firstChild);
+                        } else {
+                            msg.style.color = 'red';
+                            msg.textContent = data.message || 'Something went wrong.';
+                        }
+                    })
+                    .catch(function(err) {
+                        console.error(err);
+                        msg.style.color = 'red';
+                        msg.textContent = 'Network error. Please try again.';
+                    });
             }
-        })
-        .catch(function(err) {
-            console.error(err);
-            msg.style.color = 'red';
-            msg.textContent = 'Network error. Please try again.';
-        });
-    }
 
-    function addToWishlist() {
-        var msg = document.getElementById('wishlist-msg');
-        var formData = new FormData();
-        formData.append('destination_id', <?php echo $destination_id; ?>);
+            function addToWishlist() {
+                var msg = document.getElementById('wishlist-msg');
+                var formData = new FormData();
+                formData.append('destination_id', <?php echo $destination_id; ?>);
 
-        fetch('add-wishlist.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(function(res) { return res.json(); })
-        .then(function(data) {
-            if (data.success) {
-                msg.style.color = 'green';
-                msg.textContent = '✓ Added to wishlist!';
-            } else {
-                msg.style.color = 'red';
-                msg.textContent = data.message;
+                fetch('add-wishlist.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(function(res) {
+                        return res.json();
+                    })
+                    .then(function(data) {
+                        if (data.success) {
+                            msg.style.color = 'green';
+                            msg.textContent = '✓ Added to wishlist!';
+                        } else {
+                            msg.style.color = 'red';
+                            msg.textContent = data.message;
+                        }
+                    })
+                    .catch(function(err) {
+                        msg.style.color = 'red';
+                        msg.textContent = 'Network error. Please try again.';
+                    });
             }
-        })
-        .catch(function(err) {
-            msg.style.color = 'red';
-            msg.textContent = 'Network error. Please try again.';
-        });
-    }
-</script>
+        </script>
 </body>
 
 </html>

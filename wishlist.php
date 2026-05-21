@@ -1,11 +1,14 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require 'conn.php';
-session_start();
 
-// if (!isset($_SESSION['user_id'])) {
-//     header("Location: login.php");
-//     exit();
-// }
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
 
 $user_id = $_SESSION['user_id'];
 
@@ -14,6 +17,7 @@ $sql = "SELECT f.favourite_id,
                d.destination_name, 
                d.image_url, 
                d.average_rating,
+               d.reviews_count,
                d.price,
                s.state_name,
                GROUP_CONCAT(dt.tag_name SEPARATOR ', ') as climate
@@ -40,8 +44,6 @@ if(isset($_GET['favourite_id'])) {
 
 ?>
 
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -49,277 +51,20 @@ if(isset($_GET['favourite_id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wishlist</title>
+    <link rel="stylesheet" href="css/menubar.css">
+    <link rel="stylesheet" href="css/wishlist.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto+Slab:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Titan+One&display=swap');
+
+        @import url('https://fonts.googleapis.com/css2?family=Changa:wght@200..800&family=Cherry+Bomb+One&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto+Slab:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Titan+One&display=swap');
+    </style>
 
 </head>
 
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto+Slab:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Titan+One&display=swap');
-
-    @import url('https://fonts.googleapis.com/css2?family=Changa:wght@200..800&family=Cherry+Bomb+One&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto+Slab:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Titan+One&display=swap');
-</style>
-
-<style>
-    body{
-        height: 2000px;
-        width: 100%;
-        margin: 0;  
-        padding: 0;
-        overflow-x: hidden; 
-    }
-
-    #header {
-        background-color: #1A2B49;
-        height: 55px;
-        border-radius: 50px;
-        margin-left: 90px;
-        margin-right: 20px;
-        margin-top: 25px;
-        width: calc(100% - 180px);
-        position: relative;
-        z-index: 2;
-    }
-
-    .logo {
-        width: 65px;
-        height: 65px;
-        margin-top: -3px;
-        margin-left: 30px;
-    }
-
-    .logo-name,
-    .home,
-    .recommendation,
-    .wishlist,
-    .about-us,
-    .logout,
-    .profile {
-        /* font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; */
-        font-size: 17px;
-        font-weight: bold
-    }
-
-    .logo-name {
-        margin-top: -47px;
-        margin-left: 100px;
-        color: white;
-    }
-
-    .home {
-        margin-top: -37px;
-        margin-left: 380px;
-        color: white;
-    }
-
-    .recommendation {
-        margin-top: -37px;
-        margin-left: 530px;
-        color: white;
-    }
-
-    .wishlist {
-        margin-top: -37px;
-        margin-left: 760px;
-        color: white;
-    }
-
-    .about-us {
-        margin-top: -37px;
-        margin-left: 930px;
-        color: white;
-    }
-
-    .logout {
-        margin-top: -37px;
-        margin-left: 1180px;
-        color: white;
-    }
-
-    .profile-box{
-        background-color: white;
-        width: 160px;
-        height: 35px;
-        margin-top: -46px;
-        margin-left: 1280px;
-        border-radius: 30px;
-    }
-
-    .profile {
-        padding-top: 8px;
-        margin-left: 35px;
-    }
-
-    .profile-icon {
-        width: 30px;
-        height: 30px;
-        border-radius: 60px;
-        margin-left: 100px;
-        /* top: -20px; */
-        position: relative;
-        top: -42px;
-        left: 5px;
-    }
-
-    .favourite {
-        width: 70px;
-        margin-top: 60px;
-        margin-left: 150px;
-    }
-
-    .wishlist-name {
-        margin-top: -83px;
-        font-size: 50px;
-        margin-left: 250px;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-        font-weight: bold;
-    }
-
-    .similar-container {
-        height: 380px;
-        width: 300px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        margin-left: 120px;
-        border-radius: 20px;
-        margin-top: 10px;
-    }
-
-    .KLCC,
-    .batu-caves,
-    .butterfly-image,
-    .bird-park-image,
-    .sunway-lagoon-image {
-        width: 100%;
-        height: 200px;
-        border-radius: 20px 20px 0 0; 
-    }
-
-    .kuala-lumpur,
-    .Petronas-Twin-Towers,
-    .batu-cave,
-    .butterfly,
-    .bird-park,
-    .theme-park,
-    .summer,
-    .ratings1 {
-        padding-left: 30px;
-    }
-    
-    .kuala-lumpur {
-        font-size: 12px;
-        color: #63687A;
-        padding-top: 10px;
-    }
-
-    .Petronas-Twin-Towers,
-    .batu-cave,
-    .butterfly,
-    .bird-park,
-    .theme-park {
-        font-size: 17px;
-        margin-top: -5px
-    }
-
-    .summer {
-        color: #1A2B49;
-        font-size: 12px;
-    }
-
-    .ratings1 {
-        margin-top: 30px;
-        font-size: 14px;
-        color: #1A2B49;
-    }
-
-    .star-icon {
-        width: 24px;
-        margin-left: 54px;
-        top: -36px;
-        position: relative;
-    }
-
-    .number-rating {
-        color: #63687A;
-        font-size: 10px;
-        margin-top: -56px;
-        margin-left: 83px;
-    }
-
-    .from {
-        color: #63687A;
-        font-size: 14px;
-        margin-top: -25px;
-        margin-left: 180px;
-    }
-
-    .RM {
-        color: #1A2B49;
-        font-size: 17px;
-        margin-top: -33px;
-        margin-left: 215px;
-    }
-
-    .similar-card-container {
-        display: grid;
-        grid-template-columns: repeat(4, 360px);
-        row-gap: 40px;
-        position: relative;
-    }
-
-    .heart-button {
-        width: 25px;
-        margin-top: 7px;
-        position: relative;
-    }
-
-    .heart-container {
-        border: none;
-        background-color: white;
-        border-radius: 30px;
-        width: 40px;
-        height: 40px;
-        position: absolute;
-        margin-top: -350px;
-        margin-left: 250px;
-    }
-
-    .hidden-card {
-        display: none;
-    }
-
-    .view-more-container {
-        margin-top: 80px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .view-more-container::before,
-    .view-more-container::after {
-        content: "";
-        flex: 1;
-        height: 2px;
-        background-color: #1A2B49;
-    }
-
-    .view-more-container::before {
-        margin-right: 10px;
-    }
-
-    .view-more-container::after {
-        margin-left: 10px;
-    }
-
-    .view-more {
-        width: 150px;
-        height: 55px;
-        font-size: 20px;
-        background-color: #1A2B49;
-        color: white;
-        border-radius: 50px;
-    }
-
-</style>
-
 <body>
+
+    <?php include('./includes/navbar.php'); ?>
 
     <img class="favourite" src="icon/favourite.png">
 
@@ -355,10 +100,11 @@ if(isset($_GET['favourite_id'])) {
             <div>
                 <p class="ratings1"><?php echo $row['average_rating']; ?></p>
                 <img class="star-icon" src="icon/star.png">
+                <p class="number-rating">(<?php echo $row['reviews_count']; ?>)</p>
             </div>
 
-            <div style="display:flex; align-items:center; gap:6px; padding-left:170px; margin-top:-60px;">
-                    <span style="color:#63687A; font-size:14px; margin-top:-17px; ">From</span>
+            <div style="display:flex; align-items:center; gap:6px; padding-left:170px; margin-top:-18px;">
+                    <span style="color:#63687A; font-size:14px; ">From</span>
                     <span style="color:#1A2B49; font-size:17px; font-weight:bold;"><?php
                         $p = trim($row['price']);
                         $p = preg_replace('/^RM\s*/i', '', $p);
@@ -374,7 +120,7 @@ if(isset($_GET['favourite_id'])) {
     <?php 
         }
     } else {
-        echo '<p style="color:#666; margin-left:150px; font-size:18px;">Your wishlist is empty.</p>';
+        echo '<p style="color:#666; margin-left:80px; font-size:20px;">Your wishlist is empty.</p>';
     }
     ?>
     </div>
