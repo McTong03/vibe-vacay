@@ -883,6 +883,7 @@ $similarJson = json_encode($similar);
 </style>
 
 <body>
+
     <?php include('./includes/navbar.php'); ?>
 
     <img class="batucaves1" src="<?php echo $heroImg; ?>" alt="<?php echo htmlspecialchars($destination['destination_name']); ?>">

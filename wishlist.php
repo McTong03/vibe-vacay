@@ -49,7 +49,7 @@ if(isset($_GET['favourite_id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wishlist</title>
-    <link rel="stylesheet" href="css/menubar.css">
+
 </head>
 
 <style>
@@ -320,7 +320,6 @@ if(isset($_GET['favourite_id'])) {
 </style>
 
 <body>
-    <?php include('./includes/navbar.php'); ?>
 
     <img class="favourite" src="icon/favourite.png">
 

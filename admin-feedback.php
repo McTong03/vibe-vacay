@@ -481,8 +481,7 @@ $similarJson = json_encode($similar);
         margin-left: 50px;
         border-radius: 18px;
         position: relative;
-        cursor: pointer;
-        
+        cursor: pointer;     
     }
 
     .batu-container:hover {
@@ -555,6 +554,7 @@ $similarJson = json_encode($similar);
         transition: box-shadow 0.3s ease;
         margin-left: 60px;
     }
+    
     .similar-container:hover {
         box-shadow: 0 8px 24px rgba(0,0,0,0.18);
     }
