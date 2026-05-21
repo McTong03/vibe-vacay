@@ -9,6 +9,14 @@ if (isset($_GET['success']) && $_GET['success'] === 'login') {
 
 include 'conn.php';
 
+// Total users count
+$users_count_result = mysqli_query($conn, "SELECT COUNT(*) AS total FROM users");
+$users_count = mysqli_fetch_assoc($users_count_result)['total'];
+
+// Total destinations count
+$dest_count_result = mysqli_query($conn, "SELECT COUNT(*) AS total FROM destinations");
+$dest_count = mysqli_fetch_assoc($dest_count_result)['total'];
+
 // Fetch top 5 destinations joined with states, ordered by average_rating
 $sql = "SELECT d.destination_name, d.image_url, d.reviews_count, d.average_rating, s.state_name
         FROM destinations d
@@ -76,11 +84,11 @@ mysqli_close($conn);
                 <div class="stat-cards-row">
                     <div class="stat-card">
                         <p class="stat-label">Total Users</p>
-                        <p class="stat-value">5,670</p>
+                        <p class="stat-value"><?= number_format($users_count) ?></p>
                     </div>
                     <div class="stat-card">
-                        <p class="stat-label">Destinations</p>
-                        <p class="stat-value">9,270</p>
+                        <p class="stat-label">Total Destinations</p>
+                        <p class="stat-value"><?= number_format($dest_count) ?></p>
                     </div>
                 </div>
             </div>

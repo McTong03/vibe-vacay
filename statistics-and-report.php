@@ -20,6 +20,14 @@ if ($tags_result) {
     }
 }
 
+// Total users count
+$users_count_result = mysqli_query($conn, "SELECT COUNT(*) AS total FROM users");
+$users_count = mysqli_fetch_assoc($users_count_result)['total'];
+
+// Total destinations count
+$dest_count_result = mysqli_query($conn, "SELECT COUNT(*) AS total FROM destinations");
+$dest_count = mysqli_fetch_assoc($dest_count_result)['total'];
+
 // Top 6 destinations by review count (bar chart)
 $dest_sql = "SELECT destination_name, reviews_count
              FROM destinations
@@ -80,38 +88,14 @@ mysqli_close($conn);
             <p class="breadcrumb">Admin / Statistics &amp; Report</p>
         </div>
 
-        <div class="filter-card">
-            <div class="filter-row">
-                <div class="date-input-wrap">
-                    <input type="date" class="date-input" />
-                </div>
-                <div class="date-input-wrap">
-                    <input type="date" class="date-input" />
-                </div>
-                <div class="select-wrap">
-                    <select class="filter-select">
-                        <option value="">All</option>
-                        <option value="30">30 Days</option>
-                        <option value="60">60 Days</option>
-                        <option value="90">90 Days</option>
-                    </select>
-                    <i class="ph-bold ph-caret-down select-icon"></i>
-                </div>
-            </div>
-            <div class="filter-actions">
-                <button class="btn-reset" onclick="resetFilters()">Reset</button>
-                <button class="btn-generate" onclick="generateReport()">Generate</button>
-            </div>
-        </div>
-
         <div class="stat-cards-row">
             <div class="stat-card">
                 <p class="stat-label">Total Users</p>
-                <p class="stat-value">5,670</p>
+                <p class="stat-value"><?= number_format($users_count) ?></p>
             </div>
             <div class="stat-card">
-                <p class="stat-label">Destinations</p>
-                <p class="stat-value">9,270</p>
+                <p class="stat-label">Total Destinations</p>
+                <p class="stat-value"><?= number_format($dest_count) ?></p>
             </div>
         </div>
 
