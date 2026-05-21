@@ -1,6 +1,11 @@
 <?php
 session_start();
 require 'conn.php';
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
  
 if (!isset($_GET['id'])) {
     $first = $conn->query("SELECT destination_id FROM destinations ORDER BY destination_id ASC LIMIT 1");

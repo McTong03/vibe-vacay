@@ -225,7 +225,10 @@ body {
 .price {
     font-size: 38px;
     margin-top: -60px;
-    margin-left: 240px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    display: flex;
 }
 
 .gallery {
@@ -351,7 +354,7 @@ body {
 
 .experience {
     margin-left: 70px;
-    margin-top: 200px;
+    margin-top: 300px;
 }
 
 .rating-experience-container {
@@ -619,7 +622,10 @@ body {
 }
 
 .no-reviews {
-    margin-left: 60px;
+    margin-left: 100px;
+    margin-top: 50px;
+    font-size: 20px;
+    font-weight: 200;
 }
 
 .overview,

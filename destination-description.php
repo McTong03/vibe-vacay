@@ -2,24 +2,10 @@
 session_start();
 require 'conn.php';
 
-// if (!isset($_SESSION['user_id'])) {
-//     header("Location: login.php");
-//     exit();
-// }
-
-// Fetch logged-in user's profile picture
-// $user_id = $_SESSION['user_id'];
-// $stmt = $conn->prepare("
-//     SELECT u.user_name, COALESCE(p.profile_picture, 'image/default-profile.jpg') AS profile_picture
-//     FROM users u
-//     LEFT JOIN user_profile p ON p.user_id = u.user_id
-//     WHERE u.user_id = ?
-// ");
-// $stmt->bind_param("i", $user_id);
-// $stmt->execute();
-// $user_result = $stmt->get_result();
-// $logged_user = $user_result->fetch_assoc();
-// $stmt->close();
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
 
 
 if (!isset($_GET['id'])) {
