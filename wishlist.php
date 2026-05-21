@@ -79,7 +79,9 @@ if(isset($_GET['favourite_id'])) {
         while($row = mysqli_fetch_assoc($result)) {
             $i++; // ← added
     ?>
-        <div class="similar-container <?php echo $i > 8 ? 'hidden-card' : ''; ?>">
+        <div class="similar-container <?php echo $i > 8 ? 'hidden-card' : ''; ?>" 
+            onclick="window.location.href='destination-description.php?id=<?php echo $row['destination_id']; ?>'"
+            style="cursor: pointer;">
             <div>
                 <?php $firstImg = !empty($row['image_url']) ? explode(',', $row['image_url'])[0] : 'image/default.jpg'; ?>
                 <img class="KLCC" src="<?php echo htmlspecialchars(trim($firstImg)); ?>">
@@ -113,7 +115,8 @@ if(isset($_GET['favourite_id'])) {
             </div>
 
             <!-- ✅ Heart button removes from wishlist -->
-            <button class="heart-container" onclick="removeWishlist(<?php echo $row['favourite_id']; ?>)">
+            <button class="heart-container" 
+                    onclick="event.stopPropagation(); removeWishlist(<?php echo $row['favourite_id']; ?>)">
                 <img class="heart-button" src="icon/heart.png">
             </button>
         </div>

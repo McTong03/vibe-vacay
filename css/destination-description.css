@@ -15,6 +15,9 @@ body {
     margin-left: 0;
     display: block;
     object-fit: cover;
+    display: block;
+    position: relative;
+    z-index: 1;
 }
 
 .batucaves-name,
