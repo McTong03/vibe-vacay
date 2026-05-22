@@ -284,8 +284,20 @@ $rpParam = isset($_GET['reviews_page']) ? '&reviews_page=' . (int)$_GET['reviews
                     $dReviews = number_format((int)($dest['reviews_count'] ?? 0));
                     $dPrice   = !empty($dest['price']) ? 'From ' . $dest['price'] : 'N/A';
                     ?>
-                    <div class="dest-card">
-                        <div class="heart-icon" onclick="this.classList.toggle('liked')" title="Wishlist">&#9825;</div>
+                    <div class="dest-card"
+                        onclick="window.location.href='destination-description.php?id=<?= $dest['destination_id'] ?>'"
+                        style="cursor:pointer;">
+                        <div class="heart-icon"
+                            data-id="<?= $dest['destination_id'] ?>"
+                            onclick="event.stopPropagation(); toggleWishlist(this, <?= $dest['destination_id'] ?>)"
+                            title="Wishlist">
+                            <svg viewBox="0 0 24 24" width="20" height="20" class="heart-svg">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+                                        2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09
+                                        C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5
+                                        c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
+                        </div>
                         <img src="<?= htmlspecialchars($dImg) ?>"
                             alt="<?= htmlspecialchars($dest['destination_name']) ?>"
                             onerror="this.src='https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&q=80&w=400'">
@@ -443,8 +455,21 @@ $rpParam = isset($_GET['reviews_page']) ? '&reviews_page=' . (int)$_GET['reviews
                             const fallback = 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&q=80&w=400';
                             const img = dest.image_url || fallback;
                             wrapper.innerHTML += `
-                        <div class="dest-card">
-                            <div class="heart-icon" onclick="this.classList.toggle('liked')" title="Wishlist">&#9825;</div>
+                                <div class="dest-card" 
+                                    // ✅ 正确 — 用 JS 变量 dest.destination_id
+                                    onclick="window.location.href='destination-description.php?id=${dest.destination_id}'"
+                                    style="cursor:pointer;">
+                                    <div class="heart-icon" 
+                                        data-id="${dest.destination_id}"
+                                        onclick="event.stopPropagation(); toggleWishlist(this, ${dest.destination_id})" 
+                                        title="Wishlist">
+                                        <svg viewBox="0 0 24 24" width="20" height="20" class="heart-svg">
+                                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+                                                    2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09
+                                                    C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5
+                                                    c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                        </svg>
+                                    </div>
                             <img src="${escHtml(img)}" alt="${escHtml(dest.destination_name)}"
                                  onerror="this.src='${fallback}'">
                             <div class="card-info">
@@ -462,6 +487,7 @@ $rpParam = isset($_GET['reviews_page']) ? '&reviews_page=' . (int)$_GET['reviews
                             </div>
                         </div>`;
                         });
+                        if (window.wishlistIds) markWishlistHearts();
                     }
 
                     // Update arrow states
@@ -476,6 +502,75 @@ $rpParam = isset($_GET['reviews_page']) ? '&reviews_page=' . (int)$_GET['reviews
             document.getElementById('dest-prev').classList.toggle('disabled', currentDestPage === 0);
             document.getElementById('dest-next').classList.toggle('disabled', currentDestPage >= maxDestPage);
         });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            startHeroTimer();
+
+            const hero = document.getElementById('hero-section');
+            hero.addEventListener('mouseenter', stopHeroTimer);
+            hero.addEventListener('mouseleave', startHeroTimer);
+
+            // ✅ 加这段 — 标记已在 wishlist 的 heart
+            fetch('ajax-handler.php?action=get_wishlist')
+                .then(r => r.json())
+                .then(data => {
+                    window.wishlistIds = data.ids.map(Number);
+                    markWishlistHearts();
+                });
+        });
+
+        function markWishlistHearts() {
+            document.querySelectorAll('.heart-icon[data-id]').forEach(el => {
+                const id = parseInt(el.getAttribute('data-id'));
+                if (window.wishlistIds && window.wishlistIds.includes(id)) {
+                    el.classList.add('liked');
+                }
+            });
+        }
+
+        function toggleWishlist(el, destinationId) {
+            const isLiked = el.classList.contains('liked');
+
+            if (isLiked) {
+                // ── Unlike ──
+                fetch('remove-wishlist-by-dest.php', {
+                        method: 'POST',
+                        body: new URLSearchParams({
+                            destination_id: destinationId
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            el.classList.remove('liked');
+                            // 同时从本地 wishlistIds 移除
+                            if (window.wishlistIds) {
+                                window.wishlistIds = window.wishlistIds.filter(id => id !== destinationId);
+                            }
+                        }
+                    });
+            } else {
+                // ── Like ──
+                fetch('add-wishlist.php', {
+                        method: 'POST',
+                        body: new URLSearchParams({
+                            destination_id: destinationId
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success || data.message === 'Already in wishlist') {
+                            el.classList.add('liked');
+                            // 同时加入本地 wishlistIds
+                            if (window.wishlistIds) {
+                                window.wishlistIds.push(destinationId);
+                            }
+                        } else {
+                            alert(data.message || 'Please login first.');
+                        }
+                    });
+            }
+        }
 
         // Helper — basic XSS escape for JS-generated HTML
         function escHtml(str) {

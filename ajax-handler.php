@@ -100,6 +100,7 @@ if ($action === 'destinations') {
     $cards = [];
     foreach ($topDestinations as $dest) {
         $cards[] = [
+            'destination_id'   => $dest['destination_id'],
             'destination_name' => $dest['destination_name'],
             'state_name'       => $dest['state_name'] ?? 'Malaysia',
             'image_url'        => $dest['image_url'] ?? '',
@@ -114,6 +115,20 @@ if ($action === 'destinations') {
         'currentPage' => $destPage,
         'maxPage'     => $maxDestPage,
     ]);
+    exit;
+}
+
+// ─── Get User Wishlist ────────────────────────────────────────────────────────
+if ($action === 'get_wishlist') {
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['ids' => []]);
+        exit;
+    }
+    $user_id = $_SESSION['user_id'];
+    $stmt = $pdo->prepare("SELECT destination_id FROM favorites WHERE user_id = ?");
+    $stmt->execute([$user_id]);
+    $ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    echo json_encode(['ids' => $ids]);
     exit;
 }
 

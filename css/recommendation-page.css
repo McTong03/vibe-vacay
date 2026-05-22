@@ -269,31 +269,65 @@ a {
     object-fit: cover;
 }
  
+
 .heart-icon {
     position: absolute;
     top: 10px;
     right: 10px;
+    width: 36px;
+    height: 36px;
     background: white;
-    width: 30px;
-    height: 30px;
     border-radius: 50%;
     display: flex;
-    justify-content: center;
     align-items: center;
-    font-size: 1.1rem;
-    color: var(--text-muted);
+    justify-content: center;
     cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-    transition: color 0.15s, transform 0.15s;
+    transition: transform 0.15s;
     z-index: 2;
 }
- 
+
 .heart-icon:hover {
     transform: scale(1.15);
 }
- 
+
 .heart-icon.liked {
-    color: #ef4444;
+    color: #e74c3c; /* 红色 */
+}
+
+/* .heart-icon.liked::after {
+    content: '♥';
+}
+
+.heart-icon:not(.liked)::after {
+    content: '♡';
+} */
+
+/* 隐藏原本的字符，用 ::after 显示 */
+.heart-icon {
+    font-size: 0; /* 隐藏 innerHTML 的字符 */
+}
+
+.heart-icon::after {
+    font-size: 18px;
+}
+
+/* 默认 — outline only */
+.heart-icon .heart-svg path {
+    fill: none;
+    stroke: #aaa;
+    stroke-width: 2;
+    transition: fill 0.2s, stroke 0.2s;
+}
+
+/* hover */
+.heart-icon:hover .heart-svg path {
+    stroke: #e74c3c;
+}
+
+/* liked — filled red */
+.heart-icon.liked .heart-svg path {
+    fill: #e74c3c;
+    stroke: #e74c3c;
 }
  
 .card-info {
