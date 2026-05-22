@@ -11,7 +11,6 @@ if (session_status() === PHP_SESSION_NONE) {
 
 $isLoggedIn = !empty($_SESSION['user_id']);
 $profilePicture = $_SESSION['profile_picture'] ?? 'Image/defaultProfile.png';
-$_SESSION['user_name'] = $_SESSION['user_name'] ?? 'Admin';
 ?>
 
 <header class="navbar">

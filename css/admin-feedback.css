@@ -245,19 +245,20 @@ body {
 }
 
 .price-tag {
-    width: 90px;
+    width: 80px;
     margin-top: 10px;
     margin-left: 60px;
 }
 
 .price {
-    font-size: 48px;
-    margin-top: -70px;
+    font-size: 38px;
+    margin-top: -60px;
     align-items: center;
     justify-content: center;
     text-align: center;
     display: flex;
 }
+
 
 .gallery {
     margin-top: 40px;

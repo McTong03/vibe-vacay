@@ -3,7 +3,7 @@ session_start();
 require 'conn.php';
 
 // if (!isset($_SESSION['user_id'])) {
-//     header("Location: login.php");
+//     header("Location: login-page.php");
 //     exit();
 // }
 
@@ -647,45 +647,11 @@ $similarJson = json_encode($similar);
                             selectedFiles = [];
                             renderPhotoPreview();
 
+                            // Reload page to show review with photos from DB
                             setTimeout(function() {
                                 location.reload();
-                            }, 1500);
+                            }, 1000);
 
-                            // Add new review card to the top of the card container
-                            var container = document.querySelector('.card-container');
-                            if (!container) {
-                                container = document.createElement('div');
-                                container.className = 'card-container';
-                                document.querySelector('.saying').after(container);
-                            }
-
-                            var noReviewMsg = document.getElementById('no-reviews-msg');
-                            if (noReviewMsg) noReviewMsg.style.display = 'none';
-
-                            var r = data.review;
-                            var stars = '';
-                            for (var i = 0; i < r.rating; i++) {
-                                stars += '<img class="star1" src="icon/star.png" alt="star">';
-                            }
-
-                            var card = document.createElement('div');
-                            card.className = 'batu-container';
-                            var imgHtml = '';
-                            if (r.image_url) {
-                                var firstImg = r.image_url.split(',')[0].trim();
-                                imgHtml = `<img class="batucaves8" src="${firstImg}" alt="thumb">`;
-                            }
-                            card.innerHTML = `
-                    <p class="batu-caves-name"><?php echo htmlspecialchars($destination['destination_name']); ?></p>
-                    <div>${stars}</div>
-                    <img class="profile-picture" src="${r.profile_picture}" alt="profile">
-                    <p class="rating-names">${r.user_name}</p>
-                    <p class="rating-date">Just now</p>
-                    <p class="rating-description">${r.comment}</p>
-                    ${imgHtml}
-                `;
-
-                            container.insertBefore(card, container.firstChild);
                         } else {
                             msg.style.color = 'red';
                             msg.textContent = data.message || 'Something went wrong.';
