@@ -4,13 +4,14 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Redirect if not logged in or not an admin
-if (empty($_SESSION['user_id']) || strtolower($_SESSION['user_role']) !== 'admin') {
-    header('Location: ./login-page.php');
-    exit();
-}
+// if (empty($_SESSION['user_id']) || strtolower($_SESSION['user_role']) !== 'admin') {
+//     header('Location: ./login-page.php');
+//     exit();
+// }
 
+$isLoggedIn = !empty($_SESSION['user_id']);
 $profilePicture = $_SESSION['profile_picture'] ?? 'Image/defaultProfile.png';
+$_SESSION['user_name'] = $_SESSION['user_name'] ?? 'Admin';
 ?>
 
 <header class="navbar">

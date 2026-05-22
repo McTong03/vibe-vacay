@@ -7,10 +7,38 @@ body {
     overflow-x: hidden;
 }
 
+.back_Btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    background-color: #1A2B49;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 2;
+    margin-left: 20px;
+}
+
+.back-icon {
+    width: 22px;
+    height: 22px;
+    filter: brightness(0) invert(1);
+    z-index: 2;
+}
+
+.hero-title-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 20px;
+}
+
 .batucaves1 {
     width: 100%;
     margin-top: -80px;
-    height: 650px;
+    height: 600px;
     filter: brightness(70%);
     margin-left: 0;
     display: block;
@@ -361,7 +389,7 @@ body {
 
 .experience {
     margin-left: 70px;
-    margin-top: 300px;
+    margin-top: 200px;
 }
 
 .rating-experience-container {

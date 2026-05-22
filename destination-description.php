@@ -98,7 +98,15 @@ $stmt = $conn->prepare("
         d.average_rating,
         d.reviews_count,
         d.price,
-        s.state_name
+        s.state_name,
+        (
+            SELECT t.tag_name 
+            FROM destination_tag_mapping dtm
+            JOIN destination_tags t ON t.tag_id = dtm.tag_id
+            WHERE dtm.destination_id = d.destination_id
+              AND t.tag_type_id = 1
+            LIMIT 1
+        ) AS climate_tag
     FROM destinations d
     LEFT JOIN states s ON s.state_id = d.state_id
     WHERE d.state_id = (SELECT state_id FROM destinations WHERE destination_id = ?)
@@ -164,6 +172,15 @@ $similarJson = json_encode($similar);
 <body>
 
     <?php include('./includes/navbar.php'); ?>
+
+    <div class="hero-title-row">
+        <button type="button" class="back_Btn" onclick="window.history.back()">
+            <img src="icon/error.png" class="back-icon" />
+        </button>
+    </div>
+    
+
+
 
     <img class="batucaves1" src="<?php echo $heroImg; ?>" alt="<?php echo htmlspecialchars($destination['destination_name']); ?>">
 
@@ -353,7 +370,7 @@ $similarJson = json_encode($similar);
                         </div>
 
                         <div>
-                            <p class="hot">Climate: Hot</p>
+                            <p class="hot">Climate: <?php echo htmlspecialchars($place['climate_tag'] ?? 'N/A'); ?></p>
                         </div>
 
                         <div>
@@ -511,7 +528,7 @@ $similarJson = json_encode($similar);
                 <img class="thean-hou" src="${firstImg}" alt="${place.destination_name}">
                 <p class="kuala-lumpur">${place.state_name}</p>
                 <p class="thean-hou-temple">${place.destination_name}</p>
-                <p class="hot">Climate: Hot</p>
+                <p class="hot">Climate: ${place.climate_tag || 'N/A'}</p>
                 <p class="ratings1">${parseFloat(place.average_rating).toFixed(1)}</p>
                 <img class="star-icon" src="icon/star.png">
                 <p class="number-rating">(${place.reviews_count})</p>

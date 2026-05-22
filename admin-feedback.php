@@ -2,10 +2,10 @@
 session_start();
 require 'conn.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
-}
+// if (!isset($_SESSION['user_id'])) {
+//     header("Location: login.php");
+//     exit();
+// }
  
 if (!isset($_GET['id'])) {
     $first = $conn->query("SELECT destination_id FROM destinations ORDER BY destination_id ASC LIMIT 1");
@@ -97,13 +97,22 @@ $stmt = $conn->prepare("
         d.average_rating,
         d.reviews_count,
         d.price,
-        s.state_name
+        s.state_name,
+        (
+            SELECT t.tag_name 
+            FROM destination_tag_mapping dtm
+            JOIN destination_tags t ON t.tag_id = dtm.tag_id
+            WHERE dtm.destination_id = d.destination_id
+              AND t.tag_type_id = 1
+            LIMIT 1
+        ) AS climate_tag
     FROM destinations d
     LEFT JOIN states s ON s.state_id = d.state_id
     WHERE d.state_id = (SELECT state_id FROM destinations WHERE destination_id = ?)
       AND d.destination_id != ?
-    LIMIT 15
+    LIMIT 20
 ");
+
 $stmt->bind_param("ii", $destination_id, $destination_id);
 $stmt->execute();
 $similar_result = $stmt->get_result();
@@ -162,6 +171,12 @@ $similarJson = json_encode($similar);
 <body>
     <?php include('./includes/admin-nav-bar.php'); ?>
 
+    <div class="hero-title-row">
+        <button type="button" class="back_Btn" onclick="window.history.back()">
+            <img src="icon/error.png" class="back-icon" />
+        </button>
+    </div>
+
     <img class="batucaves1" src="<?php echo $heroImg; ?>" alt="<?php echo htmlspecialchars($destination['destination_name']); ?>">
 
     <p class="batucaves-name"><?php echo htmlspecialchars($destination['destination_name']); ?></p>
@@ -199,15 +214,15 @@ $similarJson = json_encode($similar);
 
     <div class="image-container" id="galleryGrid"></div>
 
-    <div style="display:flex; gap:10px; position:relative; left:1500px; top:-180px;">   
-        <button style="border:none; background:none; cursor:pointer;" class="next-button" id="galleryPrevBtn" onclick="changeGalleryPage(-1)">
-            <img src="icon/previous-button.png" alt="prev">
-        </button>
+    <button style="border:none; background:none; cursor:pointer; visibility:hidden; position:absolute; left:25px; top:1050px; " 
+        id="galleryPrevBtn" onclick="changeGalleryPage(-1)">
+        <img src="icon/previous-button.png" alt="prev" style="width:60px;">
+    </button>
 
-        <button style="border:none; background:none; cursor:pointer;" class="next-button" id="galleryNextBtn" onclick="changeGalleryPage(1)">
-            <img src="icon/next.png" alt="next">
-        </button>
-    </div>
+    <button style="border:none; background:transparent; cursor:pointer; position:absolute; right:15px; top:1050px;" 
+        id="galleryNextBtn" onclick="changeGalleryPage(1)">
+        <img src="icon/next.png" alt="next" style="width:60px;">
+    </button>
     
 
     <p class="saying">What people saying about <?php echo htmlspecialchars($destination['destination_name']); ?> </p>
@@ -266,13 +281,15 @@ $similarJson = json_encode($similar);
         <p class="no-reviews" id="no-reviews-msg">No reviews yet for this destination.</p>
     <?php endif; ?>
   
-    <div style="display:flex; gap:10px; justify-content:flex-end; padding-right:60px; margin-top:-200px;">
-        <button style="border:none; background:none; cursor:pointer; display:none;" id="reviewsPrevBtn" onclick="changeReviewPage(-1)">
-            <img src="icon/previous-button.png" alt="prev" style="width:70px;">
+    <div style="position:relative; width:100%; height:70px; margin-top:-170px;">
+        <button style="border:none; background:none; cursor:pointer; display:none; position:absolute; left:15px; top:0;" 
+            id="reviewsPrevBtn" onclick="changeReviewPage(-1)">
+            <img src="icon/previous-button.png" alt="prev" style="width:60px;">
         </button>
 
-        <button style="border:none; background:none; cursor:pointer; <?php echo count($reviews) <= 6 ? 'display:none;' : ''; ?>" id="reviewsNextBtn" onclick="changeReviewPage(1)">
-            <img src="icon/next.png" alt="next" style="width:70px;">
+        <button style="border:none; background:none; cursor:pointer; <?php echo count($reviews) <= 6 ? 'display:none;' : ''; ?> position:absolute; right:15px; top:0;" 
+            id="reviewsNextBtn" onclick="changeReviewPage(1)">
+            <img src="icon/next.png" alt="next" style="width:60px;">
         </button>
     </div>
 
@@ -300,7 +317,7 @@ $similarJson = json_encode($similar);
                     </div>
 
                     <div>
-                        <p class="hot">Climate: Hot</p>
+                        <p class="hot">Climate: <?php echo htmlspecialchars($place['climate_tag'] ?? 'N/A'); ?></p>
                     </div>
 
                     <div>
@@ -321,12 +338,15 @@ $similarJson = json_encode($similar);
         <p style="margin-left:50px; color:#666; margin-bottom:60px;">No similar places found.</p>
     <?php endif; ?>
 
-    <div style="display:flex; gap:10px; justify-content:flex-end; position:absolute; right:80px; margin-top:-220px;">
-        <button style="border:none; background:none; cursor:pointer;" class="next-button2" id="similarPrevBtn" onclick="changeSimilarPage(-1)">
-            <img src="icon/previous-button.png" alt="prev" >
+    <div style="position:relative; width:100%; height:70px; margin-top:-200px;">
+        <button style="border:none; background:none; cursor:pointer; position:absolute; left:15px; top:0; visibility:hidden;" 
+            class="next-button2" id="similarPrevBtn" onclick="changeSimilarPage(-1)">
+            <img src="icon/previous-button.png" alt="prev" style="width:60px;">
         </button>
-        <button style="border:none; background:none; cursor:pointer;" class="next-button2" id="similarNextBtn" onclick="changeSimilarPage(1)">
-            <img src="icon/next.png" alt="next">
+
+        <button style="border:none; background:none; cursor:pointer; position:absolute;right:15px; top:0;" 
+            class="next-button2" id="similarNextBtn" onclick="changeSimilarPage(1)">
+            <img src="icon/next.png" alt="next" style="width:60px;">
         </button>
     </div>
     
@@ -454,7 +474,7 @@ $similarJson = json_encode($similar);
                 <img class="thean-hou" src="${firstImg}" alt="${place.destination_name}">
                 <p class="kuala-lumpur">${place.state_name}</p>
                 <p class="thean-hou-temple">${place.destination_name}</p>
-                <p class="hot">Climate: Hot</p>
+                <p class="hot">Climate: ${place.climate_tag || 'N/A'}</p>
                 <p class="ratings1">${parseFloat(place.average_rating).toFixed(1)}</p>
                 <img class="star-icon" src="icon/star.png">
                 <p class="number-rating">(${place.reviews_count})</p>

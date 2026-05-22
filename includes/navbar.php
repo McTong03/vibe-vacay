@@ -25,7 +25,7 @@ $profilePicture = $isLoggedIn ? ($_SESSION['profile_picture'] ?? 'image/defaultP
             <a href="./logout.php" class="login">Log Out</a>
             <a href="./personal-profile.php" class="signup-btn profile-link">
                 <img src="<?php echo htmlspecialchars($profilePicture, ENT_QUOTES, 'UTF-8'); ?>" alt="Profile">
-                Profile
+                <?php echo htmlspecialchars($_SESSION['user_name'], ENT_QUOTES, 'UTF-8'); ?>
             </a>
         <?php else: ?>
             <a href="./login-page.php" class="login">Log In</a>
