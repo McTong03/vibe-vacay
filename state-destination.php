@@ -16,7 +16,10 @@ $stmt->execute();
 $state = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
-if (!$state) die("State not found.");
+if (!$state)
+    die("State not found.");
+
+$safe_url = trim($state['state_url']);
 
 // ── GET HERO TAGS ─────────────────────────────────────────────────────────────
 $hero_tag_sql = "
@@ -92,11 +95,13 @@ $stmt->close();
 // ── REVIEWS ───────────────────────────────────────────────────────────────────
 $stmt = $conn->prepare("
     SELECT r.review_id, r.rating, r.comment, r.image_url, r.created_at,
-           u.user_name AS username,
-           d.destination_name, d.image_url AS dest_img
+           COALESCE(u.user_name, 'Anonymous') AS username,
+           d.destination_name, d.image_url AS dest_img,
+           s.state_name
     FROM reviews r
-    JOIN users u ON u.user_id = r.user_id
+    LEFT JOIN users u ON u.user_id = r.user_id
     JOIN destinations d ON d.destination_id = r.destination_id
+    JOIN states s ON s.state_id = d.state_id
     WHERE d.state_id = ? ORDER BY r.created_at DESC LIMIT 9
 ");
 $stmt->bind_param("i", $state_id);
@@ -118,28 +123,38 @@ if (isset($_SESSION['user_id'])) {
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
-function formatPrice($price) {
+function formatPrice($price)
+{
     $p = trim((string) $price);
     $p = preg_replace('/^RM\s*/i', '', $p);
-    if (!$p || $p == '0' || strtolower($p) == 'free') return 'Free';
+    if (!$p || $p == '0' || strtolower($p) == 'free')
+        return 'Free';
     return 'From RM' . $p;
 }
 
-function timeAgo($datetime) {
-    if (empty($datetime)) return 'Unknown';
+function timeAgo($datetime)
+{
+    if (empty($datetime) || $datetime === '0000-00-00' || $datetime === '0000-00-00 00:00:00')
+        return 'Recently';
     $now = new DateTime();
     $past = new DateTime($datetime);
     $diff = $now->diff($past);
-    if ($diff->days == 0) return 'Today';
-    if ($diff->days == 1) return 'Yesterday';
-    if ($diff->days < 7) return $diff->days . ' days ago';
-    if ($diff->days < 30) return floor($diff->days / 7) . ' week(s) ago';
-    if ($diff->days < 365) return floor($diff->days / 30) . ' month(s) ago';
+    if ($diff->days == 0)
+        return 'Today';
+    if ($diff->days == 1)
+        return 'Yesterday';
+    if ($diff->days < 7)
+        return $diff->days . ' days ago';
+    if ($diff->days < 30)
+        return floor($diff->days / 7) . ' week(s) ago';
+    if ($diff->days < 365)
+        return floor($diff->days / 30) . ' month(s) ago';
     return floor($diff->days / 365) . ' year(s) ago';
 }
 
 // ── RENDER FUNCTION (defined once, here at the top) ───────────────────────────
-function renderDestinationSection($title, $destinations, $state_name, $state_id, $user_favorites) {
+function renderDestinationSection($title, $destinations, $state_name, $state_id, $user_favorites)
+{
     $section_id = 'section-' . preg_replace('/\s+/', '-', strtolower($title));
     ?>
     <div class="destination-list">
@@ -148,8 +163,7 @@ function renderDestinationSection($title, $destinations, $state_name, $state_id,
         </div>
 
         <div class="cards-wrapper">
-            <button type="button" class="back_Btn slider-arrow arrow-left"
-                onclick="slideCards('<?= $section_id ?>', -1)">
+            <button type="button" class="back_Btn slider-arrow arrow-left" onclick="slideCards('<?= $section_id ?>', -1)">
                 <img src="icon/error.png" class="back-icon" />
             </button>
 
@@ -190,8 +204,7 @@ function renderDestinationSection($title, $destinations, $state_name, $state_id,
                 <?php endif; ?>
             </div>
 
-            <button type="button" class="back_Btn slider-arrow arrow-right"
-                onclick="slideCards('<?= $section_id ?>', 1)"
+            <button type="button" class="back_Btn slider-arrow arrow-right" onclick="slideCards('<?= $section_id ?>', 1)"
                 <?= count($destinations) <= 4 ? 'style="display:none;"' : '' ?>>
                 <img src="icon/error.png" class="back-icon arrow-right-icon" />
             </button>
@@ -204,6 +217,7 @@ $tagTypeEmojis = [1 => '🌤️', 2 => '💰', 3 => '👥', 4 => '🏖️'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -213,13 +227,14 @@ $tagTypeEmojis = [1 => '🌤️', 2 => '💰', 3 => '👥', 4 => '🏖️'];
     <link rel="stylesheet" href="css/recommendation-page.css">
     <link rel="stylesheet" href="css/state-destination.css">
 </head>
+
 <body>
     <?php include('./includes/navbar.php'); ?>
 
     <section class="hero" id="hero-section" style="
-        background-image: linear-gradient(rgba(0,0,0,.3), rgba(0,0,0,.60)),
-                          url('<?= htmlspecialchars(trim($state['state_url'])) ?>');
-        background-size: cover; background-position: center;">
+    background-image: linear-gradient(rgba(0,0,0,.3), rgba(0,0,0,.60)),
+                      url('<?= htmlspecialchars($safe_url) ?>');
+    background-size: cover; background-position: center;">
 
         <div class="hero-content">
             <div class="hero-title-row">
@@ -236,7 +251,7 @@ $tagTypeEmojis = [1 => '🌤️', 2 => '💰', 3 => '👥', 4 => '🏖️'];
             <span class="tag-label">Tag:</span>
             <?php foreach ($heroTags as $tag):
                 $emoji = $tagTypeEmojis[$tag['tag_type_id']] ?? '📍'; ?>
-                <span class="tag"><?= $emoji ?> <?= htmlspecialchars($tag['tag_name']) ?></span>
+                <span class="tag"><?= $emoji ?>     <?= htmlspecialchars($tag['tag_name']) ?></span>
             <?php endforeach; ?>
         </div>
     </section>
@@ -256,7 +271,8 @@ $tagTypeEmojis = [1 => '🌤️', 2 => '💰', 3 => '👥', 4 => '🏖️'];
         <h1>What people are saying about <?= htmlspecialchars($state['state_name']) ?></h1>
 
         <?php if (empty($reviews)): ?>
-            <p style="text-align:center; color:var(--text-muted,#9ca3af); padding:2rem 0;">No reviews yet for this state.</p>
+            <p style="text-align:center; color:var(--text-muted,#9ca3af); padding:2rem 0;">No reviews yet for this state.
+            </p>
         <?php else: ?>
             <div class="review-cards" id="reviewGrid">
                 <?php foreach ($reviews as $i => $review): ?>
@@ -267,10 +283,14 @@ $tagTypeEmojis = [1 => '🌤️', 2 => '💰', 3 => '👥', 4 => '🏖️'];
                                 onerror="this.src='images/placeholder.jpg'">
                             <div>
                                 <div class="review-place-name"><?= htmlspecialchars($review['destination_name']) ?></div>
+                                <div class="review-place-state" style="font-size:0.75rem; color:#6b7280; margin-bottom:2px;">
+                                    📍 <?= htmlspecialchars($review['state_name']) ?>
+                                </div>
                                 <div class="review-place-rating">
-                                    <span class="stars"><?= str_repeat('★', round($review['rating'])) . str_repeat('☆', 5 - round($review['rating'])) ?></span>
+                                    <span
+                                        class="stars"><?= str_repeat('★', round($review['rating'])) . str_repeat('☆', 5 - round($review['rating'])) ?></span>
                                     <span><?= number_format($review['rating'], 1) ?> &middot;
-                                        <?php $labels = [5=>'Excellent',4=>'Very Good',3=>'Good',2=>'Fair',1=>'Poor'];
+                                        <?php $labels = [5 => 'Excellent', 4 => 'Very Good', 3 => 'Good', 2 => 'Fair', 1 => 'Poor'];
                                         echo $labels[round($review['rating'])] ?? ''; ?>
                                     </span>
                                 </div>
@@ -293,7 +313,8 @@ $tagTypeEmojis = [1 => '🌤️', 2 => '💰', 3 => '👥', 4 => '🏖️'];
                             <div class="review-photos">
                                 <?php foreach (array_slice(explode(',', $review['image_url']), 0, 3) as $photo):
                                     $photo = trim($photo);
-                                    if (!$photo) continue; ?>
+                                    if (!$photo)
+                                        continue; ?>
                                     <img class="review-photo" src="<?= htmlspecialchars($photo) ?>" alt=""
                                         onerror="this.style.display='none'">
                                 <?php endforeach; ?>
@@ -338,14 +359,14 @@ $tagTypeEmojis = [1 => '🌤️', 2 => '💰', 3 => '👥', 4 => '🏖️'];
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: 'destination_id=' + destinationId + '&action=' + action
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    if (action === 'add') { el.classList.add('favorited'); el.innerHTML = '&#9829;'; }
-                    else { el.classList.remove('favorited'); el.innerHTML = '&#9825;'; }
-                }
-            })
-            .catch(err => console.error('Favourite error:', err));
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        if (action === 'add') { el.classList.add('favorited'); el.innerHTML = '&#9829;'; }
+                        else { el.classList.remove('favorited'); el.innerHTML = '&#9825;'; }
+                    }
+                })
+                .catch(err => console.error('Favourite error:', err));
         }
 
         const sliderState = {};
@@ -372,4 +393,5 @@ $tagTypeEmojis = [1 => '🌤️', 2 => '💰', 3 => '👥', 4 => '🏖️'];
         }
     </script>
 </body>
+
 </html>
