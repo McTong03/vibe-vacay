@@ -5,7 +5,6 @@ session_start();
 header('Content-Type: application/json');
 
 if (empty($_SESSION['user_id'])) {
-    $_SESSION['user_id'] = 1;
 }
 
 $user_id = $_SESSION['user_id'] ?? null;

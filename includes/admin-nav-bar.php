@@ -4,10 +4,10 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// if (empty($_SESSION['user_id']) || strtolower($_SESSION['user_role']) !== 'admin') {
-//     header('Location: ./login-page.php');
-//     exit();
-// }
+if (empty($_SESSION['user_id']) || strtolower($_SESSION['user_role']) !== 'admin') {
+    header('Location: ./login-page.php');
+    exit();
+}
 
 $isLoggedIn = !empty($_SESSION['user_id']);
 $profilePicture = $_SESSION['profile_picture'] ?? 'Image/defaultProfile.png';

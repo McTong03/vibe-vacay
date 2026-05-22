@@ -2,10 +2,10 @@
 session_start();
 require 'conn.php';
 
-// if (!isset($_SESSION['user_id'])) {
-//     header("Location: login-page.php");
-//     exit();
-// }
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login-page.php");
+    exit();
+}
 
 
 if (!isset($_GET['id'])) {

@@ -5,10 +5,6 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require 'conn.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login-page.php");
-    exit();
-}
 
 
 $roleFilter = $_GET['user_role'] ?? '';

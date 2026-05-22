@@ -5,8 +5,8 @@ if (session_status() === PHP_SESSION_NONE) {
 require 'conn.php';
 
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login-page.php");
+if (empty($_SESSION['user_id']) || strtolower($_SESSION['user_role']) !== 'user/traveller') {
+    header('Location: ./login-page.php');
     exit();
 }
 
