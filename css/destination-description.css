@@ -181,7 +181,7 @@ body {
 
 .add-container1 {
     margin-top: -10px;
-    margin-left: 750px;
+    margin-left: 600px;
     position: absolute;
 }
 
@@ -212,7 +212,7 @@ body {
     min-width: 530px;
     height: 114px;
     margin-top: -10px;
-    margin-left: 1080px;
+    margin-left: 920px;
     position: absolute;
     border-radius: 20px;
     flex-shrink: 0;
@@ -245,15 +245,15 @@ body {
 .batucaves5,
 .batucaves6,
 .batucaves7 {
-    width: 350px;
-    height: 300px;
+    width: 300px;
+    height: 280px;
     border-radius: 10px;
 }
 
 .image-container {
     display: grid;
-    grid-template-columns: repeat(4, 380px);
-    margin-left: 50px;
+    grid-template-columns: repeat(4, 340px);
+    margin-left: 100px;
     cursor: pointer;
     margin-top: 30px;
 }
@@ -265,7 +265,7 @@ body {
 }
 
 .saying {
-    margin-top: -15px;
+    margin-top:80px;
     margin-left: 500px;
 }
 
@@ -297,8 +297,9 @@ body {
 
 .card-container {
     display: grid;
-    grid-template-columns: repeat(4, 350px);
+    grid-template-columns: repeat(4, 345px);
     align-items: start;
+    margin-left: 40px;
 }
 
 .star1 {
@@ -331,7 +332,7 @@ body {
 
 .rating-description {
     font-size: 12px;
-    width: 270px;
+    width: 260px;
     position: relative;
     left: 20px;
     top: -5px;
@@ -528,6 +529,7 @@ body {
     cursor: pointer;
     transition: box-shadow 0.3s ease;
     margin-top: 20px;
+    margin-left: 5px;
 }
 
 .similar-container:hover {
@@ -616,7 +618,7 @@ body {
 
 .similar-card-container {
     display: grid;
-    grid-template-columns: repeat(4, 350px);
+    grid-template-columns: repeat(4, 350px);0
 }
 
 .next-button1 {

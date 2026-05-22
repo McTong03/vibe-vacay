@@ -2,10 +2,10 @@
 session_start();
 require 'conn.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
-}
+// if (!isset($_SESSION['user_id'])) {
+//     header("Location: login.php");
+//     exit();
+// }
 
 
 if (!isset($_GET['id'])) {
@@ -219,15 +219,15 @@ $similarJson = json_encode($similar);
 
     <div class="image-container" id="galleryGrid"></div>
 
-    <div style="display:flex; gap:10px; position:relative; left:1500px; top:-180px;">
-        <button style="border:none; background:none; cursor:pointer;" class="next-button" id="galleryPrevBtn" onclick="changeGalleryPage(-1)">
-            <img src="icon/previous-button.png" alt="prev">
-        </button>
+    <button style="border:none; background:none; cursor:pointer; visibility:hidden; position:absolute; left:15px; top:1050px; " 
+        id="galleryPrevBtn" onclick="changeGalleryPage(-1)">
+        <img src="icon/previous-button.png" alt="prev" style="width:60px;">
+    </button>
 
-        <button style="border:none; background:none; cursor:pointer;" class="next-button" id="galleryNextBtn" onclick="changeGalleryPage(1)">
-            <img src="icon/next.png" alt="next">
-        </button>
-    </div>
+    <button style="border:none; background:transparent; cursor:pointer; position:absolute; right:15px; top:1050px;" 
+        id="galleryNextBtn" onclick="changeGalleryPage(1)">
+        <img src="icon/next.png" alt="next" style="width:60px;">
+    </button>
 
     <p class="saying">What people saying about <?php echo htmlspecialchars($destination['destination_name']); ?></p>
 
@@ -277,13 +277,15 @@ $similarJson = json_encode($similar);
         <p class="no-reviews" id="no-reviews-msg">No reviews yet for this destination.</p>
     <?php endif; ?>
 
-    <div style="display:flex; gap:10px; justify-content:flex-end; padding-right:100px; margin-top:-200px;">
-        <button style="border:none; background:none; cursor:pointer; display:none;" id="reviewsPrevBtn" onclick="changeReviewPage(-1)">
-            <img src="icon/previous-button.png" alt="prev" style="width:70px;">
+   <div style="position:relative; width:100%; height:70px; margin-top:-170px;">
+        <button style="border:none; background:none; cursor:pointer; display:none; position:absolute; left:15px; top:0;" 
+            id="reviewsPrevBtn" onclick="changeReviewPage(-1)">
+            <img src="icon/previous-button.png" alt="prev" style="width:60px;">
         </button>
 
-        <button style="border:none; background:none; cursor:pointer; <?php echo count($reviews) <= 6 ? 'display:none;' : ''; ?>" id="reviewsNextBtn" onclick="changeReviewPage(1)">
-            <img src="icon/next.png" alt="next" style="width:70px;">
+        <button style="border:none; background:none; cursor:pointer; <?php echo count($reviews) <= 6 ? 'display:none;' : ''; ?> position:absolute; right:15px; top:0;" 
+            id="reviewsNextBtn" onclick="changeReviewPage(1)">
+            <img src="icon/next.png" alt="next" style="width:60px;">
         </button>
     </div>
 
@@ -372,12 +374,15 @@ $similarJson = json_encode($similar);
             <p style="margin-left:50px; color:#666; margin-bottom:60px;">No similar places found.</p>
         <?php endif; ?>
 
-        <div style="display:flex; gap:10px; justify-content:flex-end; position:absolute; right:80px; margin-top:-220px;">
-            <button style="border:none; background:none; cursor:pointer;" class="next-button2" id="similarPrevBtn" onclick="changeSimilarPage(-1)">
-                <img src="icon/previous-button.png" alt="prev">
+        <div style="position:relative; width:100%; height:70px; margin-top:-200px;">
+            <button style="border:none; background:none; cursor:pointer; position:absolute; left:-60px; top:0; visibility:hidden;" 
+                class="next-button2" id="similarPrevBtn" onclick="changeSimilarPage(-1)">
+                <img src="icon/previous-button.png" alt="prev" style="width:60px;">
             </button>
-            <button style="border:none; background:none; cursor:pointer;" class="next-button2" id="similarNextBtn" onclick="changeSimilarPage(1)">
-                <img src="icon/next.png" alt="next">
+
+            <button style="border:none; background:none; cursor:pointer; position:absolute; right:-420px; top:0;" 
+                class="next-button2" id="similarNextBtn" onclick="changeSimilarPage(1)">
+                <img src="icon/next.png" alt="next" style="width:60px;">
             </button>
         </div>
 
