@@ -294,14 +294,6 @@ a {
     color: #e74c3c; /* 红色 */
 }
 
-/* .heart-icon.liked::after {
-    content: '♥';
-}
-
-.heart-icon:not(.liked)::after {
-    content: '♡';
-} */
-
 /* 隐藏原本的字符，用 ::after 显示 */
 .heart-icon {
     font-size: 0; /* 隐藏 innerHTML 的字符 */

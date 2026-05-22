@@ -23,6 +23,8 @@ if (isset($_GET['success'])) {
     <title>Vibe Vacay</title>
     <link rel="stylesheet" href="css/menubar.css">
     <link rel="stylesheet" href="css/landingpage.css">
+    <link rel="stylesheet" href="css/filter-search.css">
+    <link rel="stylesheet" href="css/search-bar.css">
 </head>
 
 <body>
@@ -47,12 +49,7 @@ if (isset($_GET['success'])) {
         <p>Not sure where to go? Let your mood decide. Discover destinations perfectly matched to how you feel right now.</p>
     </section>
 
-    <section class="search-section">
-        <div class="search-bar">
-            <input type="text" placeholder="Find places and things to do">
-            <button>Search</button>
-        </div>
-    </section>
+    <?php include('./includes/search-bar.php'); ?>
 
     <section class="mood-section">
         <h2>Start Your Journey Based on How You Feel</h2>

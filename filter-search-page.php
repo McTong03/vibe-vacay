@@ -193,6 +193,8 @@ function qstr(array $overrides = []): string {
     <title>Vibe Vacay - Discover & Plan</title>
     <link rel="stylesheet" href="css/menubar.css">
     <link rel="stylesheet" href="css/filter-search-page.css">
+    <link rel="stylesheet" href="css/filter-search.css">
+    <link rel="stylesheet" href="css/search-bar.css">
 </head>
 
 <body>

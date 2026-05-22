@@ -1,0 +1,139 @@
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: #f8f9fa;
+    margin: 0;
+}
+
+.search-results-wrapper {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 24px;
+}
+
+.search-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #1e293b;
+    margin-bottom: 8px;
+}
+
+.search-count {
+    color: #6b7280;
+    font-size: 14px;
+    margin-bottom: 28px;
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+
+.result-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.2s;
+    position: relative;
+}
+
+.result-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.result-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+.card-body {
+    padding: 14px 16px;
+}
+
+.card-state {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+.card-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 8px;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.card-rating {
+    font-size: 13px;
+    color: #374151;
+}
+
+.card-price {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a2b49;
+}
+
+.no-results {
+    text-align: center;
+    padding: 80px 0;
+    color: #6b7280;
+}
+
+.no-results h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #374151;
+}
+
+/* search bar on this page */
+.search-section {
+    display: flex;
+    justify-content: center;
+    padding: 2rem;
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.heart-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.15s;
+    z-index: 2;
+}
+
+.heart-icon:hover { transform: scale(1.15); }
+
+.heart-icon .heart-svg path {
+    fill: none;
+    stroke: #aaa;
+    stroke-width: 2;
+    transition: fill 0.2s, stroke 0.2s;
+}
+
+.heart-icon:hover .heart-svg path { stroke: #e74c3c; }
+
+.heart-icon.liked .heart-svg path {
+    fill: #e74c3c;
+    stroke: #e74c3c;
+}

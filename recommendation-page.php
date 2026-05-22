@@ -205,6 +205,8 @@ $rpParam = isset($_GET['reviews_page']) ? '&reviews_page=' . (int)$_GET['reviews
     <title>Vibe Vacay - <?= htmlspecialchars($heroState['state_name']) ?></title>
     <link rel="stylesheet" href="css/menubar.css">
     <link rel="stylesheet" href="css/recommendation-page.css">
+    <link rel="stylesheet" href="css/filter-search.css">
+    <link rel="stylesheet" href="css/search-bar.css">
 </head>
 
 <body>
@@ -250,12 +252,7 @@ $rpParam = isset($_GET['reviews_page']) ? '&reviews_page=' . (int)$_GET['reviews
     </section>
 
     <!-- Search bar — cleanly below the hero -->
-    <div class="search-container">
-        <form method="GET" action="filter-search.php" class="search-bar">
-            <input type="text" name="q" placeholder="Find places and things to do">
-            <button type="submit">Search</button>
-        </form>
-    </div>
+    <?php include('./includes/search-bar.php'); ?>
 
     <!-- ══════════════════════════════════════════
      CONTENT
