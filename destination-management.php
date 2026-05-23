@@ -271,6 +271,14 @@ unset($dest);
 
                     <!-- Edit / Delete -->
                     <div class="edit_delete_box">
+                        <button type="button" class="view_Btn"
+                            onclick="window.location.href='admin-feedback.php?id=<?= $dest['destination_id'] ?>'">
+                            <img src="icon/view.png"
+                                style="width:20px; height:20px; min-width:20px; max-width:20px; object-fit:contain;justify-content:center;"
+                                alt="view">
+                            View Feedback
+                        </button>
+
                         <button type="button" class="edit_Btn"
                             onclick="window.location.href='edit-destination.php?id=<?= $dest['destination_id'] ?>'">
                             <img src="icon/edit.png"
@@ -281,7 +289,7 @@ unset($dest);
 
                         <button type="button" class="delete_Btn"
                             onclick="openDeleteModal(<?= $dest['destination_id'] ?>, '<?= addslashes(htmlspecialchars($dest['destination_name'])) ?>')">
-                            <img src="icon/delete.png" class="modal-title-icon" 
+                            <img src="icon/delete.png" class="modal-title-icon"
                                 style="width:16px; height:16px; min-width:16px; max-width:16px; object-fit:contain;justify-content:center;"
                                 alt="delete"> Delete
                         </button>

@@ -224,7 +224,6 @@ $tagTypeEmojis = [1 => '🌤️', 2 => '💰', 3 => '👥', 4 => '🏖️'];
     <title><?= htmlspecialchars($state['state_name']) ?> - Destinations</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/menubar.css">
-    <link rel="stylesheet" href="css/recommendation-page.css">
     <link rel="stylesheet" href="css/state-destination.css">
 </head>
 

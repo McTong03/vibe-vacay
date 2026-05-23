@@ -227,7 +227,8 @@ body {
 }
 
 .edit_Btn,
-.delete_Btn {
+.delete_Btn
+,.view_Btn {
     background-color: #B3B6C3;
     border: none;
     border-radius: 30px;
@@ -366,4 +367,35 @@ body {
 .modal-btn-danger {
     background: #c0392b;
     color: white;
+}
+
+
+.mood-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+}
+
+.filter-label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #1A2B49;
+}
+
+.mood-btn {
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    border: 1.5px solid #e5e7eb;
+    background: white;
+    cursor: pointer;
+    font-size: 0.82rem;
+    transition: all 0.2s;
+}
+
+.mood-btn.active {
+    background: #1A2B49;
+    color: white;
+    border-color: #1A2B49;
 }
