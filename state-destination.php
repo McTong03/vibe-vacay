@@ -175,7 +175,7 @@ function renderDestinationSection($title, $destinations, $state_name, $state_id,
                         $is_fav = in_array($dest['destination_id'], $user_favorites); ?>
                         <div class="dest-card searchable-card <?= $i >= 4 ? 'card-hidden' : '' ?>"
                             data-title="<?= htmlspecialchars(strtolower($dest['destination_name'])) ?>"
-                            onclick="window.location.href='destination-description.php?destination_id=<?= $dest['destination_id'] ?>'">
+                            onclick="window.location.href='destination-description.php?id=<?= $dest['destination_id']  ?>'">
 
                             <div class="heart-icon <?= $is_fav ? 'favorited' : '' ?>"
                                 onclick="toggleFavorite(event, this, <?= $dest['destination_id'] ?>)">

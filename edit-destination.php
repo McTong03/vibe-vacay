@@ -175,11 +175,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['btn-edit'])) {
 
             <h3>Destination Price (RM)</h3>
             <input type="number" step="0.01" name="price" class="tag-type"
-                value="<?= $dest['price'] ?>" required>
-
+                value="<?= htmlspecialchars($dest['price'] ?? '', ENT_QUOTES, 'UTF-8') ?>" required>
+                
             <h3>Destination Rating (/5)</h3>
             <input type="number" step="0.1" min="0" max="5" name="average_rating" class="tag-type"
-                value="<?= $dest['average_rating'] ?>" required>
+                value="<?= htmlspecialchars($dest['average_rating'] ?? '', ENT_QUOTES, 'UTF-8') ?>" required>
 
             <h3>Destination Phone Number</h3>
             <input type="text" name="phone_number" class="tag-type"

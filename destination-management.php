@@ -60,15 +60,23 @@ $tagTypeQuery->close();
 
 // --------------------------------------------------
 // Collect active tag filters from GET
+// 直接用 named params，跟 filter-search-page.php 一样
 // --------------------------------------------------
 $search = trim($_GET['search'] ?? '');
 $activeTagIds = [];
-foreach ($tagTypes as $tt) {
-    $key = 'tag_type_' . $tt['tag_type_id'];
-    if (!empty($_GET[$key])) {
-        $activeTagIds[] = intval($_GET[$key]);
-    }
-}
+
+// Climate (tag_type_id=1, ids 1-4)
+if (!empty($_GET['tag_type_1'])) $activeTagIds[] = intval($_GET['tag_type_1']);
+// Budget tag (tag_type_id=2, ids 5-10) — optional, skip if not needed
+if (!empty($_GET['tag_type_2'])) $activeTagIds[] = intval($_GET['tag_type_2']);
+// Companion (tag_type_id=3, ids 11-14)
+if (!empty($_GET['tag_type_3'])) $activeTagIds[] = intval($_GET['tag_type_3']);
+// Destination Type (tag_type_id=4, ids 15-19)
+if (!empty($_GET['tag_type_4'])) $activeTagIds[] = intval($_GET['tag_type_4']);
+
+// Remove any zero values just in case
+$activeTagIds = array_filter($activeTagIds, fn($v) => $v > 0);
+$activeTagIds = array_values($activeTagIds);
 
 // --------------------------------------------------
 // Build destination query with search + tag filters
@@ -109,12 +117,24 @@ if ($search !== '') {
     $types .= 'sss';
 }
 
-// Each selected tag filter: destination must have that tag
-foreach ($activeTagIds as $tagId) {
-    $sql .= " AND d.destination_id IN (
-        SELECT destination_id FROM destination_tag_mapping WHERE tag_id = ?
-    )";
-    $params[] = $tagId;
+// AND logic: destination must have ALL selected tags
+if (!empty($activeTagIds)) {
+    $inPlaceholders = implode(',', array_fill(0, count($activeTagIds), '?'));
+    $tagCount = count($activeTagIds);
+    $sql .= "
+        AND d.destination_id IN (
+            SELECT destination_id
+            FROM destination_tag_mapping
+            WHERE tag_id IN ($inPlaceholders)
+            GROUP BY destination_id
+            HAVING COUNT(DISTINCT tag_id) = ?
+        )
+    ";
+    foreach ($activeTagIds as $id) {
+        $params[] = $id;
+        $types .= 'i';
+    }
+    $params[] = $tagCount;
     $types .= 'i';
 }
 
