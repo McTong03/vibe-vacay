@@ -284,7 +284,6 @@ body {
 .dest-title {
     font-size: 0.9rem;
     font-weight: 600;
-    margin-bottom: 0.4rem;
     line-height: 1.35;
     min-height: 2.5em;
     display: -webkit-box;
@@ -296,7 +295,7 @@ body {
 .climate {
     font-size: 0.78rem;
     color: var(--text-muted);
-    margin-bottom: 0.75rem;
+    margin-bottom: 3.35rem;
 }
 
 .card-footer {
