@@ -190,6 +190,7 @@ body {
 
 .overview1 {
     margin-top: 30px;
+    line-height: 35px;
 }
 
 .highlight {
@@ -318,7 +319,7 @@ body {
     border-radius: 18px;
     margin-top: 50px;
     cursor: pointer;
-
+    padding-bottom: 20px;
 }
 
 .batu-container:hover {
@@ -367,7 +368,7 @@ body {
     position: relative;
     left: 20px;
     top: -5px;
-    line-height: 15px;
+    line-height: 18px;
 }
 
 .batucaves8 {
@@ -377,6 +378,7 @@ body {
     left: 20px;
     height: 70px;
     top: 20px;
+    margin-bottom: 20px;
 }
 
 .next-button1 {
@@ -660,8 +662,6 @@ body {
 .no-reviews {
     margin-left: 100px;
     margin-top: 50px;
-    font-size: 20px;
-    font-weight: 200;
 }
 
 .overview,

@@ -358,6 +358,14 @@ $similarJson = json_encode($similar);
         var slice = galleryImages.slice(start, start + galleryPerPage);
 
         grid.innerHTML = '';
+
+        if (galleryImages.length === 0) {
+            grid.innerHTML = '<p style="text-align:left; padding:40px 0;">No gallery images available.</p>';
+            document.getElementById('galleryPrevBtn').style.visibility = 'hidden';
+            document.getElementById('galleryNextBtn').style.visibility = 'hidden';
+            return;
+        }
+
         slice.forEach(function(src) {
             var img = document.createElement('img');
             img.className = 'batucaves2';

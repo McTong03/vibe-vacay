@@ -184,6 +184,7 @@ body {
 
 .overview1 {
     margin-top: 30px;
+    line-height: 35px;
 }
 
 .highlight {
@@ -314,6 +315,7 @@ body {
     margin-top: 50px;
     cursor: pointer;
     position: relative;
+    padding-bottom: 20px;
 
 }
 
@@ -363,7 +365,7 @@ body {
     position: relative;
     left: 20px;
     top: -5px;
-    line-height: 15px;
+    line-height: 18px;
 }
 
 .batucaves8 {
@@ -373,6 +375,7 @@ body {
     left: 20px;
     height: 70px;
     top: 20px;
+    margin-bottom: 20px;
 }
 
 .similar-place {
@@ -494,7 +497,8 @@ body {
 }
 
 .no-reviews {
-    margin-left: 60px;
+    margin-left: 100px;
+    margin-top: 50px;
 }
 
 .overview,
