@@ -2,10 +2,37 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
- 
+
 // ─── DB Connection ───────────────────────────────────────────────────────────
 require_once('./conn.php'); // gives us $conn (mysqli)
- 
+
+// ─── 从 database 读取所有 tag types 和 tags ──────────────────────────────────
+$allTagTypes = [];
+$result = $conn->query("SELECT tag_type_id, tag_type_name FROM tag_type ORDER BY tag_type_id ASC");
+while ($row = $result->fetch_assoc()) {
+    $allTagTypes[$row['tag_type_id']] = $row['tag_type_name'];
+}
+
+// 读取所有 tags，按 tag_type_id 分组
+$allTags = [];
+$result = $conn->query("SELECT tag_id, tag_type_id, tag_name FROM destination_tags ORDER BY tag_id ASC");
+while ($row = $result->fetch_assoc()) {
+    $allTags[$row['tag_type_id']][] = $row;
+}
+
+// 找出 Mood 的 tag_type_id（tag_type_name = 'Mood'）
+$moodTypeId = 0;
+foreach ($allTagTypes as $tid => $tname) {
+    if (strtolower($tname) === 'mood') {
+        $moodTypeId = $tid;
+        break;
+    }
+}
+$moodTags = $allTags[$moodTypeId] ?? [];
+
+// 非 Mood 的 tag types（用来生成 dropdown）
+$filterTagTypes = array_filter($allTagTypes, fn($tid) => $tid !== $moodTypeId, ARRAY_FILTER_USE_KEY);
+
 // ─── Read GET params ──────────────────────────────────────────────────────────
 $selectedMood      = isset($_GET['mood'])      ? (int)$_GET['mood']      : 0;
 $selectedClimate   = isset($_GET['climate'])   ? (int)$_GET['climate']   : 0;
@@ -16,40 +43,114 @@ $hiddenGems        = isset($_GET['hidden'])    && $_GET['hidden'] === '1';
 $searchText        = isset($_GET['search'])    ? trim($_GET['search'])   : '';
 $isRandom          = isset($_GET['random'])    && $_GET['random'] === '1';
 $isSearched        = array_key_exists('searched', $_GET);
- 
+
 // ─── Mood → Destination Type tag mapping (NOT from tag_mapping table) ────────
 // Stressed/Sad → relaxing/fun places; Adventurous → nature/history; Happy → city/entertainment
-$moodTypeMap = [
-    20 => [16, 18, 19],  // Stressed  → Natural, Beach, Entertainment
-    21 => [],            // Neutral   → no restriction
-    22 => [18, 19, 16],  // Sad       → Beach, Entertainment, Natural
-    23 => [16, 17],      // Adventurous → Natural, Historical
-    24 => [15, 19],      // Happy     → City Life, Entertainment
-];
- 
+// $moodTypeMap = [
+//     20 => [16, 18, 19],  // Stressed  → Natural, Beach, Entertainment
+//     21 => [],            // Neutral   → no restriction
+//     22 => [18, 19, 16],  // Sad       → Beach, Entertainment, Natural
+//     23 => [16, 17],      // Adventurous → Natural, Historical
+//     24 => [15, 19],      // Happy     → City Life, Entertainment
+// ];
+// ─── Mood → Destination Type tag mapping ─────────────────────────────────────
+// 找 Destination Type 的 tag_type_id
+$destTypeId = 0;
+foreach ($allTagTypes as $tid => $tname) {
+    if (strtolower($tname) === 'destination type') {
+        $destTypeId = $tid;
+        break;
+    }
+}
+$destTypeTags = $allTags[$destTypeId] ?? [];
+
+// 把 destination type tag name map 到 id
+$destTypeByName = [];
+foreach ($destTypeTags as $tag) {
+    $destTypeByName[strtolower($tag['tag_name'])] = $tag['tag_id'];
+}
+
+// Mood tag name map 到对应的 destination type tag ids
+$moodTypeMap = [];
+foreach ($moodTags as $moodTag) {
+    $moodName = strtolower($moodTag['tag_name']);
+    switch ($moodName) {
+        case 'stressed':
+            $moodTypeMap[$moodTag['tag_id']] = array_filter([
+                $destTypeByName['natural'] ?? 0,
+                $destTypeByName['beach'] ?? 0,
+                $destTypeByName['entertainment'] ?? 0,
+            ]);
+            break;
+        case 'neutral':
+            $moodTypeMap[$moodTag['tag_id']] = [];
+            break;
+        case 'sad':
+            $moodTypeMap[$moodTag['tag_id']] = array_filter([
+                $destTypeByName['beach'] ?? 0,
+                $destTypeByName['entertainment'] ?? 0,
+                $destTypeByName['natural'] ?? 0,
+            ]);
+            break;
+        case 'adventurous':
+            $moodTypeMap[$moodTag['tag_id']] = array_filter([
+                $destTypeByName['natural'] ?? 0,
+                $destTypeByName['historical'] ?? 0,
+            ]);
+            break;
+        case 'happy':
+            $moodTypeMap[$moodTag['tag_id']] = array_filter([
+                $destTypeByName['city life'] ?? 0,
+                $destTypeByName['entertainment'] ?? 0,
+            ]);
+            break;
+    }
+}
+
 // ─── Budget → price range mapping ────────────────────────────────────────────
-$budgetRangeMap = [
-    5  => [0,   100],
-    6  => [100, 200],
-    7  => [200, 300],
-    8  => [300, 400],
-    9  => [400, 500],
-    10 => [500, 999999],
-];
- 
+// $budgetRangeMap = [
+//     5  => [0,   100],
+//     6  => [100, 200],
+//     7  => [200, 300],
+//     8  => [300, 400],
+//     9  => [400, 500],
+//     10 => [500, 999999],
+// ];
+
+$budgetTypeId = 0;
+foreach ($allTagTypes as $tid => $tname) {
+    if (strtolower($tname) === 'budget') {
+        $budgetTypeId = $tid;
+        break;
+    }
+}
+
+// 从 tag_name 解析 price range
+$budgetRangeMap = [];
+foreach ($allTags[$budgetTypeId] ?? [] as $tag) {
+    // 例如 "RM0 - RM100" → [0, 100]
+    preg_match_all('/\d+/', $tag['tag_name'], $matches);
+    $nums = $matches[0];
+    if (count($nums) >= 2) {
+        $budgetRangeMap[$tag['tag_id']] = [(int)$nums[0], (int)$nums[1]];
+    } elseif (count($nums) === 1 && str_contains(strtolower($tag['tag_name']), 'above')) {
+        $budgetRangeMap[$tag['tag_id']] = [(int)$nums[0], 999999];
+    }
+}
+
 // ─── Collect tag IDs for AND-logic (exclude mood & budget — handled separately) ──
 $tagIds = [];
 if ($selectedClimate)   $tagIds[] = $selectedClimate;
 if ($selectedCompanion) $tagIds[] = $selectedCompanion;
 if ($selectedType)      $tagIds[] = $selectedType;
- 
+
 // ─── Query DB ────────────────────────────────────────────────────────────────
 $destinations = [];
- 
+
 if ($isSearched) {
     $bindValues = [];
     $bindTypes  = '';
- 
+
     $sql = "
         SELECT
             d.destination_id,
@@ -64,7 +165,7 @@ if ($isSearched) {
         LEFT JOIN states s ON d.state_id = s.state_id
         WHERE 1=1
     ";
- 
+
     // Free-text search
     if ($searchText !== '') {
         $sql .= " AND (d.destination_name LIKE ? OR d.description LIKE ?)";
@@ -73,12 +174,12 @@ if ($isSearched) {
         $bindValues[] = $likeVal;
         $bindTypes   .= 'ss';
     }
- 
+
     // Hidden gems
     if ($hiddenGems) {
         $sql .= " AND d.reviews_count < 500 AND d.average_rating >= 4.0";
     }
- 
+
     // ── MOOD: map to destination_type tags via tag_mapping ────────────────────
     if ($selectedMood && !empty($moodTypeMap[$selectedMood])) {
         $moodTypeTags   = $moodTypeMap[$selectedMood];
@@ -95,14 +196,14 @@ if ($isSearched) {
             $bindTypes   .= 'i';
         }
     }
- 
+
     // ── BUDGET: filter by actual price field using REGEXP to extract first number ─
     if ($selectedBudget && isset($budgetRangeMap[$selectedBudget])) {
         [$minPrice, $maxPrice] = $budgetRangeMap[$selectedBudget];
         // Extract the first number from price string (handles "RM10", "RM49 - RM79", "RM25 (Adult)..." etc)
         // First strip "RM" prefix, then extract leading number
         $priceExpr = "CAST(REGEXP_REPLACE(REGEXP_REPLACE(d.price, 'RM', ''), '[^0-9].*', '') AS UNSIGNED)";
- 
+
         // Free destinations: include only in RM0-RM100 range
         if ($minPrice === 0) {
             $sql .= "
@@ -121,7 +222,7 @@ if ($isSearched) {
         $bindValues[] = $maxPrice;
         $bindTypes   .= 'ii';
     }
- 
+
     // ── Climate & Companion & Destination Type: AND-logic via tag_mapping ─────
     if (!empty($tagIds)) {
         $inPlaceholders = implode(',', array_fill(0, count($tagIds), '?'));
@@ -142,30 +243,32 @@ if ($isSearched) {
         $bindValues[] = $tagCount;
         $bindTypes   .= 'i';
     }
- 
+
     $sql .= $isRandom
         ? " ORDER BY RAND() LIMIT 1"
         : " ORDER BY d.average_rating DESC";
- 
+
     $stmt = mysqli_prepare($conn, $sql);
- 
+
     if (!empty($bindValues)) {
         mysqli_stmt_bind_param($stmt, $bindTypes, ...$bindValues);
     }
- 
+
     mysqli_stmt_execute($stmt);
     $result       = mysqli_stmt_get_result($stmt);
     $destinations = mysqli_fetch_all($result, MYSQLI_ASSOC);
     mysqli_stmt_close($stmt);
 }
- 
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-function esc(string $s): string {
+function esc(string $s): string
+{
     return htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
 }
- 
+
 // Build a query string keeping current filters, with overrides
-function qstr(array $overrides = []): string {
+function qstr(array $overrides = []): string
+{
     $base = [
         'mood'      => $GLOBALS['selectedMood'],
         'climate'   => $GLOBALS['selectedClimate'],
@@ -228,54 +331,58 @@ function qstr(array $overrides = []): string {
                         <input type="hidden" name="mood" id="mood-input" value="<?= $selectedMood ?>">
                         <div class="mood-buttons">
                             <?php
-                            $moods = [20 => '😫 Stressed', 21 => '😐 Neutral', 22 => '😢 Sad', 23 => '😎 Adventurous', 24 => '😀 Happy'];
-                            foreach ($moods as $id => $label):
-                                $isActive = ($selectedMood === $id);
+                            // Mood buttons are loaded from the database via $moodTags
+                            $moodEmojis = [
+                                'stressed'    => '😫',
+                                'neutral'     => '😐',
+                                'sad'         => '😢',
+                                'adventurous' => '😎',
+                                'happy'       => '😀',
+                            ];
+                            foreach ($moodTags as $moodTag):
+                                $isActive = ($selectedMood === $moodTag['tag_id']);
+                                $emoji = $moodEmojis[strtolower($moodTag['tag_name'])] ?? '😊';
                             ?>
                                 <button
                                     type="button"
-                                    data-mood-id="<?= $id ?>"
+                                    data-mood-id="<?= $moodTag['tag_id'] ?>"
                                     class="mood-btn <?= $isActive ? 'active' : '' ?>"
-                                    onclick="selectMood(<?= $id ?>)"><?= esc($label) ?></button>
+                                    onclick="selectMood(<?= $moodTag['tag_id'] ?>)">
+                                    <?= $emoji . ' ' . esc($moodTag['tag_name']) ?>
+                                </button>
                             <?php endforeach; ?>
                         </div>
                     </div>
 
                     <!-- DROPDOWNS -->
                     <div class="dropdown-section">
+                        <?php foreach ($filterTagTypes as $typeId => $typeName): ?>
+                            <?php
+                            $tags = $allTags[$typeId] ?? [];
+                            if (empty($tags)) continue;
 
-                        <!-- Climate (tag_type_id=1 → ids 1-4) -->
-                        <select name="climate">
-                            <option value="0">Climate</option>
-                            <?php foreach ([1 => 'Sunny / Hot', 2 => 'Tropical', 3 => 'Cool', 4 => 'Mountain'] as $id => $lbl): ?>
-                                <option value="<?= $id ?>" <?= $selectedClimate === $id ? 'selected' : '' ?>><?= esc($lbl) ?></option>
-                            <?php endforeach; ?>
-                        </select>
+                            // 找 GET param 名字
+                            $paramName = match (strtolower($typeName)) {
+                                'climate'          => 'climate',
+                                'budget'           => 'budget',
+                                'travel companion' => 'companion',
+                                'destination type' => 'dest_type',
+                                default            => 'filter_' . $typeId,
+                            };
 
-                        <!-- Budget (tag_type_id=2 → ids 5-10) -->
-                        <select name="budget">
-                            <option value="0">Budget</option>
-                            <?php foreach ([5 => 'RM0 – RM100', 6 => 'RM100 – RM200', 7 => 'RM200 – RM300', 8 => 'RM300 – RM400', 9 => 'RM400 – RM500', 10 => 'RM500+'] as $id => $lbl): ?>
-                                <option value="<?= $id ?>" <?= $selectedBudget === $id ? 'selected' : '' ?>><?= esc($lbl) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-
-                        <!-- Travel Companion (tag_type_id=3 → ids 11-14) -->
-                        <select name="companion">
-                            <option value="0">Travel Companion</option>
-                            <?php foreach ([11 => 'Friend', 12 => 'Solo', 13 => 'Couple', 14 => 'Family'] as $id => $lbl): ?>
-                                <option value="<?= $id ?>" <?= $selectedCompanion === $id ? 'selected' : '' ?>><?= esc($lbl) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-
-                        <!-- Destination Type (tag_type_id=4 → ids 15-19) -->
-                        <select name="dest_type">
-                            <option value="0">Destination Type</option>
-                            <?php foreach ([15 => 'City Life', 16 => 'Natural', 17 => 'Historical', 18 => 'Beach', 19 => 'Entertainment'] as $id => $lbl): ?>
-                                <option value="<?= $id ?>" <?= $selectedType === $id ? 'selected' : '' ?>><?= esc($lbl) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-
+                            // 找当前选中的值
+                            $selectedVal = isset($_GET[$paramName]) ? (int)$_GET[$paramName] : 0;
+                            ?>
+                            <select name="<?= $paramName ?>">
+                                <option value="0"><?= esc($typeName) ?></option>
+                                <?php foreach ($tags as $tag): ?>
+                                    <option value="<?= $tag['tag_id'] ?>"
+                                        <?= $selectedVal === $tag['tag_id'] ? 'selected' : '' ?>>
+                                        <?= esc($tag['tag_name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        <?php endforeach; ?>
                     </div>
                 </div>
 
@@ -330,21 +437,36 @@ function qstr(array $overrides = []): string {
     <div class="container">
 
         <div class="search-container">
-            <form method="GET" action="" class="search-bar" style="display:flex;width:600px;">
-                <?php if ($selectedMood)      echo '<input type="hidden" name="mood"      value="' . $selectedMood      . '">'; ?>
-                <?php if ($selectedClimate)   echo '<input type="hidden" name="climate"   value="' . $selectedClimate   . '">'; ?>
-                <?php if ($selectedBudget)    echo '<input type="hidden" name="budget"    value="' . $selectedBudget    . '">'; ?>
-                <?php if ($selectedCompanion) echo '<input type="hidden" name="companion" value="' . $selectedCompanion . '">'; ?>
-                <?php if ($selectedType)      echo '<input type="hidden" name="dest_type" value="' . $selectedType      . '">'; ?>
-                <?php if ($hiddenGems)        echo '<input type="hidden" name="hidden"    value="1">'; ?>
-                <input type="hidden" name="searched" value="1">
-                <input
-                    type="text"
-                    name="search"
-                    value="<?= esc($searchText) ?>"
-                    placeholder="Find places and things to do">
-                <button type="submit">Search</button>
-            </form>
+            <div style="position:relative; width:600px;">
+                <form method="GET" action="" class="search-bar" style="display:flex;width:600px;" onsubmit="filterSaveAndSearch(event)">
+                    <?php if ($selectedMood)      echo '<input type="hidden" name="mood"      value="' . $selectedMood      . '">'; ?>
+                    <?php if ($selectedClimate)   echo '<input type="hidden" name="climate"   value="' . $selectedClimate   . '">'; ?>
+                    <?php if ($selectedBudget)    echo '<input type="hidden" name="budget"    value="' . $selectedBudget    . '">'; ?>
+                    <?php if ($selectedCompanion) echo '<input type="hidden" name="companion" value="' . $selectedCompanion . '">'; ?>
+                    <?php if ($selectedType)      echo '<input type="hidden" name="dest_type" value="' . $selectedType      . '">'; ?>
+                    <?php if ($hiddenGems)        echo '<input type="hidden" name="hidden"    value="1">'; ?>
+                    <input type="hidden" name="searched" value="1">
+                    <input type="text" name="search" id="filter-search-input"
+                        value="<?= esc($searchText) ?>"
+                        placeholder="Find places and things to do"
+                        autocomplete="off">
+                    <button type="submit">Search</button>
+                </form>
+
+                <!-- Dropdown -->
+                <div id="filter-search-dropdown" style="
+                    display:none;
+                    position:absolute;
+                    top:calc(100% + 8px);
+                    left:0; right:0;
+                    background:white;
+                    border:1px solid #ddd;
+                    border-radius:16px;
+                    box-shadow:0 4px 12px rgba(0,0,0,0.15);
+                    z-index:9999;
+                    overflow:hidden;
+                "></div>
+            </div>
         </div>
 
         <!-- ════════════════════════════════════════════════════════════
@@ -355,19 +477,40 @@ function qstr(array $overrides = []): string {
             <div id="results-anchor" style="scroll-margin-top: 80px;"></div>
 
             <?php
-            // Active filter badge labels
-            $moodMap      = [20 => '😫 Stressed', 21 => '😐 Neutral', 22 => '😢 Sad', 23 => '😎 Adventurous', 24 => '😀 Happy'];
-            $climateMap   = [1 => 'Sunny/Hot', 2 => 'Tropical', 3 => 'Cool', 4 => 'Mountain'];
-            $budgetMap    = [5 => 'RM0–100', 6 => 'RM100–200', 7 => 'RM200–300', 8 => 'RM300–400', 9 => 'RM400–500', 10 => 'RM500+'];
-            $companionMap = [11 => 'Friend', 12 => 'Solo', 13 => 'Couple', 14 => 'Family'];
-            $typeMap      = [15 => 'City Life', 16 => 'Natural', 17 => 'Historical', 18 => 'Beach', 19 => 'Entertainment'];
+            // // Active filter badge labels
+            // $moodMap      = [20 => '😫 Stressed', 21 => '😐 Neutral', 22 => '😢 Sad', 23 => '😎 Adventurous', 24 => '😀 Happy'];
+            // $climateMap   = [1 => 'Sunny/Hot', 2 => 'Tropical', 3 => 'Cool', 4 => 'Mountain'];
+            // $budgetMap    = [5 => 'RM0–100', 6 => 'RM100–200', 7 => 'RM200–300', 8 => 'RM300–400', 9 => 'RM400–500', 10 => 'RM500+'];
+            // $companionMap = [11 => 'Friend', 12 => 'Solo', 13 => 'Couple', 14 => 'Family'];
+            // $typeMap      = [15 => 'City Life', 16 => 'Natural', 17 => 'Historical', 18 => 'Beach', 19 => 'Entertainment'];
 
             $badges = [];
-            if ($selectedMood      && isset($moodMap[$selectedMood]))           $badges[] = $moodMap[$selectedMood];
-            if ($selectedClimate   && isset($climateMap[$selectedClimate]))     $badges[] = $climateMap[$selectedClimate];
-            if ($selectedBudget    && isset($budgetMap[$selectedBudget]))       $badges[] = $budgetMap[$selectedBudget];
-            if ($selectedCompanion && isset($companionMap[$selectedCompanion])) $badges[] = $companionMap[$selectedCompanion];
-            if ($selectedType      && isset($typeMap[$selectedType]))           $badges[] = $typeMap[$selectedType];
+            foreach ($moodTags as $mt) {
+                if ($selectedMood === $mt['tag_id']) {
+                    $emoji = $moodEmojis[strtolower($mt['tag_name'])] ?? '😊';
+                    $badges[] = $emoji . ' ' . $mt['tag_name'];
+                }
+            }
+
+            // 其他 filter badges
+            foreach ($filterTagTypes as $typeId => $typeName) {
+                $paramName = match (strtolower($typeName)) {
+                    'climate'          => 'climate',
+                    'budget'           => 'budget',
+                    'travel companion' => 'companion',
+                    'destination type' => 'dest_type',
+                    default            => 'filter_' . $typeId,
+                };
+                $selectedVal = isset($_GET[$paramName]) ? (int)$_GET[$paramName] : 0;
+                if ($selectedVal) {
+                    foreach ($allTags[$typeId] ?? [] as $tag) {
+                        if ($tag['tag_id'] === $selectedVal) {
+                            $badges[] = $tag['tag_name'];
+                            break;
+                        }
+                    }
+                }
+            }
             if ($hiddenGems)   $badges[] = '🔍 Hidden Gems';
             if ($searchText)   $badges[] = '"' . $searchText . '"';
             if ($isRandom)     $badges[] = '🎲 Random Pick';
@@ -635,7 +778,130 @@ function qstr(array $overrides = []): string {
             </div>
         </div>
     </div>
+    <script>
+        const FILTER_BASE_PATH = window.location.origin +
+            window.location.pathname.replace(/\/[^/]*$/, '').replace(/ /g, '%20');
 
+        const filterInput = document.getElementById('filter-search-input');
+        const filterDropdown = document.getElementById('filter-search-dropdown');
+        let filterDebounce = null;
+
+        filterInput.addEventListener('focus', () => {
+            if (filterInput.value.trim() === '') filterShowHistory();
+        });
+
+        filterInput.addEventListener('input', () => {
+            const q = filterInput.value.trim();
+            clearTimeout(filterDebounce);
+            if (q === '') {
+                filterShowHistory();
+                return;
+            }
+
+            filterDebounce = setTimeout(() => {
+                fetch(`${FILTER_BASE_PATH}/get-search-suggestions.php?type=suggest&q=${encodeURIComponent(q)}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (!data.suggestions || data.suggestions.length === 0) {
+                            filterHideDropdown();
+                            return;
+                        }
+                        filterRenderDropdown(data.suggestions.map(s => ({
+                            label: s.destination_name,
+                            sublabel: s.state_name,
+                            icon: '📍',
+                            id: s.destination_id
+                        })));
+                    }).catch(console.error);
+            }, 300);
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!filterInput.contains(e.target) && !filterDropdown.contains(e.target)) {
+                filterHideDropdown();
+            }
+        });
+
+        function filterShowHistory() {
+            fetch(`${FILTER_BASE_PATH}/get-search-suggestions.php?type=history`)
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.history || data.history.length === 0) {
+                        filterHideDropdown();
+                        return;
+                    }
+                    filterRenderDropdown(data.history.map(h => ({
+                        label: h,
+                        sublabel: null,
+                        icon: '🕐',
+                        id: null
+                    })));
+                }).catch(console.error);
+        }
+
+        function filterRenderDropdown(items) {
+            filterDropdown.innerHTML = items.map((item, i) => `
+        <div data-label="${filterEscHtml(item.label)}"
+             data-id="${item.id ? parseInt(item.id) : ''}"
+             class="filter-dropdown-item"
+             style="padding:12px 16px; cursor:pointer; display:flex; align-items:center; gap:10px;
+                    border-bottom:${i < items.length-1 ? '1px solid #f0f0f0' : 'none'};
+                    background:white;"
+             onmouseover="this.style.background='#f8f8f8'"
+             onmouseout="this.style.background='white'">
+            <span style="font-size:18px;">${item.icon}</span>
+            <div>
+                <div style="font-size:14px;color:#1e293b;font-weight:500;">${filterEscHtml(item.label)}</div>
+                ${item.sublabel ? `<div style="font-size:12px;color:#9ca3af;">${filterEscHtml(item.sublabel)}</div>` : ''}
+            </div>
+        </div>
+    `).join('');
+
+            filterDropdown.querySelectorAll('.filter-dropdown-item').forEach(el => {
+                el.addEventListener('click', () => {
+                    const label = el.getAttribute('data-label');
+                    const id = el.getAttribute('data-id');
+                    filterHideDropdown();
+                    filterSaveHistory(label);
+                    if (id && parseInt(id) > 0) {
+                        window.location.href = `${FILTER_BASE_PATH}/destination-description.php?id=${id}`;
+                    } else {
+                        // 保留现有 filters，只换 search keyword
+                        filterInput.value = label;
+                        filterInput.closest('form').submit();
+                    }
+                });
+            });
+
+            filterDropdown.style.display = 'block';
+        }
+
+        function filterSaveAndSearch(e) {
+            e.preventDefault();
+            const q = filterInput.value.trim();
+            if (q) filterSaveHistory(q);
+            filterInput.closest('form').submit();
+        }
+
+        function filterSaveHistory(keyword) {
+            fetch(`${FILTER_BASE_PATH}/save-search-history.php`, {
+                method: 'POST',
+                body: new URLSearchParams({
+                    keyword
+                })
+            });
+        }
+
+        function filterHideDropdown() {
+            filterDropdown.style.display = 'none';
+        }
+
+        function filterEscHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+    </script>
 </body>
 
 </html>
