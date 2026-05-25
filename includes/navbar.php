@@ -17,7 +17,7 @@ $profilePicture = $isLoggedIn ? ($_SESSION['profile_picture'] ?? 'image/defaultP
         <a href="./landing-page.php">Home</a>
         <a href="./recommendation-page.php">Recommendation</a>
         <a href="./filter-search-page.php">Filter & Search</a>
-        <a href="./wishlist.php">Wishlist</a>
+        <a href="./wishlist.php" onclick="return checkLoginForWishlist(event)">Wishlist</a>
         <a href="./about-us-page.php">About Us</a>
     </nav>
     <div class="auth-buttons">
@@ -33,3 +33,19 @@ $profilePicture = $isLoggedIn ? ($_SESSION['profile_picture'] ?? 'image/defaultP
         <?php endif; ?>
     </div>
 </header>
+
+<script>
+function checkLoginForWishlist(e) {
+    var isLoggedIn = <?php echo isset($_SESSION['user_id']) ? 'true' : 'false'; ?>;
+
+    if (!isLoggedIn) {
+        e.preventDefault();
+        var goLogin = confirm('You need to be logged in to view your Wishlist.\n\nClick OK to go to the Login page, or Cancel to stay here.');
+        if (goLogin) {
+            window.location.href = 'login-page.php';
+        }
+        return false;
+    }
+    return true;
+}
+</script>
