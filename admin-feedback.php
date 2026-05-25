@@ -134,11 +134,32 @@ $firstImage = explode(',', $destination['image_url'])[0];
 $heroImg = imgSrc(trim($firstImage));
 
 $galleryImages = [];
-if (!empty($destination['image_url'])) {
-    $allImages = array_filter(array_map('trim', explode(',', $destination['image_url'])));
-    $allImages = array_values($allImages);
-    $galleryImages = array_slice($allImages, 1);
+$seenHashes = [];
+
+foreach ($reviews as $review) {
+    if (!empty($review['image_url'])) {
+        $reviewImgs = array_filter(array_map('trim', explode(',', $review['image_url'])));
+        foreach ($reviewImgs as $img) {
+            $filePath = $img; // e.g. "uploads/review_images/abc.jpg"
+            
+            if (file_exists($filePath)) {
+                $hash = md5_file($filePath); // compare by file content
+                if (!in_array($hash, $seenHashes)) {
+                    $seenHashes[] = $hash;
+                    $galleryImages[] = $img;
+                }
+            } else {
+                // File not found, fallback to basename dedupe
+                $base = strtolower(basename($img));
+                if (!in_array($base, $seenHashes)) {
+                    $seenHashes[] = $base;
+                    $galleryImages[] = $img;
+                }
+            }
+        }
+    }
 }
+
 $galleryJson = json_encode($galleryImages);
 $similarJson = json_encode($similar);
 ?>
@@ -257,7 +278,7 @@ $similarJson = json_encode($similar);
 
                     <div class="trash-container">
                         <button class="trash-button" onclick="if(confirm('Are you sure you want to delete this review?')) 
-                            window.location.href='delete-review.php?id=<?php echo $review['review_id']; ?>'">
+                            window.location.href='delete-review.php?id=<?php echo $review['review_id']; ?>&destination_id=<?php echo $destination_id; ?>'">
                             <img src="icon/delete.png">
                         </button>
                     </div>

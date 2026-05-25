@@ -264,6 +264,7 @@ body {
     justify-content: center;
     text-align: center;
     display: flex;
+    padding-left: 50px;
 }
 
 .gallery {
@@ -471,7 +472,7 @@ body {
 }
 
 .photo {
-    margin-top: px;
+    margin-top: 20px;
 }
 
 .upload-area {
@@ -637,16 +638,16 @@ body {
 
 .from {
     color: #63687A;
-    font-size: 14px;
-    margin-top: -35px;
-    margin-left: 150px;
+    font-size: 12px;
+    margin-top: -33px;
+    margin-left: 130px;
 }
 
 .free {
     color: #1A2B49;
-    font-size: 17px;
+    font-size: 14px;
     font-weight: bold;
-    margin-top: -35px;
+    margin-top: -33px;
 }
 
 .similar-card-container {

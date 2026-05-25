@@ -140,15 +140,33 @@ $firstImage = explode(',', $destination['image_url'])[0];
 $heroImg = imgSrc(trim($firstImage));
 
 $galleryImages = [];
+$seenHashes = [];
+
 foreach ($reviews as $review) {
     if (!empty($review['image_url'])) {
         $reviewImgs = array_filter(array_map('trim', explode(',', $review['image_url'])));
         foreach ($reviewImgs as $img) {
-            $galleryImages[] = $img;
+            $filePath = $img;
+            
+            if (file_exists($filePath)) {
+                $hash = md5_file($filePath);
+                if (!in_array($hash, $seenHashes)) {
+                    $seenHashes[] = $hash;
+                    $galleryImages[] = $img;
+                }
+            } else {
+                // File not found, fallback to basename dedupe
+                $base = strtolower(basename($img));
+                if (!in_array($base, $seenHashes)) {
+                    $seenHashes[] = $base;
+                    $galleryImages[] = $img;
+                }
+            }
         }
     }
 }
-$galleryJson = json_encode(array_values($galleryImages));
+
+$galleryJson = json_encode($galleryImages);
 $similarJson = json_encode($similar);
 ?>
 
