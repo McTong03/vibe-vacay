@@ -140,12 +140,15 @@ $firstImage = explode(',', $destination['image_url'])[0];
 $heroImg = imgSrc(trim($firstImage));
 
 $galleryImages = [];
-if (!empty($destination['image_url'])) {
-    $allImages = array_filter(array_map('trim', explode(',', $destination['image_url'])));
-    $allImages = array_values($allImages);
-    $galleryImages = array_slice($allImages, 1);
+foreach ($reviews as $review) {
+    if (!empty($review['image_url'])) {
+        $reviewImgs = array_filter(array_map('trim', explode(',', $review['image_url'])));
+        foreach ($reviewImgs as $img) {
+            $galleryImages[] = $img;
+        }
+    }
 }
-$galleryJson = json_encode($galleryImages);
+$galleryJson = json_encode(array_values($galleryImages));
 $similarJson = json_encode($similar);
 ?>
 
@@ -245,6 +248,7 @@ $similarJson = json_encode($similar);
         id="galleryNextBtn" onclick="changeGalleryPage(1)">
         <img src="icon/next.png" alt="next" style="width:60px;">
     </button>
+    
 
     <p class="saying">What people saying about <?php echo htmlspecialchars($destination['destination_name']); ?></p>
 
