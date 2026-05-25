@@ -305,7 +305,7 @@ function esc(string $s): string {
             </div>
         </div>
 
-        <!-- ✅ Inline search bar — no search-bar.php include -->
+        <!-- search bar -->
         <div class="search-container">
             <div class="search-bar">
                 <input type="text" name="search"

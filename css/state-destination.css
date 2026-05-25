@@ -466,12 +466,10 @@ body {
 
 .review-place-rating .stars {
     color: #fbbf24;
-    margin-top: 10px;
 }
 
 .review-place-rating span {
     color: var(--text-muted);
-    margin-top: -5px;
 }
 
 .review-user {
