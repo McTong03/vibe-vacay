@@ -105,9 +105,9 @@ if (isset($_GET['favourite_id'])) {
                         <p class="number-rating">(<?php echo $row['reviews_count']; ?>)</p>
                     </div>
 
-                    <div style="display:flex; align-items:center; gap:6px; padding-left:170px; margin-top:-18px;">
-                        <span style="color:#63687A; font-size:14px; ">From</span>
-                        <span style="color:#1A2B49; font-size:17px; font-weight:bold;"><?php
+                    <div style="display:flex; align-items:center; gap:6px; padding-left:150px; margin-top:-20px;">
+                        <span style="color:#63687A; font-size:12px; ">From</span>
+                        <span style="color:#1A2B49; font-size:14px; font-weight:bold;"><?php
                                                                                         $p = trim($row['price']);
                                                                                         $p = preg_replace('/^RM\s*/i', '', $p);
                                                                                         echo ($p == '0' || strtolower($p) == 'free' || empty($p)) ? 'Free' : 'RM ' . htmlspecialchars($p);
