@@ -4,10 +4,6 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 include 'conn.php';
 
-if (empty($_SESSION['user_id']) || strtolower($_SESSION['user_role'] ?? '') !== 'admin') {
-    header('Location: ../login-page.php');
-    exit();
-}
 
 // ── DELETE DESTINATION ──
 if (isset($_POST['action']) && $_POST['action'] === 'delete_destination') {
@@ -66,13 +62,17 @@ $search = trim($_GET['search'] ?? '');
 $activeTagIds = [];
 
 // Climate (tag_type_id=1, ids 1-4)
-if (!empty($_GET['tag_type_1'])) $activeTagIds[] = intval($_GET['tag_type_1']);
+if (!empty($_GET['tag_type_1']))
+    $activeTagIds[] = intval($_GET['tag_type_1']);
 // Budget tag (tag_type_id=2, ids 5-10) — optional, skip if not needed
-if (!empty($_GET['tag_type_2'])) $activeTagIds[] = intval($_GET['tag_type_2']);
+if (!empty($_GET['tag_type_2']))
+    $activeTagIds[] = intval($_GET['tag_type_2']);
 // Companion (tag_type_id=3, ids 11-14)
-if (!empty($_GET['tag_type_3'])) $activeTagIds[] = intval($_GET['tag_type_3']);
+if (!empty($_GET['tag_type_3']))
+    $activeTagIds[] = intval($_GET['tag_type_3']);
 // Destination Type (tag_type_id=4, ids 15-19)
-if (!empty($_GET['tag_type_4'])) $activeTagIds[] = intval($_GET['tag_type_4']);
+if (!empty($_GET['tag_type_4']))
+    $activeTagIds[] = intval($_GET['tag_type_4']);
 
 // Remove any zero values just in case
 $activeTagIds = array_filter($activeTagIds, fn($v) => $v > 0);
@@ -250,7 +250,18 @@ unset($dest);
                     </p>
 
                     <div class="destination_fee">
-                        Fee: <?= htmlspecialchars($dest['price'] ?? 'N/A', ENT_QUOTES, 'UTF-8') ?>
+                        <?php
+                        $rawPrice = $dest['price'] ?? '';
+                        if ($rawPrice === '' || $rawPrice === null) {
+                            echo 'Fee: N/A';
+                        } elseif (is_numeric(trim($rawPrice))) {
+                            // Plain number → add RM prefix
+                            echo 'Fee: RM ' . htmlspecialchars(number_format((float) $rawPrice, 2), ENT_QUOTES, 'UTF-8');
+                        } else {
+                            // Already has text like "Free", "RM25 (Adult) / RM15" → show as-is
+                            echo 'Fee: ' . htmlspecialchars($rawPrice, ENT_QUOTES, 'UTF-8');
+                        }
+                        ?>
                     </div>
 
                     <div class="destination_rating">

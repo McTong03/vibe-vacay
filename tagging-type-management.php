@@ -3,6 +3,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 include 'conn.php';
+
+
 // ── ADD ──
 if (isset($_POST['action']) && $_POST['action'] === 'add') {
     $name = trim($_POST['tag_type_name']);

@@ -225,6 +225,8 @@ $tagTypeEmojis = [1 => '🌤️', 2 => '💰', 3 => '👥', 4 => '🏖️'];
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/menubar.css">
     <link rel="stylesheet" href="css/state-destination.css">
+    <link rel="stylesheet" href="css/filter-search.css">
+    <link rel="stylesheet" href="css/search-bar.css">
 </head>
 
 <body>
@@ -255,11 +257,7 @@ $tagTypeEmojis = [1 => '🌤️', 2 => '💰', 3 => '👥', 4 => '🏖️'];
         </div>
     </section>
 
-    <div class="search-container">
-        <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Find places and things to do" oninput="filterCards()">
-            <button onclick="filterCards()">Search</button>
-        </div>
+    <?php include('./includes/search-bar.php'); ?>
     </div>
 
     <?php renderDestinationSection('Top Sights', $top_sights, $state['state_name'], $state_id, $user_favorites); ?>
