@@ -255,10 +255,8 @@ unset($dest);
                         if ($rawPrice === '' || $rawPrice === null) {
                             echo 'Fee: N/A';
                         } elseif (is_numeric(trim($rawPrice))) {
-                            // Plain number → add RM prefix
-                            echo 'Fee: RM ' . htmlspecialchars(number_format((float) $rawPrice, 2), ENT_QUOTES, 'UTF-8');
+                            echo 'Fee: RM ' . htmlspecialchars(number_format((int) abs($rawPrice), 0), ENT_QUOTES, 'UTF-8');
                         } else {
-                            // Already has text like "Free", "RM25 (Adult) / RM15" → show as-is
                             echo 'Fee: ' . htmlspecialchars($rawPrice, ENT_QUOTES, 'UTF-8');
                         }
                         ?>

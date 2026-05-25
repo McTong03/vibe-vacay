@@ -44,13 +44,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['btn-add'])) {
     $image_url = trim($_POST['image_url']);
     $phone_number = trim($_POST['phone_number']);
     $average_rating = floatval($_POST['average_rating']);
-    $price = floatval($_POST['price']);
+    $price = trim($_POST['price']);
 
     // Insert into destinations
     $stmt = $conn->prepare("INSERT INTO destinations 
-        (state_id, destination_name, description, image_url, phone_number, average_rating, price, reviews_count)
-        VALUES (?, ?, ?, ?, ?, ?, ?, 0)");
-    $stmt->bind_param("issssdd", $state_id, $destination_name, $description, $image_url, $phone_number, $average_rating, $price);
+    (state_id, destination_name, description, image_url, phone_number, price, average_rating, reviews_count)
+    VALUES (?, ?, ?, ?, ?, ?, ?, 0)");
+    $stmt->bind_param("isssssd", $state_id, $destination_name, $description, $image_url, $phone_number, $price, $average_rating);
     $stmt->execute();
     $destination_id = $stmt->insert_id;
     $stmt->close();
@@ -138,8 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['btn-add'])) {
             </div>
 
             <h3>Destination Price (RM)</h3>
-            <input type="number" step="0.01" name="price" class="tag-type" placeholder="Enter destination price"
-                required>
+            <input type="text" name="price" class="tag-type" placeholder="e.g. 25, Free, RM25 (Adult) / RM15" required>
 
             <h3>Destination Rating (/5)</h3>
             <input type="number" step="0.1" min="0" max="5" name="average_rating" class="tag-type"

@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['btn-edit'])) {
     $description = trim($_POST['description']);
     $phone_number = trim($_POST['phone_number']);
     $average_rating = floatval($_POST['average_rating']);
-    $price = floatval($_POST['price']);
+    $price = trim($_POST['price']);
 
     // Handle image — keep old if no new file uploaded
     $image_url = $dest['image_url'];
@@ -80,10 +80,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['btn-edit'])) {
 
     // Update destinations table
     $stmt = $conn->prepare("UPDATE destinations SET 
-        state_id=?, destination_name=?, description=?, image_url=?, 
-        phone_number=?, average_rating=?, price=?
-        WHERE destination_id=?");
-    $stmt->bind_param("issssddi", $state_id, $destination_name, $description, $image_url, $phone_number, $average_rating, $price, $destination_id);
+    state_id=?, destination_name=?, description=?, image_url=?, 
+    phone_number=?, price=?, average_rating=?
+    WHERE destination_id=?");
+    $stmt->bind_param("isssssdi", $state_id, $destination_name, $description, $image_url, $phone_number, $price, $average_rating, $destination_id);
     $stmt->execute();
     $stmt->close();
 
@@ -178,8 +178,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['btn-edit'])) {
             </div>
 
             <h3>Destination Price (RM)</h3>
-            <input type="number" step="0.01" name="price" class="tag-type"
-                value="<?= htmlspecialchars($dest['price'] ?? '', ENT_QUOTES, 'UTF-8') ?>" required>
+            <input type="text" name="price" class="tag-type"
+                value="<?= htmlspecialchars($dest['price'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                placeholder="e.g. 25, Free, RM25 (Adult) / RM15" required>
 
             <h3>Destination Rating (/5)</h3>
             <input type="number" step="0.1" min="0" max="5" name="average_rating" class="tag-type"
