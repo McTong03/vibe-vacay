@@ -40,14 +40,20 @@ while ($row = $result->fetch_assoc()) {
 // Find Mood tag_type_id
 $moodTypeId = 0;
 foreach ($allTagTypes as $tid => $tname) {
-    if (strtolower($tname) === 'mood') { $moodTypeId = $tid; break; }
+    if (strtolower($tname) === 'mood') {
+        $moodTypeId = $tid;
+        break;
+    }
 }
 $moodTags = $allTags[$moodTypeId] ?? [];
 
 // Find Budget tag_type_id
 $budgetTypeId = 0;
 foreach ($allTagTypes as $tid => $tname) {
-    if (strtolower($tname) === 'budget') { $budgetTypeId = $tid; break; }
+    if (strtolower($tname) === 'budget') {
+        $budgetTypeId = $tid;
+        break;
+    }
 }
 
 // Filter tag types for dropdowns: exclude Mood and Budget
@@ -62,7 +68,10 @@ $filterTagTypes = array_filter(
 // --------------------------------------------------
 $destTypeId = 0;
 foreach ($allTagTypes as $tid => $tname) {
-    if (strtolower($tname) === 'destination type') { $destTypeId = $tid; break; }
+    if (strtolower($tname) === 'destination type') {
+        $destTypeId = $tid;
+        break;
+    }
 }
 $destTypeTags = $allTags[$destTypeId] ?? [];
 
@@ -77,8 +86,8 @@ foreach ($moodTags as $moodTag) {
     switch ($moodName) {
         case 'stressed':
             $moodTypeMap[$moodTag['tag_id']] = array_values(array_filter([
-                $destTypeByName['natural']       ?? 0,
-                $destTypeByName['beach']         ?? 0,
+                $destTypeByName['natural'] ?? 0,
+                $destTypeByName['beach'] ?? 0,
                 $destTypeByName['entertainment'] ?? 0,
             ]));
             break;
@@ -87,20 +96,20 @@ foreach ($moodTags as $moodTag) {
             break;
         case 'sad':
             $moodTypeMap[$moodTag['tag_id']] = array_values(array_filter([
-                $destTypeByName['beach']         ?? 0,
+                $destTypeByName['beach'] ?? 0,
                 $destTypeByName['entertainment'] ?? 0,
-                $destTypeByName['natural']       ?? 0,
+                $destTypeByName['natural'] ?? 0,
             ]));
             break;
         case 'adventurous':
             $moodTypeMap[$moodTag['tag_id']] = array_values(array_filter([
-                $destTypeByName['natural']    ?? 0,
+                $destTypeByName['natural'] ?? 0,
                 $destTypeByName['historical'] ?? 0,
             ]));
             break;
         case 'happy':
             $moodTypeMap[$moodTag['tag_id']] = array_values(array_filter([
-                $destTypeByName['city life']     ?? 0,
+                $destTypeByName['city life'] ?? 0,
                 $destTypeByName['entertainment'] ?? 0,
             ]));
             break;
@@ -115,21 +124,21 @@ foreach ($allTags[$budgetTypeId] ?? [] as $tag) {
     preg_match_all('/\d+/', $tag['tag_name'], $matches);
     $nums = $matches[0];
     if (count($nums) >= 2) {
-        $budgetRangeMap[$tag['tag_id']] = [(int)$nums[0], (int)$nums[1]];
+        $budgetRangeMap[$tag['tag_id']] = [(int) $nums[0], (int) $nums[1]];
     } elseif (count($nums) === 1 && str_contains(strtolower($tag['tag_name']), 'above')) {
-        $budgetRangeMap[$tag['tag_id']] = [(int)$nums[0], 999999];
+        $budgetRangeMap[$tag['tag_id']] = [(int) $nums[0], 999999];
     }
 }
 
 // --------------------------------------------------
 // Read GET params
 // --------------------------------------------------
-$search            = trim($_GET['search'] ?? '');
-$selectedMood      = isset($_GET['mood'])      ? (int)$_GET['mood']      : 0;
-$selectedBudget    = isset($_GET['budget'])    ? (int)$_GET['budget']    : 0;
-$selectedClimate   = isset($_GET['climate'])   ? (int)$_GET['climate']   : 0;
-$selectedCompanion = isset($_GET['companion']) ? (int)$_GET['companion'] : 0;
-$selectedType      = isset($_GET['dest_type']) ? (int)$_GET['dest_type'] : 0;
+$search = trim($_GET['search'] ?? '');
+$selectedMood = isset($_GET['mood']) ? (int) $_GET['mood'] : 0;
+$selectedBudget = isset($_GET['budget']) ? (int) $_GET['budget'] : 0;
+$selectedClimate = isset($_GET['climate']) ? (int) $_GET['climate'] : 0;
+$selectedCompanion = isset($_GET['companion']) ? (int) $_GET['companion'] : 0;
+$selectedType = isset($_GET['dest_type']) ? (int) $_GET['dest_type'] : 0;
 
 $tagIds = array_values(array_filter([$selectedClimate, $selectedCompanion, $selectedType]));
 
@@ -146,7 +155,7 @@ $sql = "
     WHERE 1=1
 ";
 $params = [];
-$types  = '';
+$types = '';
 
 if ($search !== '') {
     $sql .= " AND (
@@ -155,16 +164,19 @@ if ($search !== '') {
     )";
     $params[] = "%$search%";
     $params[] = "%$search%";
-    $types   .= 'ss';
+    $types .= 'ss';
 }
 
 if ($selectedMood && !empty($moodTypeMap[$selectedMood])) {
-    $moodTypeTags     = $moodTypeMap[$selectedMood];
+    $moodTypeTags = $moodTypeMap[$selectedMood];
     $moodPlaceholders = implode(',', array_fill(0, count($moodTypeTags), '?'));
     $sql .= " AND d.destination_id IN (
         SELECT destination_id FROM destination_tag_mapping WHERE tag_id IN ($moodPlaceholders)
     )";
-    foreach ($moodTypeTags as $tid) { $params[] = $tid; $types .= 'i'; }
+    foreach ($moodTypeTags as $tid) {
+        $params[] = $tid;
+        $types .= 'i';
+    }
 }
 
 if ($selectedBudget && isset($budgetRangeMap[$selectedBudget])) {
@@ -175,7 +187,9 @@ if ($selectedBudget && isset($budgetRangeMap[$selectedBudget])) {
     } else {
         $sql .= " AND LOWER(d.price) != 'free' AND $priceExpr BETWEEN ? AND ?";
     }
-    $params[] = $minPrice; $params[] = $maxPrice; $types .= 'ii';
+    $params[] = $minPrice;
+    $params[] = $maxPrice;
+    $types .= 'ii';
 }
 
 if (!empty($tagIds)) {
@@ -186,21 +200,26 @@ if (!empty($tagIds)) {
         WHERE tag_id IN ($inPlaceholders)
         GROUP BY destination_id HAVING COUNT(DISTINCT tag_id) = ?
     )";
-    foreach ($tagIds as $id) { $params[] = $id; $types .= 'i'; }
-    $params[] = $tagCount; $types .= 'i';
+    foreach ($tagIds as $id) {
+        $params[] = $id;
+        $types .= 'i';
+    }
+    $params[] = $tagCount;
+    $types .= 'i';
 }
 
 $sql .= " ORDER BY d.destination_id ASC";
 
 $stmt = $conn->prepare($sql);
-if (!empty($params)) $stmt->bind_param($types, ...$params);
+if (!empty($params))
+    $stmt->bind_param($types, ...$params);
 $stmt->execute();
 $destinations = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
 // Fetch tags for each card
 foreach ($destinations as &$dest) {
-    $did      = $dest['destination_id'];
+    $did = $dest['destination_id'];
     $tagQuery = $conn->prepare("
         SELECT t.tag_name FROM destination_tag_mapping dtm
         JOIN destination_tags t ON dtm.tag_id = t.tag_id
@@ -213,17 +232,18 @@ foreach ($destinations as &$dest) {
 }
 unset($dest);
 
-function esc(string $s): string {
+function esc(string $s): string
+{
     return htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Destination Management Page</title>
-    <!-- ✅ Only these two — no search-bar.css, no filter-search.css -->
     <link rel="stylesheet" href="css/menubar.css">
     <link rel="stylesheet" href="css/destination-management.css">
 </head>
@@ -233,7 +253,8 @@ function esc(string $s): string {
 
     <div class="title">
         <h1 style="margin-left:15px;margin-top:30px;display:flex;align-items:center;">
-            <img src="icon/destination.png" style="width:40px;height:40px;margin-left:25px;margin-right:15px;" alt="Destination">
+            <img src="icon/destination.png" style="width:40px;height:40px;margin-left:25px;margin-right:15px;"
+                alt="Destination">
             Destination Management
         </h1>
     </div>
@@ -245,20 +266,19 @@ function esc(string $s): string {
             <!-- Mood dropdown -->
             <?php
             $moodEmojis = [
-                'stressed'    => '😫',
-                'neutral'     => '😐',
-                'sad'         => '😢',
+                'stressed' => '😫',
+                'neutral' => '😐',
+                'sad' => '😢',
                 'adventurous' => '😎',
-                'happy'       => '😀',
+                'happy' => '😀',
             ];
             ?>
             <select name="mood">
                 <option value="0">Mood</option>
                 <?php foreach ($moodTags as $moodTag):
                     $emoji = $moodEmojis[strtolower($moodTag['tag_name'])] ?? '😊';
-                ?>
-                    <option value="<?= $moodTag['tag_id'] ?>"
-                        <?= $selectedMood === $moodTag['tag_id'] ? 'selected' : '' ?>>
+                    ?>
+                    <option value="<?= $moodTag['tag_id'] ?>" <?= $selectedMood === $moodTag['tag_id'] ? 'selected' : '' ?>>
                         <?= $emoji . ' ' . esc($moodTag['tag_name']) ?>
                     </option>
                 <?php endforeach; ?>
@@ -267,20 +287,20 @@ function esc(string $s): string {
             <!-- Climate, Travel Companion, Destination Type dropdowns -->
             <?php foreach ($filterTagTypes as $typeId => $typeName):
                 $tags = $allTags[$typeId] ?? [];
-                if (empty($tags)) continue;
+                if (empty($tags))
+                    continue;
                 $paramName = match (strtolower($typeName)) {
-                    'climate'          => 'climate',
+                    'climate' => 'climate',
                     'travel companion' => 'companion',
                     'destination type' => 'dest_type',
-                    default            => 'filter_' . $typeId,
+                    default => 'filter_' . $typeId,
                 };
-                $selectedVal = isset($_GET[$paramName]) ? (int)$_GET[$paramName] : 0;
-            ?>
+                $selectedVal = isset($_GET[$paramName]) ? (int) $_GET[$paramName] : 0;
+                ?>
                 <select name="<?= $paramName ?>">
                     <option value="0"><?= esc($typeName) ?></option>
                     <?php foreach ($tags as $tag): ?>
-                        <option value="<?= $tag['tag_id'] ?>"
-                            <?= $selectedVal === $tag['tag_id'] ? 'selected' : '' ?>>
+                        <option value="<?= $tag['tag_id'] ?>" <?= $selectedVal === $tag['tag_id'] ? 'selected' : '' ?>>
                             <?= esc($tag['tag_name']) ?>
                         </option>
                     <?php endforeach; ?>
@@ -291,8 +311,7 @@ function esc(string $s): string {
             <select name="budget">
                 <option value="0">Budget</option>
                 <?php foreach ($allTags[$budgetTypeId] ?? [] as $tag): ?>
-                    <option value="<?= $tag['tag_id'] ?>"
-                        <?= $selectedBudget === $tag['tag_id'] ? 'selected' : '' ?>>
+                    <option value="<?= $tag['tag_id'] ?>" <?= $selectedBudget === $tag['tag_id'] ? 'selected' : '' ?>>
                         <?= esc($tag['tag_name']) ?>
                     </option>
                 <?php endforeach; ?>
@@ -308,9 +327,7 @@ function esc(string $s): string {
         <!-- search bar -->
         <div class="search-container">
             <div class="search-bar">
-                <input type="text" name="search"
-                    placeholder="Find places and things to do"
-                    value="<?= esc($search) ?>">
+                <input type="text" name="search" placeholder="Find places and things to do" value="<?= esc($search) ?>">
                 <button type="submit">Search</button>
             </div>
             <a href="add-destination.php" class="add_Btn">+ Add Destination</a>
@@ -321,36 +338,38 @@ function esc(string $s): string {
     <?php
     $badges = [];
     foreach ($moodTags as $mt) {
-        if ($selectedMood === $mt['tag_id']) {
-            $emoji    = $moodEmojis[strtolower($mt['tag_name'])] ?? '😊';
+        if ($selectedMood === (int)$mt['tag_id']) {
+            $emoji = $moodEmojis[strtolower($mt['tag_name'])] ?? '😊';
             $badges[] = $emoji . ' ' . $mt['tag_name'];
         }
     }
     foreach ($filterTagTypes as $typeId => $typeName) {
-        $paramName = match (strtolower($typeName)) {
-            'climate'          => 'climate',
-            'travel companion' => 'companion',
-            'destination type' => 'dest_type',
-            default            => 'filter_' . $typeId,
-        };
-        $selectedVal = isset($_GET[$paramName]) ? (int)$_GET[$paramName] : 0;
-        if ($selectedVal) {
-            foreach ($allTags[$typeId] ?? [] as $tag) {
-                if ($tag['tag_id'] === $selectedVal) { $badges[] = $tag['tag_name']; break; }
-            }
+    $paramName = match (strtolower($typeName)) {
+        'climate'          => 'climate',
+        'travel companion' => 'companion',
+        'destination type' => 'dest_type',
+        default            => 'filter_' . $typeId,
+    };
+    $selectedVal = isset($_GET[$paramName]) ? (int)$_GET[$paramName] : 0;
+    if ($selectedVal) {
+        foreach ($allTags[$typeId] ?? [] as $tag) {
+            if ((int)$tag['tag_id'] === $selectedVal) { $badges[] = $tag['tag_name']; break; } // 👈 change here
         }
     }
+}
     if ($selectedBudget && isset($budgetRangeMap[$selectedBudget])) {
         [$mn, $mx] = $budgetRangeMap[$selectedBudget];
         $badges[] = 'Budget: RM' . $mn . ($mx === 999999 ? '+' : '–RM' . $mx);
     }
-    if ($search) $badges[] = '"' . $search . '"';
+    if ($search)
+        $badges[] = '"' . $search . '"';
     ?>
     <?php if (!empty($badges)): ?>
         <div style="padding:8px 40px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
             <span style="font-weight:600;color:#555;">Active filters:</span>
             <?php foreach ($badges as $b): ?>
-                <span style="background:#e0f0ff;color:#1e3a5f;border-radius:50px;padding:4px 14px;font-size:13px;font-weight:500;">
+                <span
+                    style="background:#e0f0ff;color:#1e3a5f;border-radius:50px;padding:4px 14px;font-size:13px;font-weight:500;">
                     <?= esc($b) ?>
                 </span>
             <?php endforeach; ?>
@@ -367,10 +386,8 @@ function esc(string $s): string {
         <?php else: ?>
             <?php foreach ($destinations as $dest): ?>
                 <div class="destination">
-                    <img src="<?= esc($dest['image_url'] ?? 'Image/defaultDestination.png') ?>"
-                        class="destination_image"
-                        alt="<?= esc($dest['destination_name']) ?>"
-                        onerror="this.src='Image/defaultDestination.png'">
+                    <img src="<?= esc($dest['image_url'] ?? 'Image/defaultDestination.png') ?>" class="destination_image"
+                        alt="<?= esc($dest['destination_name']) ?>" onerror="this.src='Image/defaultDestination.png'">
 
                     <h2 class="destination_name"><?= esc($dest['destination_name']) ?></h2>
                     <p class="destination_state"><?= esc($dest['state_name'] ?? 'Unknown State') ?></p>
@@ -383,7 +400,7 @@ function esc(string $s): string {
                         } elseif (strtolower(trim($rawPrice)) === 'free') {
                             echo 'Fee: <span style="color:#16a34a;font-weight:600;">Free</span>';
                         } elseif (is_numeric(trim($rawPrice))) {
-                            echo 'Fee: RM ' . number_format((int)abs($rawPrice), 0);
+                            echo 'Fee: RM ' . number_format((int) abs($rawPrice), 0);
                         } else {
                             echo 'Fee: ' . esc($rawPrice);
                         }
@@ -391,10 +408,10 @@ function esc(string $s): string {
                     </div>
 
                     <div class="destination_rating">
-                        Rating: <span class="stars"><?= number_format((float)($dest['average_rating'] ?? 0), 1) ?>★</span>
+                        Rating: <span class="stars"><?= number_format((float) ($dest['average_rating'] ?? 0), 1) ?>★</span>
                     </div>
                     <div class="destination_review_count">
-                        Reviews Count: <?= number_format((int)($dest['reviews_count'] ?? 0)) ?>
+                        Reviews Count: <?= number_format((int) ($dest['reviews_count'] ?? 0)) ?>
                     </div>
                     <div class="destination_phone_number">
                         Phone Number: <?= esc($dest['phone_number'] ?? 'N/A') ?>
@@ -476,4 +493,5 @@ function esc(string $s): string {
         });
     </script>
 </body>
+
 </html>
