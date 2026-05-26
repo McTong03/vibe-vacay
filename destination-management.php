@@ -139,7 +139,13 @@ $selectedBudget = isset($_GET['budget']) ? (int) $_GET['budget'] : 0;
 $selectedClimate = isset($_GET['climate']) ? (int) $_GET['climate'] : 0;
 $selectedCompanion = isset($_GET['companion']) ? (int) $_GET['companion'] : 0;
 $selectedType = isset($_GET['dest_type']) ? (int) $_GET['dest_type'] : 0;
+$selectedState = isset($_GET['state']) ? (int) $_GET['state'] : 0;
 
+$allStates = [];
+$result = $conn->query("SELECT state_id, state_name FROM states ORDER BY state_name ASC");
+while ($row = $result->fetch_assoc()) {
+    $allStates[] = $row;
+}
 $tagIds = array_values(array_filter([$selectedClimate, $selectedCompanion, $selectedType]));
 
 // --------------------------------------------------
@@ -208,6 +214,11 @@ if (!empty($tagIds)) {
     $types .= 'i';
 }
 
+if ($selectedState) {
+    $sql .= " AND d.state_id = ?";
+    $params[] = $selectedState;
+    $types .= 'i';
+}
 $sql .= " ORDER BY d.destination_id ASC";
 
 $stmt = $conn->prepare($sql);
@@ -336,6 +347,15 @@ function esc(string $s): string
                 <?php endforeach; ?>
             </select>
 
+            <select name="state">
+                <option value="0">State</option>
+                <?php foreach ($allStates as $state): ?>
+                    <option value="<?= $state['state_id'] ?>" <?= $selectedState === $state['state_id'] ? 'selected' : '' ?>>
+                        <?= esc($state['state_name']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+
             <div class="filter-actions">
                 <button type="button" class="btn btn-clear"
                     onclick="window.location.href='destination-management.php'">Clear</button>
@@ -383,6 +403,15 @@ function esc(string $s): string
         [$mn, $mx] = $budgetRangeMap[$selectedBudget];
         $badges[] = 'Budget: RM' . $mn . ($mx === 999999 ? '+' : '–RM' . $mx);
     }
+
+    if ($selectedState) {
+    foreach ($allStates as $st) {
+        if ((int)$st['state_id'] === $selectedState) {
+            $badges[] = $st['state_name'];
+            break;
+        }
+    }
+}
     if ($search)
         $badges[] = '"' . $search . '"';
     ?>
