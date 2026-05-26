@@ -124,7 +124,7 @@ if (!$user) {
             </div>
 
             <button type="button" class="cancel-button" onclick="window.location.href='user-management.php'">Cancel</button>
-            <button type="submit" class="submit-button">Submit</button>
+            <button type="submit" class="submit-button">Save Changes</button>
             
             
              
