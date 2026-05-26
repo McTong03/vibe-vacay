@@ -105,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['btn-add'])) {
             <input type="text" name="destination_name" class="tag-type" placeholder="Enter destination name" required>
 
             <h3>Destination Picture URL</h3>
-            <input type="file" name="image_url" class="tag-type" placeholder="Enter destination picture URL">
+            <input type="text" name="image_url" class="tag-type" placeholder="Enter destination picture URL">
 
             <h3>Destination State</h3>
             <div class="filter-bar">
