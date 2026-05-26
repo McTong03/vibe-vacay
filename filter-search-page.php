@@ -39,6 +39,7 @@ $selectedClimate   = isset($_GET['climate'])   ? (int)$_GET['climate']   : 0;
 $selectedBudget    = isset($_GET['budget'])    ? (int)$_GET['budget']    : 0;
 $selectedCompanion = isset($_GET['companion']) ? (int)$_GET['companion'] : 0;
 $selectedType      = isset($_GET['dest_type']) ? (int)$_GET['dest_type'] : 0;
+$selectedState = isset($_GET['state_filter']) ? (int)$_GET['state_filter'] : 0;
 $hiddenGems        = isset($_GET['hidden'])    && $_GET['hidden'] === '1';
 $searchText        = isset($_GET['search'])    ? trim($_GET['search'])   : '';
 $isRandom          = isset($_GET['random'])    && $_GET['random'] === '1';
@@ -138,11 +139,21 @@ foreach ($allTags[$budgetTypeId] ?? [] as $tag) {
     }
 }
 
+// ─── Find State tag type ID ──────────────────────────────────────────────────
+$stateTypeId = 0;
+foreach ($allTagTypes as $tid => $tname) {
+    if (strtolower($tname) === 'state') {
+        $stateTypeId = $tid;
+        break;
+    }
+}
+
 // ─── Collect tag IDs for AND-logic (exclude mood & budget — handled separately) ──
 $tagIds = [];
 if ($selectedClimate)   $tagIds[] = $selectedClimate;
 if ($selectedCompanion) $tagIds[] = $selectedCompanion;
 if ($selectedType)      $tagIds[] = $selectedType;
+
 
 // ─── Query DB ────────────────────────────────────────────────────────────────
 $destinations = [];
@@ -173,6 +184,32 @@ if ($isSearched) {
         $bindValues[] = $likeVal;
         $bindValues[] = $likeVal;
         $bindTypes   .= 'ss';
+    }
+
+    if ($selectedState) {
+        $stateTagName = '';
+        foreach ($allTags[$stateTypeId] ?? [] as $tag) {
+            if ((int)$tag['tag_id'] === $selectedState) {
+                $stateTagName = $tag['tag_name'];
+                break;
+            }
+        }
+        if ($stateTagName !== '') {
+            // 用 state_name 找到 states 表的 state_id，再 filter d.state_id
+            $mappedStateId = null;
+            $stmtState = $conn->prepare("SELECT state_id FROM states WHERE state_name = ?");
+            $stmtState->bind_param('s', $stateTagName);
+            $stmtState->execute();
+            $stmtState->bind_result($mappedStateId);
+            $stmtState->fetch();
+            $stmtState->close();
+
+            if (!empty($mappedStateId)) {
+                $sql .= " AND d.state_id = ?";
+                $bindValues[] = $mappedStateId;
+                $bindTypes   .= 'i';
+            }
+        }
     }
 
     // Hidden gems
@@ -275,6 +312,7 @@ function qstr(array $overrides = []): string
         'budget'    => $GLOBALS['selectedBudget'],
         'companion' => $GLOBALS['selectedCompanion'],
         'dest_type' => $GLOBALS['selectedType'],
+        'state_filter' => $GLOBALS['selectedState'],
         'hidden'    => $GLOBALS['hiddenGems'] ? '1' : '0',
         'search'    => $GLOBALS['searchText'],
         'searched'  => '1',
@@ -367,6 +405,7 @@ function qstr(array $overrides = []): string
                                 'budget'           => 'budget',
                                 'travel companion' => 'companion',
                                 'destination type' => 'dest_type',
+                                'state'            => 'state_filter',
                                 default            => 'filter_' . $typeId,
                             };
 
@@ -420,6 +459,7 @@ function qstr(array $overrides = []): string
                     <?php if ($selectedBudget)    echo '<input type="hidden" name="budget"    value="' . $selectedBudget    . '">'; ?>
                     <?php if ($selectedCompanion) echo '<input type="hidden" name="companion" value="' . $selectedCompanion . '">'; ?>
                     <?php if ($selectedType)      echo '<input type="hidden" name="dest_type" value="' . $selectedType      . '">'; ?>
+                    <?php if ($selectedState)     echo '<input type="hidden" name="state_filter" value="' . $selectedState . '">'; ?>
                     <?php if ($hiddenGems)        echo '<input type="hidden" name="hidden"    value="1">'; ?>
                     <?php if ($searchText)        echo '<input type="hidden" name="search"    value="' . esc($searchText)   . '">'; ?>
                     <input type="hidden" name="random" value="1">
@@ -444,6 +484,7 @@ function qstr(array $overrides = []): string
                     <?php if ($selectedBudget)    echo '<input type="hidden" name="budget"    value="' . $selectedBudget    . '">'; ?>
                     <?php if ($selectedCompanion) echo '<input type="hidden" name="companion" value="' . $selectedCompanion . '">'; ?>
                     <?php if ($selectedType)      echo '<input type="hidden" name="dest_type" value="' . $selectedType      . '">'; ?>
+                    <?php if ($selectedState) echo '<input type="hidden" name="state_filter" value="' . $selectedState . '">'; ?>
                     <?php if ($hiddenGems)        echo '<input type="hidden" name="hidden"    value="1">'; ?>
                     <input type="hidden" name="searched" value="1">
                     <input type="text" name="search" id="filter-search-input"
