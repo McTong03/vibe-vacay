@@ -312,9 +312,9 @@ body {
 
 .batu-container {
     max-width: 400px;
-    height: auto;
-    min-height: 300px;
-    overflow: visible;
+    height: 360px;
+    min-height: unset;
+    overflow: hidden;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     margin-left: 50px;
     border-radius: 18px;

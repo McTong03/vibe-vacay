@@ -304,7 +304,7 @@ $similarJson = json_encode($similar);
             <img src="icon/previous-button.png" alt="prev" style="width:60px;">
         </button>
 
-        <button style="border:none; background:none; cursor:pointer; <?php echo count($reviews) <= 6 ? 'display:none;' : ''; ?> position:absolute; right:15px; top:0;" 
+        <button style="border:none; background:none; cursor:pointer; <?php echo count($reviews) <= 4 ? 'display:none;' : ''; ?> position:absolute; right:15px; top:0;" 
             id="reviewsNextBtn" onclick="changeReviewPage(1)">
             <img src="icon/next.png" alt="next" style="width:60px;">
         </button>
