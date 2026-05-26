@@ -20,13 +20,15 @@ $sql = "SELECT f.favourite_id,
                d.reviews_count,
                d.price,
                s.state_name,
-               GROUP_CONCAT(dt.tag_name SEPARATOR ', ') as climate
+               GROUP_CONCAT(t.tag_name SEPARATOR ', ') as climate
         FROM favorites f
         JOIN destinations d ON f.destination_id = d.destination_id
         JOIN states s ON d.state_id = s.state_id
-        LEFT JOIN destination_tags dt ON d.destination_id = dt.tag_id
+        LEFT JOIN destination_tag_mapping dtm ON dtm.destination_id = d.destination_id
+        LEFT JOIN destination_tags t ON t.tag_id = dtm.tag_id AND t.tag_type_id = 1
         WHERE f.user_id = '$user_id'
-        GROUP BY f.favourite_id";
+        GROUP BY f.favourite_id, d.destination_id, d.destination_name, 
+                 d.image_url, d.average_rating, d.reviews_count, d.price, s.state_name";
 $result = mysqli_query($conn, $sql);
 $count = mysqli_num_rows($result);
 

@@ -552,8 +552,19 @@ function qstr(array $overrides = []): string
                         // Hide cards beyond first 12
                         $hidden = $i >= 12 ? 'style="display:none;"' : '';
                     ?>
-                        <div class="dest-card" data-index="<?= $i ?>" <?= $hidden ?>>
-                            <div class="heart-icon" onclick="toggleHeart(this)">&#9825;</div>
+                        <div class="dest-card" data-index="<?= $i ?>" <?= $hidden ?>
+                            onclick="window.location.href='destination-description.php?id=<?= $dest['destination_id'] ?>'"
+                            style="cursor:pointer;">
+                            <div class="heart-icon"
+                                data-id="<?= $dest['destination_id'] ?>"
+                                onclick="event.stopPropagation(); toggleWishlist(this, <?= $dest['destination_id'] ?>)">
+                                <svg viewBox="0 0 24 24" width="20" height="20" class="heart-svg">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+                                            2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09
+                                            C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5
+                                            c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                </svg>
+                            </div>
                             <img
                                 class="thumbnail"
                                 src="<?= $imgSrc ?>"
@@ -900,6 +911,64 @@ function qstr(array $overrides = []): string
             return String(str)
                 .replace(/&/g, '&amp;').replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+    </script>
+    <script>
+        // 页面加载时标红已 liked 的 heart
+        document.addEventListener('DOMContentLoaded', () => {
+            const FBASE = window.location.origin +
+                window.location.pathname.replace(/\/[^/]*$/, '').replace(/ /g, '%20');
+
+            fetch(FBASE + '/ajax-handler.php?action=get_wishlist')
+                .then(r => r.json())
+                .then(data => {
+                    window.wishlistIds = data.ids.map(Number);
+                    document.querySelectorAll('.heart-icon[data-id]').forEach(el => {
+                        if (window.wishlistIds.includes(parseInt(el.dataset.id))) {
+                            el.classList.add('liked');
+                        }
+                    });
+                });
+        });
+
+        function toggleWishlist(el, destinationId) {
+            const isLiked = el.classList.contains('liked');
+            const FBASE = window.location.origin +
+                window.location.pathname.replace(/\/[^/]*$/, '').replace(/ /g, '%20');
+
+            if (isLiked) {
+                fetch(FBASE + '/remove-wishlist-by-dest.php', {
+                        method: 'POST',
+                        body: new URLSearchParams({
+                            destination_id: destinationId
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            el.classList.remove('liked');
+                            if (window.wishlistIds) {
+                                window.wishlistIds = window.wishlistIds.filter(id => id !== destinationId);
+                            }
+                        }
+                    });
+            } else {
+                fetch(FBASE + '/add-wishlist.php', {
+                        method: 'POST',
+                        body: new URLSearchParams({
+                            destination_id: destinationId
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success || data.message === 'Already in wishlist') {
+                            el.classList.add('liked');
+                            if (window.wishlistIds) window.wishlistIds.push(destinationId);
+                        } else {
+                            alert(data.message || 'Please login first.');
+                        }
+                    });
+            }
         }
     </script>
 </body>

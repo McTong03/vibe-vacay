@@ -64,6 +64,27 @@ function formatPrice($price)
     <!-- Search bar at top -->
     <?php include('./includes/search-bar.php'); ?>
 
+    <div style="max-width:1200px; margin:20px auto 0; padding:0 24px;">
+        <button onclick="history.back()" style="
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: #1a2b49;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s, transform 0.15s;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    "
+            onmouseover="this.style.background='#2d4a7a'; this.style.transform='scale(1.08)'"
+            onmouseout="this.style.background='#1a2b49'; this.style.transform='scale(1)'">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </button>
+    </div>
     <div class="search-results-wrapper">
         <div class="search-title">
             Search results for: <span style="color:#4f8ef7;">"<?= htmlspecialchars($q) ?>"</span>
