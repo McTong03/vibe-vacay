@@ -9,6 +9,15 @@ if ($id > 0) {
     $stmt->bind_param("i", $id);
     $stmt->execute();
     $stmt->close();
+
+    if ($destination_id > 0) {
+        $conn->query("
+            UPDATE destinations
+            SET reviews_count = (SELECT COUNT(*) FROM reviews WHERE destination_id = $destination_id),
+                average_rating = COALESCE((SELECT ROUND(AVG(rating), 1) FROM reviews WHERE destination_id = $destination_id), 0)
+            WHERE destination_id = $destination_id
+        ");
+    }
 }
 
 if ($destination_id > 0) {

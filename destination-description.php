@@ -74,7 +74,7 @@ $stmt = $conn->prepare("
         r.image_url,
         r.created_at,
         u.user_name,
-        COALESCE(p.profile_picture, 'image/default-profile.jpg') AS profile_picture
+        COALESCE(p.profile_picture, 'Image/defaultProfile.png') AS profile_picture
     FROM reviews r
     JOIN users u ON u.user_id = r.user_id
     LEFT JOIN user_profile p ON p.user_id = r.user_id
@@ -111,7 +111,7 @@ $stmt = $conn->prepare("
     LEFT JOIN states s ON s.state_id = d.state_id
     WHERE d.state_id = (SELECT state_id FROM destinations WHERE destination_id = ?)
       AND d.destination_id != ?
-    LIMIT 20
+    LIMIT 30
 ");
 $stmt->bind_param("ii", $destination_id, $destination_id);
 $stmt->execute();
