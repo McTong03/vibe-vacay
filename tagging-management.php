@@ -41,6 +41,13 @@ if (isset($_POST['action']) && $_POST['action'] === 'delete') {
     $tag_id = intval($_POST['tag_id']);
     $tid = intval($_POST['tag_type_id']);
     if ($tag_id > 0) {
+        // Delete related mappings first
+        $stmt = $conn->prepare("DELETE FROM destination_tag_mapping WHERE tag_id = ?");
+        $stmt->bind_param("i", $tag_id);
+        $stmt->execute();
+        $stmt->close();
+
+        // Now safe to delete the tag
         $stmt = $conn->prepare("DELETE FROM destination_tags WHERE tag_id = ?");
         $stmt->bind_param("i", $tag_id);
         $stmt->execute();
