@@ -102,7 +102,7 @@ $stmt = $conn->prepare("
     LEFT JOIN users u ON u.user_id = r.user_id
     JOIN destinations d ON d.destination_id = r.destination_id
     JOIN states s ON s.state_id = d.state_id
-    WHERE d.state_id = ? ORDER BY r.created_at DESC LIMIT 9
+    WHERE d.state_id = ? ORDER BY r.created_at DESC LIMIT 50
 ");
 $stmt->bind_param("i", $state_id);
 $stmt->execute();
@@ -175,7 +175,7 @@ function renderDestinationSection($title, $destinations, $state_name, $state_id,
                         $is_fav = in_array($dest['destination_id'], $user_favorites); ?>
                         <div class="dest-card searchable-card <?= $i >= 4 ? 'card-hidden' : '' ?>"
                             data-title="<?= htmlspecialchars(strtolower($dest['destination_name'])) ?>"
-                            onclick="window.location.href='destination-description.php?id=<?= $dest['destination_id']  ?>'">
+                            onclick="window.location.href='destination-description.php?id=<?= $dest['destination_id'] ?>'">
 
                             <div class="heart-icon <?= $is_fav ? 'favorited' : '' ?>"
                                 onclick="toggleFavorite(event, this, <?= $dest['destination_id'] ?>)">
@@ -323,7 +323,11 @@ $tagTypeEmojis = [1 => '🌤️', 2 => '💰', 3 => '👥', 4 => '🏖️'];
 
             <?php if (count($reviews) > 3): ?>
                 <div class="view-more-wrap">
+                    <div style="flex:1;border-top:3px solid #1e293b;"></div>
                     <button class="view-more-btn" id="viewMoreBtn" onclick="showMoreReviews()">View More</button>
+                    <button class="view-more-btn" id="showLessBtn" onclick="showLessReviews()" style="display:none;">Show
+                        Less</button>
+                    <div style="flex:1;border-top:3px solid #1e293b;"></div>
                 </div>
             <?php endif; ?>
         <?php endif; ?>
@@ -333,6 +337,17 @@ $tagTypeEmojis = [1 => '🌤️', 2 => '💰', 3 => '👥', 4 => '🏖️'];
         function showMoreReviews() {
             document.querySelectorAll('.review-card.hidden').forEach(c => c.classList.remove('hidden'));
             document.getElementById('viewMoreBtn').style.display = 'none';
+            document.getElementById('showLessBtn').style.display = 'inline-block';
+        }
+
+        function showLessReviews() {
+            const cards = document.querySelectorAll('.review-card');
+            cards.forEach((card, i) => {
+                if (i >= 3) card.classList.add('hidden');
+            });
+            document.getElementById('viewMoreBtn').style.display = 'inline-block';
+            document.getElementById('showLessBtn').style.display = 'none';
+            document.getElementById('reviewGrid').scrollIntoView({ behavior: 'smooth' });
         }
 
         function filterCards() {

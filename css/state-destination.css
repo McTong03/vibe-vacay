@@ -525,8 +525,9 @@ body {
 /* ── VIEW MORE BUTTON (reviews) ── */
 .view-more-wrap {
     display: flex;
-    justify-content: center;
-    margin-top: 2rem;
+    align-items: center;
+    gap: 16px;
+    margin: 2rem 0;
 }
 
 .view-more-btn {
