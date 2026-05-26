@@ -217,20 +217,39 @@ $stmt->execute();
 $destinations = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-// Fetch tags for each card
+
+$destIds = array_column($destinations, 'destination_id');
+
+
 foreach ($destinations as &$dest) {
-    $did = $dest['destination_id'];
-    $tagQuery = $conn->prepare("
-        SELECT t.tag_name FROM destination_tag_mapping dtm
-        JOIN destination_tags t ON dtm.tag_id = t.tag_id
-        WHERE dtm.destination_id = ?
-    ");
-    $tagQuery->bind_param('i', $did);
-    $tagQuery->execute();
-    $dest['tags'] = $tagQuery->get_result()->fetch_all(MYSQLI_ASSOC);
-    $tagQuery->close();
+    $dest['tags'] = [];
 }
 unset($dest);
+
+if (!empty($destIds)) {
+    $inPlaceholders = implode(',', array_fill(0, count($destIds), '?'));
+    $types = str_repeat('i', count($destIds));
+
+    $tagQuery = $conn->prepare("
+        SELECT dtm.destination_id, t.tag_name
+        FROM destination_tag_mapping dtm
+        JOIN destination_tags t ON dtm.tag_id = t.tag_id
+        WHERE dtm.destination_id IN ($inPlaceholders)
+    ");
+    $tagQuery->bind_param($types, ...$destIds);
+    $tagQuery->execute();
+    $tagRows = $tagQuery->get_result()->fetch_all(MYSQLI_ASSOC);
+    $tagQuery->close();
+
+    $tagMap = [];
+    foreach ($tagRows as $row) {
+        $tagMap[$row['destination_id']][] = ['tag_name' => $row['tag_name']];
+    }
+    foreach ($destinations as &$dest) {
+        $dest['tags'] = $tagMap[$dest['destination_id']] ?? [];
+    }
+    unset($dest);
+}
 
 function esc(string $s): string
 {
@@ -338,25 +357,28 @@ function esc(string $s): string
     <?php
     $badges = [];
     foreach ($moodTags as $mt) {
-        if ($selectedMood === (int)$mt['tag_id']) {
+        if ($selectedMood === (int) $mt['tag_id']) {
             $emoji = $moodEmojis[strtolower($mt['tag_name'])] ?? '😊';
             $badges[] = $emoji . ' ' . $mt['tag_name'];
         }
     }
     foreach ($filterTagTypes as $typeId => $typeName) {
-    $paramName = match (strtolower($typeName)) {
-        'climate'          => 'climate',
-        'travel companion' => 'companion',
-        'destination type' => 'dest_type',
-        default            => 'filter_' . $typeId,
-    };
-    $selectedVal = isset($_GET[$paramName]) ? (int)$_GET[$paramName] : 0;
-    if ($selectedVal) {
-        foreach ($allTags[$typeId] ?? [] as $tag) {
-            if ((int)$tag['tag_id'] === $selectedVal) { $badges[] = $tag['tag_name']; break; } // 👈 change here
+        $paramName = match (strtolower($typeName)) {
+            'climate' => 'climate',
+            'travel companion' => 'companion',
+            'destination type' => 'dest_type',
+            default => 'filter_' . $typeId,
+        };
+        $selectedVal = isset($_GET[$paramName]) ? (int) $_GET[$paramName] : 0;
+        if ($selectedVal) {
+            foreach ($allTags[$typeId] ?? [] as $tag) {
+                if ((int) $tag['tag_id'] === $selectedVal) {
+                    $badges[] = $tag['tag_name'];
+                    break;
+                } // 👈 change here
+            }
         }
     }
-}
     if ($selectedBudget && isset($budgetRangeMap[$selectedBudget])) {
         [$mn, $mx] = $budgetRangeMap[$selectedBudget];
         $badges[] = 'Budget: RM' . $mn . ($mx === 999999 ? '+' : '–RM' . $mx);
@@ -387,7 +409,8 @@ function esc(string $s): string
             <?php foreach ($destinations as $dest): ?>
                 <div class="destination">
                     <img src="<?= esc($dest['image_url'] ?? 'Image/defaultDestination.png') ?>" class="destination_image"
-                        alt="<?= esc($dest['destination_name']) ?>" onerror="this.src='Image/defaultDestination.png'">
+                        alt="<?= esc($dest['destination_name']) ?>" loading="lazy"
+                        onerror="this.src='Image/defaultDestination.png'">
 
                     <h2 class="destination_name"><?= esc($dest['destination_name']) ?></h2>
                     <p class="destination_state"><?= esc($dest['state_name'] ?? 'Unknown State') ?></p>
