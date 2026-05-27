@@ -56,6 +56,15 @@ foreach ($allTagTypes as $tid => $tname) {
     }
 }
 
+// Find State tag_type_id (now managed via tag_type table)
+$stateTypeId = 0;
+foreach ($allTagTypes as $tid => $tname) {
+    if (strtolower($tname) === 'state') {
+        $stateTypeId = $tid;
+        break;
+    }
+}
+
 // Filter tag types for dropdowns: exclude Mood and Budget
 $filterTagTypes = array_filter(
     $allTagTypes,
@@ -139,14 +148,10 @@ $selectedBudget = isset($_GET['budget']) ? (int) $_GET['budget'] : 0;
 $selectedClimate = isset($_GET['climate']) ? (int) $_GET['climate'] : 0;
 $selectedCompanion = isset($_GET['companion']) ? (int) $_GET['companion'] : 0;
 $selectedType = isset($_GET['dest_type']) ? (int) $_GET['dest_type'] : 0;
-$selectedState = isset($_GET['state']) ? (int) $_GET['state'] : 0;
 
-$allStates = [];
-$result = $conn->query("SELECT state_id, state_name FROM states ORDER BY state_name ASC");
-while ($row = $result->fetch_assoc()) {
-    $allStates[] = $row;
-}
+$selectedState = isset($_GET['state']) ? (int) $_GET['state'] : 0;
 $tagIds = array_values(array_filter([$selectedClimate, $selectedCompanion, $selectedType]));
+
 
 // --------------------------------------------------
 // Build destination query
@@ -164,13 +169,9 @@ $params = [];
 $types = '';
 
 if ($search !== '') {
-    $sql .= " AND (
-        d.destination_name LIKE ?
-        OR s.state_name LIKE ?
-    )";
+    $sql .= " AND d.destination_name LIKE ?";
     $params[] = "%$search%";
-    $params[] = "%$search%";
-    $types .= 'ss';
+    $types .= 's';
 }
 
 if ($selectedMood && !empty($moodTypeMap[$selectedMood])) {
@@ -198,6 +199,8 @@ if ($selectedBudget && isset($budgetRangeMap[$selectedBudget])) {
     $types .= 'ii';
 }
 
+
+
 if (!empty($tagIds)) {
     $inPlaceholders = implode(',', array_fill(0, count($tagIds), '?'));
     $tagCount = count($tagIds);
@@ -215,9 +218,28 @@ if (!empty($tagIds)) {
 }
 
 if ($selectedState) {
-    $sql .= " AND d.state_id = ?";
-    $params[] = $selectedState;
-    $types .= 'i';
+    $stateTagName = '';
+    foreach ($allTags[$stateTypeId] ?? [] as $tag) {
+        if ((int)$tag['tag_id'] === $selectedState) {
+            $stateTagName = $tag['tag_name'];
+            break;
+        }
+    }
+    if ($stateTagName !== '') {
+        $mappedStateId = null;
+        $stmtState = $conn->prepare("SELECT state_id FROM states WHERE state_name = ?");
+        $stmtState->bind_param('s', $stateTagName);
+        $stmtState->execute();
+        $stmtState->bind_result($mappedStateId);
+        $stmtState->fetch();
+        $stmtState->close();
+
+        if (!empty($mappedStateId)) {
+            $sql .= " AND d.state_id = ?";
+            $params[] = $mappedStateId;
+            $types .= 'i';
+        }
+    }
 }
 $sql .= " ORDER BY d.destination_id ASC";
 
@@ -295,8 +317,7 @@ function esc(string $s): string
 
             <!-- Mood dropdown -->
 
-            <?php
-            ?>
+            <?php ?>
             <select name="mood">
                 <option value="0">Mood</option>
                 <?php foreach ($moodTags as $moodTag): ?>
@@ -315,6 +336,7 @@ function esc(string $s): string
                     'climate' => 'climate',
                     'travel companion' => 'companion',
                     'destination type' => 'dest_type',
+                    'state' => 'state',
                     default => 'filter_' . $typeId,
                 };
                 $selectedVal = isset($_GET[$paramName]) ? (int) $_GET[$paramName] : 0;
@@ -339,14 +361,6 @@ function esc(string $s): string
                 <?php endforeach; ?>
             </select>
 
-            <select name="state">
-                <option value="0">State</option>
-                <?php foreach ($allStates as $state): ?>
-                    <option value="<?= $state['state_id'] ?>" <?= $selectedState === $state['state_id'] ? 'selected' : '' ?>>
-                        <?= esc($state['state_name']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
 
             <div class="filter-actions">
                 <button type="button" class="btn btn-clear"
@@ -378,6 +392,7 @@ function esc(string $s): string
             'climate' => 'climate',
             'travel companion' => 'companion',
             'destination type' => 'dest_type',
+            'state' => 'state',        
             default => 'filter_' . $typeId,
         };
         $selectedVal = isset($_GET[$paramName]) ? (int) $_GET[$paramName] : 0;
@@ -386,7 +401,7 @@ function esc(string $s): string
                 if ((int) $tag['tag_id'] === $selectedVal) {
                     $badges[] = $tag['tag_name'];
                     break;
-                } // 👈 change here
+                }
             }
         }
     }
@@ -395,14 +410,6 @@ function esc(string $s): string
         $badges[] = 'Budget: RM' . $mn . ($mx === 999999 ? '+' : '–RM' . $mx);
     }
 
-    if ($selectedState) {
-        foreach ($allStates as $st) {
-            if ((int) $st['state_id'] === $selectedState) {
-                $badges[] = $st['state_name'];
-                break;
-            }
-        }
-    }
     if ($search)
         $badges[] = '"' . $search . '"';
     ?>
