@@ -35,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         if (!mysqli_stmt_errno($stmt)) {
             mysqli_stmt_close($stmt);
-            header("Location: user-management.php");
+             echo "<script>alert('User ADDED successfully!'); window.location.href='user-management.php';</script>";
             exit();
         } else {
             $error_message = "Error: " . mysqli_stmt_error($stmt);

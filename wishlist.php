@@ -118,7 +118,7 @@ if (isset($_GET['favourite_id'])) {
 
                     <!-- ✅ Heart button removes from wishlist -->
                     <button class="heart-container"
-                        onclick="event.stopPropagation(); removeWishlist(<?php echo $row['favourite_id']; ?>)">
+                        onclick="event.stopPropagation(); removeWishlist(<?php echo $row['favourite_id']; ?>, <?php echo $row['destination_id']; ?>, '<?php echo addslashes(htmlspecialchars($row['destination_name'])); ?>')">
                         <svg viewBox="0 0 24 24" width="22" height="22">
                             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
                                     2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09
@@ -143,8 +143,8 @@ if (isset($_GET['favourite_id'])) {
 
 
     <script>
-        function removeWishlist(favourite_id) {
-            if (!confirm('Remove from wishlist?')) return;
+        function removeWishlist(favourite_id, destination_id, destination_name) {
+            if (!confirm('Remove from wishlist?\n\nID: ' + destination_id + '\nName: ' + destination_name)) return;
 
             var formData = new FormData();
             formData.append('favourite_id', favourite_id);

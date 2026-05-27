@@ -27,36 +27,36 @@ $params = [];
 $types  = '';
 
 if ($roleFilter !== '' && $roleFilter !== 'ALL') {
-  $roleMap = [
-    'admin'          => 'Admin',
-    'user/traveller' => 'User/traveller'
-  ];
-  $role_std = isset($roleMap[strtolower($roleFilter)]) ? $roleMap[strtolower($roleFilter)] : $roleFilter;
+    $roleMap = [
+        'admin'          => 'Admin',
+        'user/traveller' => 'User/traveller'
+    ];
+    $role_std = isset($roleMap[strtolower($roleFilter)]) ? $roleMap[strtolower($roleFilter)] : $roleFilter;
 
-  $where[]  = 'u.user_role = ?';
-  $params[] = $role_std;
-  $types   .= 's';
+    $where[]  = 'u.user_role = ?';
+    $params[] = $role_std;
+    $types   .= 's';
 }
 if ($keyword !== '') {
-  $where[]  = '(u.user_name LIKE ?)';
-  $kw       = '%' . $keyword . '%';
-  $params[] = $kw;
-  $types   .= 's';
+    $where[]  = '(u.user_name LIKE ?)';
+    $kw       = '%' . $keyword . '%';
+    $params[] = $kw;
+    $types   .= 's';
 }
 if ($where) {
-  $sql .= ' WHERE ' . implode(' AND ', $where);
+    $sql .= ' WHERE ' . implode(' AND ', $where);
 }
 
 $stmt = $conn->prepare($sql);
 if ($params) {
-  $stmt->bind_param($types, ...$params);
+    $stmt->bind_param($types, ...$params);
 }
 $stmt->execute();
 $result = $stmt->get_result();
 
 $users = [];
 while ($row = $result->fetch_assoc()) {
-  $users[] = $row;
+    $users[] = $row;
 }
 $stmt->close();
 ?>
@@ -74,7 +74,6 @@ $stmt->close();
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto+Slab:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Titan+One&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Changa:wght@200..800&family=Cherry+Bomb+One&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto+Slab:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Titan+One&display=swap');
- 
     </style>
 </head>
 
@@ -97,8 +96,8 @@ $stmt->close();
         <form method="GET">
             <div class="all-role-container">
                 <select class="role-drop" name="user_role" onchange="this.form.submit()">
-                    <option value="ALL" <?php echo ($roleFilter == '' || $roleFilter == 'ALL')? 'selected' : ''; ?>>All Roles</option>
-                    <option value="admin" <?php echo (strtolower($roleFilter) == 'admin')? 'selected' : ''; ?>>Admin</option>
+                    <option value="ALL" <?php echo ($roleFilter == '' || $roleFilter == 'ALL') ? 'selected' : ''; ?>>All Roles</option>
+                    <option value="admin" <?php echo (strtolower($roleFilter) == 'admin') ? 'selected' : ''; ?>>Admin</option>
                     <option value="user/traveller" <?php echo (strtolower($roleFilter) == 'user/traveller') ? 'selected' : ''; ?>>User/Traveller</option>
                 </select>
             </div>
@@ -150,8 +149,7 @@ $stmt->close();
                     <div class="delete-container">
                         <img class="delete-but" src="icon/delete.png">
                         <button class="delete-button"
-                            onclick="if(confirm('Are you sure you want to delete this user?')) 
-                            window.location.href='delete-user.php?id=<?php echo $user['user_id']; ?>'">Delete</button>
+                            onclick="confirmDelete(<?php echo $user['user_id']; ?>, '<?php echo addslashes(htmlspecialchars($user['user_name'])); ?>')">Delete</button>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -161,8 +159,13 @@ $stmt->close();
     </div>
 
     <script>
+        function confirmDelete(user_id, user_name) {
+            if (!confirm('Are you sure you want to delete this user?\n\nID: ' + user_id + '\nName: ' + user_name)) return;
+            window.location.href = 'delete-user.php?id=' + user_id;
+        }
+
         (function() {
-            var input    = document.getElementById('search-input');
+            var input = document.getElementById('search-input');
             var clearBtn = document.getElementById('clear-search');
             if (!input || !clearBtn) return;
 
