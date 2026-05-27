@@ -294,22 +294,14 @@ function esc(string $s): string
         <div class="filter-bar">
 
             <!-- Mood dropdown -->
+
             <?php
-            $moodEmojis = [
-                'stressed' => '😫',
-                'neutral' => '😐',
-                'sad' => '😢',
-                'adventurous' => '😎',
-                'happy' => '😀',
-            ];
             ?>
             <select name="mood">
                 <option value="0">Mood</option>
-                <?php foreach ($moodTags as $moodTag):
-                    $emoji = $moodEmojis[strtolower($moodTag['tag_name'])] ?? '😊';
-                    ?>
+                <?php foreach ($moodTags as $moodTag): ?>
                     <option value="<?= $moodTag['tag_id'] ?>" <?= $selectedMood === $moodTag['tag_id'] ? 'selected' : '' ?>>
-                        <?= $emoji . ' ' . esc($moodTag['tag_name']) ?>
+                        <?= esc($moodTag['tag_name']) ?>
                     </option>
                 <?php endforeach; ?>
             </select>
@@ -378,8 +370,7 @@ function esc(string $s): string
     $badges = [];
     foreach ($moodTags as $mt) {
         if ($selectedMood === (int) $mt['tag_id']) {
-            $emoji = $moodEmojis[strtolower($mt['tag_name'])] ?? '😊';
-            $badges[] = $emoji . ' ' . $mt['tag_name'];
+            $badges[] = $mt['tag_name'];
         }
     }
     foreach ($filterTagTypes as $typeId => $typeName) {
@@ -405,13 +396,13 @@ function esc(string $s): string
     }
 
     if ($selectedState) {
-    foreach ($allStates as $st) {
-        if ((int)$st['state_id'] === $selectedState) {
-            $badges[] = $st['state_name'];
-            break;
+        foreach ($allStates as $st) {
+            if ((int) $st['state_id'] === $selectedState) {
+                $badges[] = $st['state_name'];
+                break;
+            }
         }
     }
-}
     if ($search)
         $badges[] = '"' . $search . '"';
     ?>
