@@ -68,11 +68,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 switch (strtolower($urole)) {
                     case 'user/traveller':
                     case 'user':
-                        header('Location: landing-page.php?success=login'); break;
+                        header('Location: index.php?success=login'); break;
                     case 'admin':
                         header('Location: admin-dashboard.php?success=login'); break;
                     default:
-                        header('Location: landing-page.php?success=login');
+                        header('Location: index.php?success=login');
                 }
                 exit;
             }

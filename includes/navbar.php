@@ -14,7 +14,7 @@ $profilePicture = $isLoggedIn ? ($_SESSION['profile_picture'] ?? 'image/defaultP
         Vibe Vacay
     </div>
     <nav class="nav-links">
-        <a href="./landing-page.php">Home</a>
+        <a href="./index.php">Home</a>
         <a href="./recommendation-page.php">Recommendation</a>
         <a href="./filter-search-page.php">Filter & Search</a>
         <a href="./wishlist.php" onclick="return checkLoginForWishlist(event)">Wishlist</a>
