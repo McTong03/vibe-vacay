@@ -43,6 +43,7 @@ $selectedState = isset($_GET['state_filter']) ? (int)$_GET['state_filter'] : 0;
 $hiddenGems        = isset($_GET['hidden'])    && $_GET['hidden'] === '1';
 $searchText        = isset($_GET['search'])    ? trim($_GET['search'])   : '';
 $isRandom          = isset($_GET['random'])    && $_GET['random'] === '1';
+$randomDestId      = isset($_GET['rdest'])     ? (int)$_GET['rdest']     : 0;
 $isSearched        = array_key_exists('searched', $_GET);
 
 // ─── Mood → Destination Type tag mapping (NOT from tag_mapping table) ────────
@@ -281,9 +282,18 @@ if ($isSearched) {
         $bindTypes   .= 'i';
     }
 
-    $sql .= $isRandom
-        ? " ORDER BY RAND() LIMIT 1"
-        : " ORDER BY d.average_rating DESC";
+    if ($isRandom && $randomDestId) {
+        // 已经有 dest ID 了，直接 filter 那一个（refresh 安全）
+        $sql .= " AND d.destination_id = ?";
+        $bindValues[] = $randomDestId;
+        $bindTypes   .= 'i';
+        $sql .= " LIMIT 1";
+    } elseif ($isRandom) {
+        // 第一次 random，才跑 RAND()
+        $sql .= " ORDER BY RAND() LIMIT 1";
+    } else {
+        $sql .= " ORDER BY d.average_rating DESC";
+    }
 
     $stmt = mysqli_prepare($conn, $sql);
 
@@ -708,6 +718,8 @@ function qstr(array $overrides = []): string
             dice.classList.remove('rolling');
             void dice.offsetWidth;
             dice.classList.add('rolling');
+            sessionStorage.setItem('randomClicked', '1'); // ← 只 set，不要 remove
+            sessionStorage.removeItem('randomDestId');
             setTimeout(() => {
                 document.getElementById('random-form').submit();
             }, 1800);
@@ -717,7 +729,22 @@ function qstr(array $overrides = []): string
         <?php if ($isRandom && !empty($destinations)): ?>
             <?php $r = $destinations[0]; ?>
             window.addEventListener('DOMContentLoaded', function() {
+
+                const freshId = <?= (int)$r['destination_id'] ?>;
+
+                // 如果 URL 里还没有 rdest，把它加进去（replace state，不加 history）
+                const urlParams = new URLSearchParams(window.location.search);
+                if (!urlParams.has('rdest')) {
+                    urlParams.set('rdest', freshId);
+                    history.replaceState(null, '', '?' + urlParams.toString());
+                }
+
+                // 只有真正按了骰子才弹 modal
+                if (!sessionStorage.getItem('randomClicked')) return;
+                sessionStorage.removeItem('randomClicked');
+
                 const dest = {
+                    id: freshId,
                     name: <?= json_encode($r['destination_name']) ?>,
                     state: <?= json_encode($r['state_name'] ?? '') ?>,
                     rating: <?= json_encode(number_format((float)$r['average_rating'], 1)) ?>,
@@ -747,10 +774,28 @@ function qstr(array $overrides = []): string
 
         function rollAgain() {
             closeModal();
-            // small delay so modal closes before dice animation starts
+            sessionStorage.setItem('randomClicked', '1');
+            // 清掉 rdest，让 PHP 重新跑 RAND()
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.delete('rdest');
+            const form = document.getElementById('random-form');
+            // 确保 form 里没有旧的 rdest hidden input
+            const oldRdest = form.querySelector('input[name="rdest"]');
+            if (oldRdest) oldRdest.remove();
             setTimeout(() => {
-                document.getElementById('random-form').submit();
+                form.submit();
             }, 200);
+        }
+
+        function goToDestination() {
+            const id = <?php echo $isRandom && !empty($destinations) ? (int)$destinations[0]['destination_id'] : 0; ?>;
+            if (id) {
+                sessionStorage.removeItem('randomDestId');
+                sessionStorage.removeItem('randomClicked');
+                window.location.href = 'destination-description.php?id=' + id;
+            } else {
+                closeModal();
+            }
         }
 
         // ── Confetti ──────────────────────────────────────────────────────────────────
@@ -825,7 +870,7 @@ function qstr(array $overrides = []): string
                 <div class="random-modal-rating" id="modal-rating"></div>
                 <div class="random-modal-actions">
                     <button class="btn-again" onclick="rollAgain()">🎲 Roll Again</button>
-                    <button class="btn-letsgo" onclick="closeModal()">Let's Go! ✈️</button>
+                    <button class="btn-letsgo" onclick="goToDestination()">Let's Go! ✈️</button>
                 </div>
             </div>
         </div>
