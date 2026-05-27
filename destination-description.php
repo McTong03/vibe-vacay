@@ -21,7 +21,6 @@ if (!isset($_GET['id'])) {
 
 $destination_id = intval($_GET['id']);
 
-
 $stmt = $conn->prepare("
     SELECT 
         d.destination_id,
